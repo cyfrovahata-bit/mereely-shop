@@ -30,10 +30,10 @@
 /* Hide floating panels before DC mounts. Invalid {{ }} inline values are ignored
    by the browser, so these class defaults win in placeholder mode.
    After DC mounts the inline style values become valid and override. */
-.mrl-overlay{opacity:0;pointer-events:none}
-.mrl-drawer{transform:translateX(100%)}
-.mrl-drawer-left{transform:translateX(-100%)}
-.mrl-toast{opacity:0;transform:translateX(-50%) translateY(120px)}
+#cart-ov,#menu-ov,#quick-ov,#co-ov{opacity:0;pointer-events:none}
+#cart-dr,#co-dr{transform:translateX(100%)}
+#menu-dr{transform:translateX(-100%)}
+#toast-el{opacity:0;transform:translateX(-50%) translateY(120px)}
 </style>
 </head>
 <body>
@@ -690,8 +690,8 @@
 </footer>
 
 <!-- ====== CART OVERLAY + DRAWER ====== -->
-<div onClick="{{ closeCart }}" class="mrl-overlay" style="position:fixed;inset:0;background:rgba(20,26,21,.55);backdrop-filter:blur(3px);z-index:120;opacity:{{ cartOverlayOpacity }};pointer-events:{{ cartOverlayPE }};transition:opacity .4s ease"></div>
-<aside aria-label="Кошик" class="mrl-drawer" style="position:fixed;top:0;right:0;height:100%;width:min(440px,100vw);background:#f1ebe1;z-index:130;display:flex;flex-direction:column;box-shadow:-20px 0 60px rgba(0,0,0,.18);transform:{{ cartTransform }};transition:transform .5s cubic-bezier(.16,.84,.44,1)">
+<div id="cart-ov" onClick="{{ closeCart }}" style="position:fixed;inset:0;background:rgba(20,26,21,.55);backdrop-filter:blur(3px);z-index:120;opacity:{{ cartOverlayOpacity }};pointer-events:{{ cartOverlayPE }};transition:opacity .4s ease"></div>
+<aside id="cart-dr" aria-label="Кошик" style="position:fixed;top:0;right:0;height:100%;width:min(440px,100vw);background:#f1ebe1;z-index:130;display:flex;flex-direction:column;box-shadow:-20px 0 60px rgba(0,0,0,.18);transform:{{ cartTransform }};transition:transform .5s cubic-bezier(.16,.84,.44,1)">
   <div style="display:flex;justify-content:space-between;align-items:center;padding:24px 26px;border-bottom:1px solid rgba(30,35,31,.14)">
     <span style="font-family:'Forum',serif;font-size:24px">Кошик · {{ cartCount }}</span>
     <button onClick="{{ closeCart }}" aria-label="Закрити" style="width:36px;height:36px;border:1px solid rgba(30,35,31,.2);border-radius:50%;display:flex;align-items:center;justify-content:center;transition:all .3s" style-hover="background:#28332c;color:#f1ebe1"><svg width="15" height="15" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
@@ -754,8 +754,8 @@
 </aside>
 
 <!-- ====== MOBILE MENU ====== -->
-<div onClick="{{ closeMenu }}" class="mrl-overlay" style="position:fixed;inset:0;background:rgba(20,26,21,.5);z-index:140;opacity:{{ menuOverlayOpacity }};pointer-events:{{ menuOverlayPE }};transition:opacity .4s"></div>
-<aside aria-label="Меню" class="mrl-drawer-left" style="position:fixed;top:0;left:0;height:100%;width:min(340px,90vw);background:#f1ebe1;z-index:150;transform:{{ menuTransform }};transition:transform .5s cubic-bezier(.16,.84,.44,1);display:flex;flex-direction:column;padding:26px">
+<div id="menu-ov" onClick="{{ closeMenu }}" style="position:fixed;inset:0;background:rgba(20,26,21,.5);z-index:140;opacity:{{ menuOverlayOpacity }};pointer-events:{{ menuOverlayPE }};transition:opacity .4s"></div>
+<aside id="menu-dr" aria-label="Меню" style="position:fixed;top:0;left:0;height:100%;width:min(340px,90vw);background:#f1ebe1;z-index:150;transform:{{ menuTransform }};transition:transform .5s cubic-bezier(.16,.84,.44,1);display:flex;flex-direction:column;padding:26px">
   <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:40px">
     <span style="font-family:'Forum',serif;font-size:22px;letter-spacing:.3em">MEREELY</span>
     <button onClick="{{ closeMenu }}" aria-label="Закрити" style="width:36px;height:36px;border:1px solid rgba(30,35,31,.2);border-radius:50%;display:flex;align-items:center;justify-content:center"><svg width="15" height="15" viewBox="0 0 24 24" stroke="#1e231f" stroke-width="1.5"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
@@ -769,7 +769,7 @@
 </aside>
 
 <!-- ====== QUICK VIEW ====== -->
-<div onClick="{{ closeQuick }}" class="mrl-overlay" style="position:fixed;inset:0;background:rgba(20,26,21,.6);backdrop-filter:blur(4px);z-index:160;display:flex;align-items:center;justify-content:center;padding:20px;opacity:{{ quickOverlayOpacity }};pointer-events:{{ quickOverlayPE }};transition:opacity .4s">
+<div id="quick-ov" onClick="{{ closeQuick }}" style="position:fixed;inset:0;background:rgba(20,26,21,.6);backdrop-filter:blur(4px);z-index:160;display:flex;align-items:center;justify-content:center;padding:20px;opacity:{{ quickOverlayOpacity }};pointer-events:{{ quickOverlayPE }};transition:opacity .4s">
   <sc-if value="{{ quickHas }}" hint-placeholder-val="{{ false }}">
     <div onClick="{{ stop }}" style="background:#f1ebe1;max-width:840px;width:100%;max-height:90vh;overflow:auto;display:grid;grid-template-columns:{{ quickCols }};position:relative">
       <button onClick="{{ closeQuick }}" aria-label="Закрити" style="position:absolute;top:14px;right:14px;z-index:3;width:36px;height:36px;border-radius:50%;background:rgba(241,235,225,.9);display:flex;align-items:center;justify-content:center"><svg width="15" height="15" viewBox="0 0 24 24" stroke="#1e231f" stroke-width="1.5"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
@@ -797,13 +797,13 @@
 </sc-if>
 
 <!-- ====== TOAST ====== -->
-<div class="mrl-toast" style="position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY({{ toastY }});z-index:200;background:#28332c;color:#f1ebe1;padding:15px 26px;font-size:13px;letter-spacing:.04em;box-shadow:0 16px 40px rgba(0,0,0,.25);opacity:{{ toastOpacity }};transition:all .4s cubic-bezier(.16,.84,.44,1);display:flex;gap:12px;align-items:center;white-space:nowrap">
+<div id="toast-el" style="position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY({{ toastY }});z-index:200;background:#28332c;color:#f1ebe1;padding:15px 26px;font-size:13px;letter-spacing:.04em;box-shadow:0 16px 40px rgba(0,0,0,.25);opacity:{{ toastOpacity }};transition:all .4s cubic-bezier(.16,.84,.44,1);display:flex;gap:12px;align-items:center;white-space:nowrap">
   <span style="color:#cdbfa3">✓</span><span>{{ toastMsg }}</span>
 </div>
 
 <!-- ====== CHECKOUT OVERLAY ====== -->
-<div onClick="{{ closeCheckout }}" class="mrl-overlay" style="position:fixed;inset:0;background:rgba(20,26,21,.6);backdrop-filter:blur(4px);z-index:170;opacity:{{ checkoutOverlayOpacity }};pointer-events:{{ checkoutOverlayPE }};transition:opacity .4s"></div>
-<aside aria-label="Оформлення замовлення" class="mrl-drawer" style="position:fixed;top:0;right:0;height:100%;width:min(560px,100vw);background:#f1ebe1;z-index:171;display:flex;flex-direction:column;box-shadow:-20px 0 60px rgba(0,0,0,.18);transform:{{ checkoutTransform }};transition:transform .5s cubic-bezier(.16,.84,.44,1);overflow-y:auto">
+<div id="co-ov" onClick="{{ closeCheckout }}" style="position:fixed;inset:0;background:rgba(20,26,21,.6);backdrop-filter:blur(4px);z-index:170;opacity:{{ checkoutOverlayOpacity }};pointer-events:{{ checkoutOverlayPE }};transition:opacity .4s"></div>
+<aside id="co-dr" aria-label="Оформлення замовлення" style="position:fixed;top:0;right:0;height:100%;width:min(560px,100vw);background:#f1ebe1;z-index:171;display:flex;flex-direction:column;box-shadow:-20px 0 60px rgba(0,0,0,.18);transform:{{ checkoutTransform }};transition:transform .5s cubic-bezier(.16,.84,.44,1);overflow-y:auto">
   <div style="display:flex;justify-content:space-between;align-items:center;padding:22px 26px;border-bottom:1px solid rgba(30,35,31,.14);position:sticky;top:0;background:#f1ebe1;z-index:2">
     <span style="font-family:'Forum',serif;font-size:22px">Оформлення замовлення</span>
     <button onClick="{{ closeCheckout }}" aria-label="Закрити" style="width:36px;height:36px;border:1px solid rgba(30,35,31,.2);border-radius:50%;display:flex;align-items:center;justify-content:center;transition:all .3s" style-hover="background:#28332c;color:#f1ebe1"><svg width="15" height="15" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
