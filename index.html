@@ -934,16 +934,6 @@ class Component extends DCLogic {
   }
   componentDidUpdate(prevProps, prevState){
     if(prevState && prevState.page!==this.state.page){ window.scrollTo(0,0); }
-    if(prevState && (
-      prevState.page!==this.state.page ||
-      prevState.pid!==this.state.pid ||
-      (prevState.filters&&prevState.filters.cat)!==(this.state.filters&&this.state.filters.cat)
-    )){
-      const route=this._getRoute();
-      const cur=location.hash.replace(/^#/,'');
-      if(route!==cur) history.pushState(null,'','#'+route);
-      this._updateTitle();
-    }
     if(prevState && prevState.cart!==this.state.cart){
       try { localStorage.setItem('mrl_cart', JSON.stringify(this.state.cart)); } catch(e){}
     }
@@ -1037,8 +1027,18 @@ class Component extends DCLogic {
   fmt(n){ return String(n).replace(/\B(?=(\d{3})+(?!\d))/g,'\u202f')+' \u20b4'; }
   toast(m){ if(this._toastT) clearTimeout(this._toastT); this.setState({toast:m,toastShow:true}); this._toastT=setTimeout(()=>this.setState({toastShow:false}),2400); }
 
-  nav(p){ return (e)=>{ if(e&&e.preventDefault)e.preventDefault(); this.setState({page:p,menuOpen:false,quick:null}); }; }
-  openProduct(id){ this.setState({page:'product',pid:id,pImg:0,pColor:0,pSize:null,pQty:1,pTab:'desc',quick:null,menuOpen:false,zoom:false}); window.scrollTo(0,0); }
+  _pushHash(route){
+    const cur=location.hash.replace(/^#/,'');
+    if(route!==cur) history.pushState(null,'','#'+(route||''));
+  }
+  nav(p){ return (e)=>{ if(e&&e.preventDefault)e.preventDefault(); this._pushHash(p==='home'?'':p); this.setState({page:p,menuOpen:false,quick:null}); this._updateTitle(); }; }
+  openProduct(id){ 
+    const p=this.products.find(x=>x.id===id);
+    this._pushHash('product/'+(p?p.slug:id));
+    document.title=(p?p.name+' — ':'')+('Mereely Shop — жіночий одяг ручної роботи');
+    this.setState({page:'product',pid:id,pImg:0,pColor:0,pSize:null,pQty:1,pTab:'desc',quick:null,menuOpen:false,zoom:false}); 
+    window.scrollTo(0,0); 
+  }
 
   addToCart(prod,color,size,qty){
     size = size || (prod.sizes.length===1?prod.sizes[0]:null);
@@ -1096,7 +1096,7 @@ class Component extends DCLogic {
       const big = i===0;
       return {name,count:cnt,idx:'0'+(i+1),tone:tones[i%tones.length],
         ratio:isMobile?'1':(big?'1/1':'4/5'),
-        go:()=>{ this.setState(s=>({page:'catalog',filters:{...s.filters,cat:name}})); window.scrollTo(0,0); }};
+        go:()=>{ const cslug=this.catSlugs[name]||''; this._pushHash('catalog'+(cslug?'/'+cslug:'')); document.title=name+' — Каталог | Mereely Shop'; this.setState(s=>({page:'catalog',filters:{...s.filters,cat:name}})); window.scrollTo(0,0); }};
     });
     const catGridCols = isMobile?'repeat(2,1fr)':(isTablet?'repeat(3,1fr)':'repeat(3,1fr)');
 
@@ -1246,7 +1246,7 @@ class Component extends DCLogic {
       cartSubFmt:fmt(cartSub), cartShipFmt: ship===0?'Безкоштовно':fmt(ship), cartTotalFmt:fmt(cartTotal),
       cartTransform:S.cartOpen?'translateX(0)':'translateX(100%)',
       cartOverlayOpacity:S.cartOpen?'1':'0', cartOverlayPE:S.cartOpen?'auto':'none',
-      goCatalogFromCart:()=>this.setState({page:'catalog',cartOpen:false}),
+      goCatalogFromCart:()=>{ this._pushHash('catalog'); this.setState({page:'catalog',cartOpen:false}); },
       checkout:()=>{ this.setState({cartOpen:false,checkoutOpen:true}); },
       // mobile menu
       menuTransform:S.menuOpen?'translateX(0)':'translateX(-100%)',
@@ -1291,7 +1291,7 @@ class Component extends DCLogic {
       pZoomMove:(e)=>{ if(!S.zoom)return; const r=e.currentTarget.getBoundingClientRect(); const x=((e.clientX-r.left)/r.width*100).toFixed(1); const y=((e.clientY-r.top)/r.height*100).toFixed(1); this.setState({zoomXY:x+'% '+y+'%'}); },
       pZoomLeave:()=>{ if(S.zoom) this.setState({zoom:false}); },
       showStickyBuy:S.page==='product'&&isMobile,
-      pBreadcrumbCat:()=>{ this.setState(s=>({page:'catalog',filters:{...s.filters,cat:PD.cat}})); window.scrollTo(0,0); },
+      pBreadcrumbCat:()=>{ const cslug=this.catSlugs[PD.cat]||''; this._pushHash('catalog'+(cslug?'/'+cslug:'')); this.setState(s=>({page:'catalog',filters:{...s.filters,cat:PD.cat}})); window.scrollTo(0,0); },
       // about
       aboutValues, aboutStats, aboutStatCols:isMobile?'1fr 1fr':'repeat(4,1fr)',
       aboutStoryCols:isMobile?'1fr':'1fr 1fr', aboutValCols:isMobile?'1fr':'repeat(3,1fr)',
