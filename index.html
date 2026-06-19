@@ -90,18 +90,18 @@
 
   <!-- HERO -->
   <section aria-label="Головний банер" style="position:relative;max-width:1340px;margin:0 auto;padding:clamp(24px,5vw,70px) clamp(18px,4vw,46px) clamp(30px,6vw,90px)">
-    <span style="position:absolute;top:clamp(18px,4vw,46px);right:clamp(18px,4vw,46px);font-size:11px;letter-spacing:.4em;color:#6f7a5e;font-weight:600">01 / КОЛЕКЦІЯ SS26</span>
+    <span style="position:absolute;top:clamp(18px,4vw,46px);right:clamp(18px,4vw,46px);font-size:11px;letter-spacing:.4em;color:#6f7a5e;font-weight:600;display:{{ heroDecoDisplay }}">01 / КОЛЕКЦІЯ SS26</span>
     <div style="display:grid;grid-template-columns:{{ heroCols }};gap:clamp(16px,3vw,40px);align-items:center;position:relative">
       <div style="position:relative;z-index:3;grid-row:1">
         <p style="font-size:12px;letter-spacing:.34em;text-transform:uppercase;color:#a7613f;font-weight:600;margin-bottom:22px">Жіночий одяг ручної роботи</p>
         <h1 style="font-family:'Forum',serif;font-weight:400;font-size:clamp(46px,8.5vw,118px);line-height:.92;letter-spacing:-.01em;color:#1e231f">Одяг,<br>що дихає<br><span style="font-style:italic;color:#6f7a5e;position:relative">тишею</span></h1>
         <p style="max-width:380px;margin-top:clamp(20px,3vw,32px);font-size:16px;line-height:1.7;color:#41463f;font-weight:300">Лаконічні силуети, природні тканини й увага до кожного шва. Mereely Shop — це гардероб, що залишається з вами на роки.</p>
         <div style="display:flex;gap:16px;flex-wrap:wrap;margin-top:clamp(24px,3vw,38px)">
-          <button onClick="{{ goCatalog }}" style="background:#28332c;color:#f1ebe1;padding:17px 38px;font-size:12px;letter-spacing:.22em;text-transform:uppercase;font-weight:600;border:1px solid #28332c;transition:all .35s cubic-bezier(.16,.84,.44,1)" style-hover="background:transparent;color:#28332c">Перейти до каталогу</button>
+          <button onClick="{{ goCatalog }}" style="background:#28332c;color:#f1ebe1;padding:15px clamp(20px,5vw,38px);font-size:12px;letter-spacing:.22em;text-transform:uppercase;font-weight:600;border:1px solid #28332c;transition:all .35s cubic-bezier(.16,.84,.44,1)" style-hover="background:transparent;color:#28332c">Перейти до каталогу</button>
           <button onClick="{{ goAbout }}" style="background:transparent;color:#28332c;padding:17px 30px;font-size:12px;letter-spacing:.22em;text-transform:uppercase;font-weight:600;border-bottom:1px solid #28332c;transition:opacity .3s" style-hover="opacity:.55">Історія бренду</button>
         </div>
       </div>
-      <div style="position:relative;z-index:1;grid-row:1;align-self:stretch;min-height:clamp(360px,52vw,620px)">
+      <div style="position:relative;z-index:1;grid-row:{{ heroImgRow }};align-self:stretch;min-height:clamp(260px,52vw,620px)">
         <div style="position:absolute;inset:0;overflow:hidden;background:linear-gradient(150deg,#3a4339,#6f7a5e 55%,#cdbfa3)">
           <div style="position:absolute;inset:0;animation:mrlKen 18s ease-in-out infinite alternate;background-image:radial-gradient(circle at 30% 20%,rgba(241,235,225,.16),transparent 45%),repeating-linear-gradient(115deg,rgba(0,0,0,.05) 0 2px,transparent 2px 9px)"></div>
           <span style="position:absolute;left:50%;bottom:20px;transform:translateX(-50%);font-family:monospace;font-size:10px;letter-spacing:.16em;color:rgba(241,235,225,.62);text-align:center;width:90%">[ FASHION EDITORIAL · 4:5 · модель у сукні «Сієна» ]</span>
@@ -110,7 +110,7 @@
         <span style="position:absolute;left:-14px;top:-14px;width:62px;height:62px;border-left:1px solid #28332c;border-top:1px solid #28332c;z-index:2"></span>
         <span style="position:absolute;right:-14px;bottom:-14px;width:62px;height:62px;border-right:1px solid #28332c;border-bottom:1px solid #28332c;z-index:2"></span>
       </div>
-      <div style="position:absolute;left:clamp(-6px,-1vw,-10px);bottom:clamp(-14px,-2vw,-30px);writing-mode:vertical-rl;font-family:'Forum',serif;font-size:13px;letter-spacing:.42em;color:#6f7a5e;z-index:4;text-transform:uppercase">Mereely · Atelier</div>
+      <div style="position:absolute;left:clamp(-6px,-1vw,-10px);bottom:clamp(-14px,-2vw,-30px);writing-mode:vertical-rl;font-family:'Forum',serif;font-size:13px;letter-spacing:.42em;color:#6f7a5e;z-index:4;text-transform:uppercase;display:{{ heroDecoDisplay }}">Mereely · Atelier</div>
     </div>
   </section>
 
@@ -1141,6 +1141,8 @@ class Component extends DCLogic {
       headerBg: 'rgba(241,235,225,.86)',
       navDisplay: isMobile?'none':'flex', burgerDisplay: isMobile?'flex':'none',
       heroCols: isMobile?'1fr':'1.05fr .95fr',
+      heroDecoDisplay: isMobile?'none':'block',
+      heroImgRow: isMobile?'2':'1',
       trustCols, productGridCols:productCols, catGridCols, testCols, whyCols, instaCols, footerCols,
       // page flags
       isHome:S.page==='home', isCatalog:S.page==='catalog', isProduct:S.page==='product', isAbout:S.page==='about', isContacts:S.page==='contacts',
