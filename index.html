@@ -28,6 +28,7 @@
   @keyframes mrlSpin{from{transform:rotate(0)}to{transform:rotate(360deg)}}
   @keyframes mrlPop{0%{transform:scale(.6);opacity:0}60%{transform:scale(1.15)}100%{transform:scale(1);opacity:1}}
   @keyframes mrlSheen{from{background-position:-180% 0}to{background-position:280% 0}}
+  @media(max-width:767px){[data-nl]{display:none!important}}
 </style>
 </helmet>
 
@@ -130,7 +131,7 @@
   <section aria-label="Добірка товарів" style="max-width:1340px;margin:0 auto;padding:clamp(48px,7vw,100px) clamp(18px,4vw,46px)">
     <div data-reveal style="opacity:0;transform:translateY(26px);transition:all .9s cubic-bezier(.16,.84,.44,1);display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:20px;margin-bottom:clamp(28px,4vw,52px)">
       <div>
-        <span style="font-size:11px;letter-spacing:.4em;color:#6f7a5e;font-weight:600">02 / ДОБІРКА</span>
+        <span data-nl style="font-size:11px;letter-spacing:.4em;color:#6f7a5e;font-weight:600">02 / ДОБІРКА</span>
         <h2 style="font-family:'Forum',serif;font-weight:400;font-size:clamp(32px,5vw,58px);line-height:1;margin-top:14px">Варті вашої уваги</h2>
       </div>
       <div style="display:flex;gap:8px;border:1px solid rgba(30,35,31,.2)">
@@ -165,7 +166,7 @@
   <!-- CATEGORIES -->
   <section aria-label="Категорії одягу" style="max-width:1340px;margin:0 auto;padding:0 clamp(18px,4vw,46px) clamp(48px,7vw,100px)">
     <div data-reveal style="opacity:0;transform:translateY(26px);transition:all .9s cubic-bezier(.16,.84,.44,1);margin-bottom:clamp(24px,3vw,44px)">
-      <span style="font-size:11px;letter-spacing:.4em;color:#6f7a5e;font-weight:600">03 / ГАРДЕРОБ</span>
+      <span data-nl style="font-size:11px;letter-spacing:.4em;color:#6f7a5e;font-weight:600">03 / ГАРДЕРОБ</span>
       <h2 style="font-family:'Forum',serif;font-weight:400;font-size:clamp(32px,5vw,58px);line-height:1;margin-top:14px">Оберіть категорію</h2>
     </div>
     <div style="display:grid;grid-template-columns:{{ catGridCols }};gap:clamp(12px,1.6vw,20px)">
@@ -193,7 +194,7 @@
   <!-- TESTIMONIALS -->
   <section aria-label="Відгуки клієнток" style="max-width:1340px;margin:0 auto;padding:clamp(48px,7vw,100px) clamp(18px,4vw,46px)">
     <div data-reveal style="opacity:0;transform:translateY(26px);transition:all .9s cubic-bezier(.16,.84,.44,1);display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:16px;margin-bottom:clamp(28px,4vw,48px)">
-      <div><span style="font-size:11px;letter-spacing:.4em;color:#6f7a5e;font-weight:600">04 / ГОЛОСИ</span><h2 style="font-family:'Forum',serif;font-weight:400;font-size:clamp(32px,5vw,58px);line-height:1;margin-top:14px">Що кажуть клієнтки</h2></div>
+      <div><span data-nl style="font-size:11px;letter-spacing:.4em;color:#6f7a5e;font-weight:600">04 / ГОЛОСИ</span><h2 style="font-family:'Forum',serif;font-weight:400;font-size:clamp(32px,5vw,58px);line-height:1;margin-top:14px">Що кажуть клієнтки</h2></div>
       <span style="font-size:14px;color:#6c7166;max-width:320px">Понад 12 000 жінок уже обрали Mereely. Середня оцінка — 4.9 із 5.</span>
     </div>
     <div style="display:grid;grid-template-columns:{{ testCols }};gap:clamp(14px,2vw,24px)">
@@ -229,7 +230,7 @@
   <!-- INSTAGRAM / UGC -->
   <section aria-label="Instagram Mereely Shop" style="padding:clamp(48px,7vw,90px) 0 clamp(40px,5vw,70px)">
     <div style="text-align:center;margin-bottom:clamp(24px,3vw,40px);padding:0 20px">
-      <span style="font-size:11px;letter-spacing:.4em;color:#6f7a5e;font-weight:600">05 / СПІЛЬНОТА</span>
+      <span data-nl style="font-size:11px;letter-spacing:.4em;color:#6f7a5e;font-weight:600">05 / СПІЛЬНОТА</span>
       <h2 style="font-family:'Forum',serif;font-weight:400;font-size:clamp(30px,4vw,52px);margin-top:12px">@mereely.shop</h2>
       <p style="font-size:13px;color:#6c7166;margin-top:8px">Позначайте нас #MereelyMoment — і ваше фото з'явиться тут</p>
     </div>
@@ -364,7 +365,7 @@
 
   <div style="display:grid;grid-template-columns:{{ pCols }};gap:clamp(24px,4vw,60px);align-items:start">
     <!-- GALLERY -->
-    <div style="display:flex;flex-direction:{{ pGalleryDir }};gap:14px;position:sticky;top:90px">
+    <div style="display:flex;flex-direction:{{ pGalleryDir }};gap:14px;position:{{ pGalleryPos }};top:90px">
       <div style="display:flex;flex-direction:{{ pThumbDir }};gap:10px;flex:none">
         <sc-for list="{{ pThumbs }}" as="th" hint-placeholder-count="4">
           <button onClick="{{ th.sel }}" aria-label="Фото" style="width:72px;height:90px;flex:none;background:{{ th.tone }};border:1px solid {{ th.border }};position:relative;overflow:hidden;transition:border-color .25s"><div style="position:absolute;inset:0;background-image:repeating-linear-gradient(135deg,rgba(0,0,0,.05) 0 2px,transparent 2px 8px)"></div></button>
@@ -474,7 +475,7 @@
     <nav aria-label="Хлібні крихти" style="font-size:12px;letter-spacing:.06em;color:#8a8f84;margin-bottom:28px"><a href="#" onClick="{{ goHome }}" style-hover="color:#a7613f">Головна</a> <span style="color:#c3c0b6">/</span> <span style="color:#1e231f">Про нас</span></nav>
     <div style="display:grid;grid-template-columns:{{ aboutStoryCols }};gap:clamp(24px,4vw,56px);align-items:end">
       <div>
-        <span style="font-size:11px;letter-spacing:.4em;color:#6f7a5e;font-weight:600">НАША ІСТОРІЯ</span>
+        <span data-nl style="font-size:11px;letter-spacing:.4em;color:#6f7a5e;font-weight:600">НАША ІСТОРІЯ</span>
         <h1 style="font-family:'Forum',serif;font-weight:400;font-size:clamp(44px,7vw,96px);line-height:.94;letter-spacing:-.01em;margin-top:18px">Одяг, у який<br>хочеться<br><span style="font-style:italic;color:#6f7a5e">повертатися</span></h1>
       </div>
       <p style="font-size:16px;line-height:1.8;color:#41463f;max-width:420px;padding-bottom:10px">Mereely Shop народився у 2021 році з простої ідеї: жінка заслуговує на одяг, який служить роками, а не сезон. Ми відмовилися від швидкої моди на користь свідомих, продуманих речей.</p>
@@ -508,7 +509,7 @@
         <span style="position:absolute;left:14px;bottom:14px;font-family:monospace;font-size:10px;color:rgba(255,255,255,.7)">[ засновниця / портрет 4:5 ]</span>
       </div>
       <div>
-        <span style="font-size:11px;letter-spacing:.4em;color:#6f7a5e;font-weight:600">МІСІЯ</span>
+        <span data-nl style="font-size:11px;letter-spacing:.4em;color:#6f7a5e;font-weight:600">МІСІЯ</span>
         <blockquote style="font-family:'Forum',serif;font-weight:400;font-size:clamp(26px,3.4vw,42px);line-height:1.3;margin-top:22px;letter-spacing:-.005em">«Я хотіла створити речі, які моя донька носитиме й через десять років. Без поспіху, без компромісів у якості.»</blockquote>
         <p style="margin-top:24px;font-size:14px;color:#6c7166">— Олена Мерілі, засновниця та креативна директорка</p>
       </div>
@@ -541,7 +542,7 @@
 <div data-screen-label="Контакти" style="max-width:1340px;margin:0 auto;padding:clamp(28px,4vw,56px) clamp(18px,4vw,46px) clamp(60px,8vw,110px)">
   <nav aria-label="Хлібні крихти" style="font-size:12px;letter-spacing:.06em;color:#8a8f84;margin-bottom:24px"><a href="#" onClick="{{ goHome }}" style-hover="color:#a7613f">Головна</a> <span style="color:#c3c0b6">/</span> <span style="color:#1e231f">Контакти</span></nav>
   <header style="margin-bottom:clamp(32px,4vw,56px)">
-    <span style="font-size:11px;letter-spacing:.4em;color:#6f7a5e;font-weight:600">МИ НА ЗВ'ЯЗКУ</span>
+    <span data-nl style="font-size:11px;letter-spacing:.4em;color:#6f7a5e;font-weight:600">МИ НА ЗВ'ЯЗКУ</span>
     <h1 style="font-family:'Forum',serif;font-weight:400;font-size:clamp(40px,6vw,80px);line-height:.95;margin-top:16px;letter-spacing:-.01em">Напишіть нам</h1>
     <p style="font-size:15px;color:#6c7166;margin-top:14px;max-width:460px">Допоможемо з вибором розміру, оформленням замовлення чи поверненням. Відповідаємо щодня з 9:00 до 20:00.</p>
   </header>
@@ -586,7 +587,7 @@
   <!-- FAQ -->
   <section style="margin-top:clamp(56px,8vw,110px)">
     <div style="display:grid;grid-template-columns:{{ contactCols }};gap:clamp(28px,5vw,64px);align-items:start">
-      <div><span style="font-size:11px;letter-spacing:.4em;color:#6f7a5e;font-weight:600">ЧАСТІ ПИТАННЯ</span><h2 style="font-family:'Forum',serif;font-weight:400;font-size:clamp(30px,4vw,52px);margin-top:14px;line-height:1.02">Усе, що варто<br>знати</h2></div>
+      <div><span data-nl style="font-size:11px;letter-spacing:.4em;color:#6f7a5e;font-weight:600">ЧАСТІ ПИТАННЯ</span><h2 style="font-family:'Forum',serif;font-weight:400;font-size:clamp(30px,4vw,52px);margin-top:14px;line-height:1.02">Усе, що варто<br>знати</h2></div>
       <div>
         <sc-for list="{{ faqList }}" as="f" hint-placeholder-count="5">
           <div style="border-bottom:1px solid rgba(30,35,31,.16)">
@@ -601,7 +602,7 @@
   <!-- JOURNAL TEASER -->
   <section style="margin-top:clamp(56px,8vw,110px)">
     <div style="display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:14px;margin-bottom:clamp(24px,3vw,40px)">
-      <div><span style="font-size:11px;letter-spacing:.4em;color:#6f7a5e;font-weight:600">ЖУРНАЛ СТИЛЮ</span><h2 style="font-family:'Forum',serif;font-weight:400;font-size:clamp(30px,4vw,52px);margin-top:12px">Читати й надихатися</h2></div>
+      <div><span data-nl style="font-size:11px;letter-spacing:.4em;color:#6f7a5e;font-weight:600">ЖУРНАЛ СТИЛЮ</span><h2 style="font-family:'Forum',serif;font-weight:400;font-size:clamp(30px,4vw,52px);margin-top:12px">Читати й надихатися</h2></div>
       <a href="#" onClick="{{ noop }}" style="font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:#28332c;border-bottom:1px solid #28332c;padding-bottom:4px">Усі статті →</a>
     </div>
     <div style="display:grid;grid-template-columns:{{ journalCols }};gap:clamp(16px,2vw,28px)">
@@ -719,7 +720,7 @@
       </div>
     </div>
     <!-- totals + submit -->
-    <div style="padding:20px 26px;border-top:1px solid rgba(30,35,31,.14);background:#f4eee5;flex:none">
+    <div style="padding:20px 26px 32px;border-top:1px solid rgba(30,35,31,.14);background:#f4eee5;flex:none">
       <div style="display:flex;justify-content:space-between;font-size:13px;color:#6c7166;margin-bottom:6px"><span>Сума товарів</span><span>{{ coSubFmt }}</span></div>
       <sc-if value="{{ promoApplied }}" hint-placeholder-val="{{ false }}">
         <div style="display:flex;justify-content:space-between;font-size:13px;color:#6f7a5e;margin-bottom:6px"><span>Знижка {{ promoDiscountPct }}%</span><span>−{{ promoSaveFmt }}</span></div>
@@ -782,7 +783,7 @@
         <p style="font-size:11px;color:#8a8f84;margin-top:8px;line-height:1.5">Картою онлайн, Apple Pay та Google Pay — скоро. Ми додаємо нові способи оплати.</p>
       </div>
     </div>
-    <div style="padding:22px 26px;border-top:1px solid rgba(30,35,31,.14);background:#f4eee5">
+    <div style="padding:22px 26px 32px;border-top:1px solid rgba(30,35,31,.14);background:#f4eee5">
       <div style="display:flex;justify-content:space-between;font-size:13px;color:#6c7166;margin-bottom:8px"><span>Сума товарів</span><span>{{ cartSubFmt }}</span></div>
       <div style="display:flex;justify-content:space-between;font-size:13px;color:#6c7166;margin-bottom:14px"><span>Доставка</span><span>{{ cartShipFmt }}</span></div>
       <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:18px"><span style="font-size:15px;font-weight:700">Разом</span><span style="font-family:'Forum',serif;font-size:28px">{{ cartTotalFmt }}</span></div>
@@ -1202,6 +1203,7 @@ class Component extends DCLogic {
       pQtyInc:()=>this.setState(s=>({pQty:s.pQty+1})), pQtyDec:()=>this.setState(s=>({pQty:Math.max(1,s.pQty-1)})),
       pCols:isMobile?'1fr':(isTablet?'1fr 1fr':'1.15fr 1fr'),
       pGalleryDir:isMobile?'column-reverse':'row', pThumbDir:isMobile?'row':'column',
+      pGalleryPos:isMobile?'relative':'sticky',
       addCurrent:()=>{ if(this.addToCart(PD,S.pColor,S.pSize,S.pQty)!==false) this.setState({cartOpen:true}); },
       buyNow:()=>{ if(this.addToCart(PD,S.pColor,S.pSize,S.pQty)!==false){ this.toast('Купівля в один клік — менеджер зателефонує'); this.setState({cartOpen:true}); } },
       pTabsList, pTab:S.pTab, pTabDesc:S.pTab==='desc', pTabCare:S.pTab==='care', pTabReviews:S.pTab==='reviews',
