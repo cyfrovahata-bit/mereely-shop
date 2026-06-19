@@ -681,8 +681,8 @@
 </footer>
 
 <!-- ====== CART OVERLAY + DRAWER ====== -->
-<div onClick="{{ closeCart }}" style="position:fixed;inset:0;background:rgba(20,26,21,.55);backdrop-filter:blur(3px);z-index:120;opacity:{{ cartOverlayOpacity }};pointer-events:{{ cartOverlayPE }};transition:opacity .4s ease"></div>
-<aside aria-label="Кошик" style="position:fixed;top:0;right:0;height:100%;width:min(440px,100vw);background:#f1ebe1;z-index:130;display:flex;flex-direction:column;box-shadow:-20px 0 60px rgba(0,0,0,.18);transform:{{ cartTransform }};transition:transform .5s cubic-bezier(.16,.84,.44,1)">
+<div onClick="{{ closeCart }}" style="position:fixed;inset:0;background:rgba(20,26,21,.55);backdrop-filter:blur(3px);z-index:120;opacity:0;pointer-events:none;opacity:{{ cartOverlayOpacity }};pointer-events:{{ cartOverlayPE }};transition:opacity .4s ease"></div>
+<aside aria-label="Кошик" style="position:fixed;top:0;right:0;height:100%;width:min(440px,100vw);background:#f1ebe1;z-index:130;display:flex;flex-direction:column;box-shadow:-20px 0 60px rgba(0,0,0,.18);transform:translateX(100%);transform:{{ cartTransform }};transition:transform .5s cubic-bezier(.16,.84,.44,1)">
   <div style="display:flex;justify-content:space-between;align-items:center;padding:24px 26px;border-bottom:1px solid rgba(30,35,31,.14)">
     <span style="font-family:'Forum',serif;font-size:24px">Кошик · {{ cartCount }}</span>
     <button onClick="{{ closeCart }}" aria-label="Закрити" style="width:36px;height:36px;border:1px solid rgba(30,35,31,.2);border-radius:50%;display:flex;align-items:center;justify-content:center;transition:all .3s" style-hover="background:#28332c;color:#f1ebe1"><svg width="15" height="15" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
@@ -788,13 +788,13 @@
 </sc-if>
 
 <!-- ====== TOAST ====== -->
-<div style="position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY({{ toastY }});z-index:200;background:#28332c;color:#f1ebe1;padding:15px 26px;font-size:13px;letter-spacing:.04em;box-shadow:0 16px 40px rgba(0,0,0,.25);opacity:{{ toastOpacity }};transition:all .4s cubic-bezier(.16,.84,.44,1);display:flex;gap:12px;align-items:center;white-space:nowrap">
+<div style="position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(120px);opacity:0;transform:translateX(-50%) translateY({{ toastY }});z-index:200;background:#28332c;color:#f1ebe1;padding:15px 26px;font-size:13px;letter-spacing:.04em;box-shadow:0 16px 40px rgba(0,0,0,.25);opacity:{{ toastOpacity }};transition:all .4s cubic-bezier(.16,.84,.44,1);display:flex;gap:12px;align-items:center;white-space:nowrap">
   <span style="color:#cdbfa3">✓</span><span>{{ toastMsg }}</span>
 </div>
 
 <!-- ====== CHECKOUT OVERLAY ====== -->
-<div onClick="{{ closeCheckout }}" style="position:fixed;inset:0;background:rgba(20,26,21,.6);backdrop-filter:blur(4px);z-index:170;opacity:{{ checkoutOverlayOpacity }};pointer-events:{{ checkoutOverlayPE }};transition:opacity .4s"></div>
-<aside aria-label="Оформлення замовлення" style="position:fixed;top:0;right:0;height:100%;width:min(560px,100vw);background:#f1ebe1;z-index:171;display:flex;flex-direction:column;box-shadow:-20px 0 60px rgba(0,0,0,.18);transform:{{ checkoutTransform }};transition:transform .5s cubic-bezier(.16,.84,.44,1);overflow-y:auto">
+<div onClick="{{ closeCheckout }}" style="position:fixed;inset:0;background:rgba(20,26,21,.6);backdrop-filter:blur(4px);z-index:170;opacity:0;pointer-events:none;opacity:{{ checkoutOverlayOpacity }};pointer-events:{{ checkoutOverlayPE }};transition:opacity .4s"></div>
+<aside aria-label="Оформлення замовлення" style="position:fixed;top:0;right:0;height:100%;width:min(560px,100vw);background:#f1ebe1;z-index:171;display:flex;flex-direction:column;box-shadow:-20px 0 60px rgba(0,0,0,.18);transform:translateX(100%);transform:{{ checkoutTransform }};transition:transform .5s cubic-bezier(.16,.84,.44,1);overflow-y:auto">
   <div style="display:flex;justify-content:space-between;align-items:center;padding:22px 26px;border-bottom:1px solid rgba(30,35,31,.14);position:sticky;top:0;background:#f1ebe1;z-index:2">
     <span style="font-family:'Forum',serif;font-size:22px">Оформлення замовлення</span>
     <button onClick="{{ closeCheckout }}" aria-label="Закрити" style="width:36px;height:36px;border:1px solid rgba(30,35,31,.2);border-radius:50%;display:flex;align-items:center;justify-content:center;transition:all .3s" style-hover="background:#28332c;color:#f1ebe1"><svg width="15" height="15" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
