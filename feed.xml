@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:g="http://base.google.com/ns/1.0">
+  <channel>
+    <title>Mereely Shop — жіночий одяг ручної роботи</title>
+    <link>https://mereely.shop/</link>
+    <description>Жіночий одяг ручної роботи з натуральних тканин. Доставка по всій Україні.</description>
+    <language>uk</language>
+
+    <item>
+      <g:id>1</g:id>
+      <g:title>Сукня «Сієна»</g:title>
+      <g:description>Силуетна сукня міді зі структурованого льону. М'який пояс-кулюска та потаємна застібка. Тканина дихає й тримає форму весь день.</g:description>
+      <g:link>https://mereely.shop/#product/1</g:link>
+      <g:price>4290 UAH</g:price>
+      <g:condition>new</g:condition>
+      <g:availability>in stock</g:availability>
+      <g:brand>Mereely</g:brand>
+      <g:google_product_category>Apparel &amp; Accessories &gt; Clothing &gt; Dresses</g:google_product_category>
+    </item>
+
+    <item>
+      <g:id>2</g:id>
+      <g:title>Блуза «Флоренція»</g:title>
+      <g:description>Шовкова блуза вільного крою з V-подібним вирізом. Золотиста пуговиця на манжеті — деталь, що перетворює образ.</g:description>
+      <g:link>https://mereely.shop/#product/2</g:link>
+      <g:price>3190 UAH</g:price>
+      <g:condition>new</g:condition>
+      <g:availability>in stock</g:availability>
+      <g:brand>Mereely</g:brand>
+      <g:google_product_category>Apparel &amp; Accessories &gt; Clothing &gt; Tops</g:google_product_category>
+    </item>
+
+    <item>
+      <g:id>7</g:id>
+      <g:title>Тренч «Лондон»</g:title>
+      <g:description>Класичний тренч із водовідштовхувальної бавовни. Архітектурний крій і пояс, що формує талію.</g:description>
+      <g:link>https://mereely.shop/#product/7</g:link>
+      <g:price>5890 UAH</g:price>
+      <g:condition>new</g:condition>
+      <g:availability>in stock</g:availability>
+      <g:brand>Mereely</g:brand>
+      <g:google_product_category>Apparel &amp; Accessories &gt; Clothing &gt; Outerwear</g:google_product_category>
+    </item>
+
+    <item>
+      <g:id>8</g:id>
+      <g:title>Пальто «Берлін»</g:title>
+      <g:description>Вовняне пальто-халат прямого силуету. Тепло італійської вовни без зайвого об'єму.</g:description>
+      <g:link>https://mereely.shop/#product/8</g:link>
+      <g:price>6490 UAH</g:price>
+      <g:sale_price>6490 UAH</g:sale_price>
+      <g:condition>new</g:condition>
+      <g:availability>in stock</g:availability>
+      <g:brand>Mereely</g:brand>
+      <g:google_product_category>Apparel &amp; Accessories &gt; Clothing &gt; Outerwear</g:google_product_category>
+    </item>
+
+    <item>
+      <g:id>12</g:id>
+      <g:title>Сумка «Капрі»</g:title>
+      <g:description>Шкіряна сумка ручної роботи з фурнітурою кольору шампань. Тримає форму роками.</g:description>
+      <g:link>https://mereely.shop/#product/12</g:link>
+      <g:price>4290 UAH</g:price>
+      <g:condition>new</g:condition>
+      <g:availability>in stock</g:availability>
+      <g:brand>Mereely</g:brand>
+      <g:google_product_category>Apparel &amp; Accessories &gt; Handbags, Wallets &amp; Cases</g:google_product_category>
+    </item>
+  </channel>
+</rss>
