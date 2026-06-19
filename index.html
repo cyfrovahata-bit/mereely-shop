@@ -878,7 +878,18 @@ class Component extends DCLogic {
         }
       });
     } catch(e){}
-    this.products = P.map((p)=>({...p, imgs:[`[ ${p.name} · фронт ]`,`[ ${p.name} · деталь тканини ]`,`[ ${p.name} · на моделі ]`,`[ ${p.name} · ззаду ]`]}));
+    // SEO slugs for URL routing
+    const PROD_SLUGS = {
+      1:'florence-dress', 2:'siena-midi-dress', 3:'milan-blouse', 4:'oslo-shirt',
+      5:'turin-trousers', 6:'verona-skirt', 7:'london-trench', 8:'berlin-coat',
+      9:'prague-sweater', 10:'vienna-cardigan', 11:'como-scarf', 12:'capri-bag'
+    };
+    this.catSlugs = {
+      'Сукні':'dresses', 'Верх':'tops', 'Низ':'bottoms',
+      'Верхній одяг':'outerwear', 'Трикотаж':'knitwear', 'Аксесуари':'accessories'
+    };
+    this.catSlugRev = Object.fromEntries(Object.entries(this.catSlugs).map(([k,v])=>[v,k]));
+    this.products = P.map((p)=>({...p, slug:PROD_SLUGS[p.id]||('item-'+p.id), imgs:[`[ ${p.name} · фронт ]`,`[ ${p.name} · деталь тканини ]`,`[ ${p.name} · на моделі ]`,`[ ${p.name} · ззаду ]`]}));
     this.categories = ['Сукні','Верх','Низ','Верхній одяг','Трикотаж','Аксесуари'];
     this.allColors = [['Олива',C.olive],['Шавлія',C.sage],['Пісок',C.sand],['Графіт',C.graphite],['Чорнило',C.ink],['Теракота',C.clay],['Молоко',C.milk],['Камел',C.camel]];
     this.allSizes = ['XS','S','M','L','XL','One size'];
@@ -916,16 +927,83 @@ class Component extends DCLogic {
     this._onResize(); window.addEventListener('resize', this._onResize);
     this._io = new IntersectionObserver((es)=>{ es.forEach(e=>{ if(e.isIntersecting){ e.target.style.opacity='1'; e.target.style.transform='none'; this._io.unobserve(e.target); } }); },{threshold:.12,rootMargin:'0px 0px -8% 0px'});
     this._scan();
+    this._popHandler = ()=>this._parseHash();
+    window.addEventListener('popstate', this._popHandler);
+    this._parseHash();
+    this._updateTitle();
   }
   componentDidUpdate(prevProps, prevState){
     if(prevState && prevState.page!==this.state.page){ window.scrollTo(0,0); }
+    if(prevState && (
+      prevState.page!==this.state.page ||
+      prevState.pid!==this.state.pid ||
+      (prevState.filters&&prevState.filters.cat)!==(this.state.filters&&this.state.filters.cat)
+    )){
+      const route=this._getRoute();
+      const cur=location.hash.replace(/^#/,'');
+      if(route!==cur) history.pushState(null,'','#'+route);
+      this._updateTitle();
+    }
     if(prevState && prevState.cart!==this.state.cart){
       try { localStorage.setItem('mrl_cart', JSON.stringify(this.state.cart)); } catch(e){}
     }
     this._scan();
   }
-  componentWillUnmount(){ window.removeEventListener('resize', this._onResize); if(this._io) this._io.disconnect(); }
+  componentWillUnmount(){ window.removeEventListener('resize', this._onResize); if(this._popHandler) window.removeEventListener('popstate', this._popHandler); if(this._io) this._io.disconnect(); }
   _scan(){ requestAnimationFrame(()=>{ try{ const root=document.querySelector('#mrl-main'); if(!root||!this._io)return; root.querySelectorAll('[data-reveal]').forEach(el=>{ if(!el.dataset.seen){ el.dataset.seen='1'; this._io.observe(el); } }); }catch(e){} }); }
+
+  _getRoute(){
+    const S=this.state;
+    if(S.page==='home') return '';
+    if(S.page==='catalog'){
+      const cat=S.filters&&S.filters.cat!=='all'?S.filters.cat:null;
+      const slug=cat?(this.catSlugs[cat]||'all'):'';
+      return slug?'catalog/'+slug:'catalog';
+    }
+    if(S.page==='product'){
+      const p=this.products.find(x=>x.id===S.pid);
+      return p?'product/'+p.slug:'product';
+    }
+    return S.page;
+  }
+
+  _parseHash(){
+    const hash=location.hash.replace(/^#/,'').trim();
+    if(!hash||hash==='home'){ this.setState({page:'home'}); return; }
+    const parts=hash.split('/');
+    const seg=parts[0];
+    if(seg==='catalog'){
+      const catSlug=parts[1]||'';
+      const cat=catSlug?(this.catSlugRev[catSlug]||'all'):'all';
+      this.setState(s=>({page:'catalog',filters:{...s.filters,cat}}));
+    } else if(seg==='product'){
+      const slug=parts[1]||'';
+      const p=this.products.find(x=>x.slug===slug)||this.products.find(x=>x.id===+slug);
+      if(p) this.setState({page:'product',pid:p.id,pImg:0,pColor:0,pSize:null,pQty:1,pTab:'desc',zoom:false});
+      else this.setState({page:'catalog'});
+    } else if(seg==='about'){ this.setState({page:'about'});
+    } else if(seg==='contacts'){ this.setState({page:'contacts'});
+    } else { this.setState({page:'home'}); }
+  }
+
+  _updateTitle(){
+    const S=this.state;
+    const base='Mereely Shop — жіночий одяг ручної роботи';
+    const titles={
+      home:base,
+      about:'Про нас | '+base,
+      contacts:'Контакти | '+base
+    };
+    if(S.page==='catalog'){
+      const cat=S.filters&&S.filters.cat!=='all'?S.filters.cat:'';
+      document.title=(cat?cat+' — ':'')+'Каталог | '+base;
+    } else if(S.page==='product'){
+      const p=this.products.find(x=>x.id===S.pid);
+      document.title=(p?p.name+' — ':'')+base;
+    } else {
+      document.title=titles[S.page]||base;
+    }
+  }
 
   _npSearch(q){
     if(this._npT) clearTimeout(this._npT);
