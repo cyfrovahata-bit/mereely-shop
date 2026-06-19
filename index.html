@@ -936,7 +936,10 @@ class Component extends DCLogic {
       {id:11,name:'Хустка «Комо»',cat:'Аксесуари',price:1290,colors:[['Теракота',C.clay],['Шавлія',C.sage]],sizes:['One size'],stock:15,tone:'#a98a72',desc:'Шовкова хустка з авторським принтом-монограмою. Завершальний штрих будь-якого образу.'},
       {id:12,name:'Сумка «Капрі»',cat:'Аксесуари',price:4290,colors:[['Камел',C.camel],['Чорнило',C.ink]],sizes:['One size'],stock:4,badge:'Бестселер',tone:'#9a8662',desc:'Шкіряна сумка ручної роботи з фурнітурою кольору шампань. Тримає форму роками.'}
     ];
-    this.products = P.map((p,i)=>({...p, imgs:[`[ ${p.name} · фронт ]`,`[ ${p.name} · деталь тканини ]`,`[ ${p.name} · на моделі ]`,`[ ${p.name} · ззаду ]`]}));
+    // Merge admin-added products with built-in ones
+    let adminProds = []; try{ adminProds = JSON.parse(localStorage.getItem('mrl_products')||'[]'); }catch(e){}
+    const adminMapped = adminProds.map(p=>({...p, imgs: p.images && p.images.length ? p.images : [`[ ${p.name} · фото ]`], colors: (p.colors||[]).length ? p.colors : [['Чорнило','#3d3d3d']], sizes: p.sizes||['S','M','L']}));
+    this.products = [...adminMapped, ...P.map(p=>({...p, imgs:[`[ ${p.name} · фронт ]`,`[ ${p.name} · деталь тканини ]`,`[ ${p.name} · на моделі ]`,`[ ${p.name} · ззаду ]`]}))];
     this.categories = ['Сукні','Верх','Низ','Верхній одяг','Трикотаж','Аксесуари'];
     this.allColors = [['Олива',C.olive],['Шавлія',C.sage],['Пісок',C.sand],['Графіт',C.graphite],['Чорнило',C.ink],['Теракота',C.clay],['Молоко',C.milk],['Камел',C.camel]];
     this.allSizes = ['XS','S','M','L','XL','One size'];

@@ -13,74 +13,118 @@ body{font-family:'Inter',sans-serif;background:#f4eee5;color:#1e231f;min-height:
 input,textarea,select{font-family:inherit;font-size:14px}
 button{font-family:inherit;cursor:pointer;border:none;background:none}
 .hidden{display:none!important}
+
+/* LOGIN */
 #login{display:flex;align-items:center;justify-content:center;min-height:100vh}
 .login-box{background:#f1ebe1;border:1px solid rgba(30,35,31,.16);padding:40px;width:360px;text-align:center}
 .login-box h1{font-family:'Forum',serif;font-size:28px;margin-bottom:8px}
 .login-box p{font-size:13px;color:#6c7166;margin-bottom:28px}
 .field{margin-bottom:16px;text-align:left}
 .field label{display:block;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:#6c7166;margin-bottom:6px}
-.field input{width:100%;background:#fff;border:1px solid rgba(30,35,31,.2);padding:13px 14px;font-size:14px;color:#1e231f;outline:none}
-.btn{display:inline-block;padding:14px 28px;background:#28332c;color:#f1ebe1;font-size:12px;letter-spacing:.2em;text-transform:uppercase;font-weight:600;transition:background .25s;width:100%}
+.field input,.field select,.field textarea{width:100%;background:#fff;border:1px solid rgba(30,35,31,.2);padding:12px 14px;font-size:14px;color:#1e231f;outline:none}
+.btn{display:inline-block;padding:13px 24px;background:#28332c;color:#f1ebe1;font-size:12px;letter-spacing:.2em;text-transform:uppercase;font-weight:600;transition:background .25s;border:none;cursor:pointer}
 .btn:hover{background:#a7613f}
-.btn-sm{padding:9px 18px;font-size:11px}
+.btn-sm{padding:9px 16px;font-size:11px}
 .btn-outline{background:transparent;color:#28332c;border:1px solid rgba(30,35,31,.3)}
 .btn-outline:hover{background:#28332c;color:#f1ebe1}
-.btn-danger{background:#a7613f}
-.btn-danger:hover{background:#8a4f2e}
-.err{color:#a7613f;font-size:12px;margin-top:8px}
+.btn-danger{background:#c0392b}
+.btn-danger:hover{background:#962d22}
+.btn-full{width:100%}
+.err{color:#a7613f;font-size:12px;margin-top:6px}
 
+/* LAYOUT */
 #app{display:flex;min-height:100vh}
-.sidebar{width:240px;background:#28332c;color:#f1ebe1;padding:24px 0;flex-shrink:0;display:flex;flex-direction:column}
-.sidebar-logo{font-family:'Forum',serif;font-size:22px;padding:0 24px 24px;border-bottom:1px solid rgba(241,235,225,.1);margin-bottom:16px}
+.sidebar{width:230px;background:#28332c;color:#f1ebe1;padding:24px 0;flex-shrink:0;display:flex;flex-direction:column}
+.sidebar-logo{font-family:'Forum',serif;font-size:22px;padding:0 22px 22px;border-bottom:1px solid rgba(241,235,225,.1);margin-bottom:14px}
 .sidebar-logo span{display:block;font-family:'Inter',sans-serif;font-size:10px;letter-spacing:.2em;text-transform:uppercase;opacity:.5;margin-top:4px}
-.nav-item{display:block;padding:11px 24px;font-size:13px;color:rgba(241,235,225,.7);text-decoration:none;transition:all .2s;cursor:pointer}
+.nav-item{display:block;padding:11px 22px;font-size:13px;color:rgba(241,235,225,.7);cursor:pointer;transition:all .2s}
 .nav-item:hover,.nav-item.active{background:rgba(241,235,225,.08);color:#f1ebe1}
-.sidebar-footer{margin-top:auto;padding:16px 24px;border-top:1px solid rgba(241,235,225,.1)}
+.sidebar-footer{margin-top:auto;padding:14px 22px;border-top:1px solid rgba(241,235,225,.1)}
 .sidebar-footer button{font-size:12px;color:rgba(241,235,225,.5);transition:color .2s}
 .sidebar-footer button:hover{color:#f1ebe1}
-
-.main{flex:1;padding:32px;overflow-y:auto}
-.page-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:28px}
+.main{flex:1;padding:28px 32px;overflow-y:auto;min-width:0}
+.page-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:24px}
 .page-header h2{font-family:'Forum',serif;font-size:28px}
 
-.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:32px}
-.stat-card{background:#f1ebe1;border:1px solid rgba(30,35,31,.12);padding:20px}
-.stat-card .num{font-family:'Forum',serif;font-size:32px;color:#28332c}
-.stat-card .lbl{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:#6c7166;margin-top:4px}
+/* STATS */
+.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:28px}
+.stat-card{background:#f1ebe1;border:1px solid rgba(30,35,31,.12);padding:18px}
+.stat-card .num{font-family:'Forum',serif;font-size:30px;color:#28332c}
+.stat-card .lbl{font-size:11px;letter-spacing:.13em;text-transform:uppercase;color:#6c7166;margin-top:4px}
 
-.card{background:#f1ebe1;border:1px solid rgba(30,35,31,.12);padding:24px;margin-bottom:20px}
-.card h3{font-size:13px;letter-spacing:.16em;text-transform:uppercase;color:#6c7166;margin-bottom:18px}
-
+/* TABLE */
+.card{background:#f1ebe1;border:1px solid rgba(30,35,31,.12);padding:22px;margin-bottom:18px}
+.card h3{font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:#6c7166;margin-bottom:16px}
 table{width:100%;border-collapse:collapse;font-size:13.5px}
-th{text-align:left;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:#6c7166;padding:0 12px 12px;font-weight:500}
-td{padding:12px;border-top:1px solid rgba(30,35,31,.08);vertical-align:middle}
+th{text-align:left;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:#6c7166;padding:0 10px 10px;font-weight:500}
+td{padding:10px;border-top:1px solid rgba(30,35,31,.08);vertical-align:middle}
 tr:hover td{background:rgba(30,35,31,.025)}
-.badge{display:inline-block;padding:3px 9px;font-size:11px;font-weight:600;letter-spacing:.06em}
+.badge{display:inline-block;padding:2px 8px;font-size:11px;font-weight:600;letter-spacing:.06em}
 .badge-sale{background:#a7613f22;color:#a7613f}
 .badge-new{background:#28332c22;color:#28332c}
 .badge-best{background:#6f7a5e22;color:#6f7a5e}
-.actions{display:flex;gap:8px}
+.actions{display:flex;gap:6px}
 
-/* Modal */
-.modal-bg{position:fixed;inset:0;background:rgba(20,26,21,.6);z-index:100;display:flex;align-items:center;justify-content:center}
-.modal{background:#f1ebe1;width:min(640px,96vw);max-height:90vh;overflow-y:auto;padding:32px}
-.modal h3{font-family:'Forum',serif;font-size:24px;margin-bottom:24px}
-.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+/* PRODUCT THUMB in table */
+.prod-thumb{width:44px;height:44px;object-fit:cover;border:1px solid rgba(30,35,31,.1)}
+.prod-thumb-placeholder{width:44px;height:44px;background:#e8e2d8;display:flex;align-items:center;justify-content:center;font-size:18px}
+
+/* MODAL */
+.modal-bg{position:fixed;inset:0;background:rgba(20,26,21,.65);z-index:100;display:flex;align-items:flex-start;justify-content:center;padding:24px 16px;overflow-y:auto}
+.modal{background:#f1ebe1;width:min(700px,100%);padding:32px;margin:auto}
+.modal h3{font-family:'Forum',serif;font-size:24px;margin-bottom:22px}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
 .form-grid .full{grid-column:1/-1}
-.modal-footer{display:flex;justify-content:flex-end;gap:12px;margin-top:24px;padding-top:20px;border-top:1px solid rgba(30,35,31,.12)}
+.modal-footer{display:flex;justify-content:flex-end;gap:10px;margin-top:22px;padding-top:18px;border-top:1px solid rgba(30,35,31,.12)}
+.section-label{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:#6c7166;margin-bottom:10px;display:block}
 
-/* Orders */
-.order-status{display:inline-block;padding:3px 9px;font-size:11px;font-weight:600}
+/* COLOR PALETTE */
+.color-palette{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:10px}
+.color-swatch{width:30px;height:30px;border-radius:50%;border:2px solid transparent;cursor:pointer;position:relative;transition:transform .15s}
+.color-swatch:hover{transform:scale(1.12)}
+.color-swatch.selected{border-color:#28332c;box-shadow:0 0 0 2px #fff,0 0 0 4px #28332c}
+.color-custom-row{display:flex;gap:8px;align-items:center;margin-top:4px}
+.color-custom-row input[type=text]{flex:1;background:#fff;border:1px solid rgba(30,35,31,.2);padding:8px 10px;font-size:13px;color:#1e231f;outline:none}
+.color-custom-row input[type=color]{width:36px;height:36px;border:1px solid rgba(30,35,31,.2);cursor:pointer;padding:2px;background:#fff}
+.selected-colors{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.selected-color-chip{display:flex;align-items:center;gap:5px;background:#fff;border:1px solid rgba(30,35,31,.15);padding:4px 8px;font-size:12px}
+.selected-color-chip .swatch{width:14px;height:14px;border-radius:50%;flex-shrink:0}
+.selected-color-chip .rm{color:#8a8f84;font-size:14px;line-height:1;cursor:pointer;margin-left:2px}
+.selected-color-chip .rm:hover{color:#a7613f}
+
+/* SIZE CHIPS */
+.size-chips{display:flex;flex-wrap:wrap;gap:6px}
+.size-chip{padding:8px 14px;font-size:12.5px;font-weight:600;border:1px solid rgba(30,35,31,.25);background:transparent;color:#1e231f;cursor:pointer;transition:all .18s;letter-spacing:.04em}
+.size-chip:hover{border-color:#28332c}
+.size-chip.selected{background:#28332c;color:#f1ebe1;border-color:#28332c}
+
+/* IMAGE UPLOAD */
+.img-upload-area{border:2px dashed rgba(30,35,31,.2);background:#fff;padding:20px;text-align:center;cursor:pointer;transition:border-color .2s;position:relative}
+.img-upload-area:hover,.img-upload-area.drag-over{border-color:#28332c}
+.img-upload-area input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+.img-upload-area p{font-size:13px;color:#6c7166;pointer-events:none}
+.img-upload-area p strong{color:#28332c}
+.img-previews{display:flex;flex-wrap:wrap;gap:10px;margin-top:12px}
+.img-preview-item{position:relative;width:90px;height:90px}
+.img-preview-item img{width:100%;height:100%;object-fit:cover;border:1px solid rgba(30,35,31,.12)}
+.img-preview-item .rm-img{position:absolute;top:-6px;right:-6px;width:20px;height:20px;background:#c0392b;color:#fff;border-radius:50%;font-size:13px;line-height:20px;text-align:center;cursor:pointer;font-weight:700}
+.img-preview-item .drag-handle{position:absolute;bottom:0;left:0;right:0;background:rgba(30,35,31,.5);color:#fff;font-size:10px;text-align:center;padding:2px;cursor:grab}
+
+/* ORDERS */
+.order-status{display:inline-block;padding:3px 8px;font-size:11px;font-weight:600}
 .status-new{background:#eef0e6;color:#28332c}
 .status-sent{background:#fef3e2;color:#a7613f}
 .status-done{background:#e6f0ee;color:#2c5248}
 
-@media(max-width:768px){
+@media(max-width:900px){
   #app{flex-direction:column}
-  .sidebar{width:100%;padding:16px 0}
+  .sidebar{width:100%;padding:12px 0}
   .stats-row{grid-template-columns:1fr 1fr}
+}
+@media(max-width:600px){
   .form-grid{grid-template-columns:1fr}
   .form-grid .full{grid-column:1}
+  .main{padding:16px}
 }
 </style>
 </head>
@@ -92,7 +136,7 @@ tr:hover td{background:rgba(30,35,31,.025)}
     <h1>Mereely Admin</h1>
     <p>Введіть пароль для доступу</p>
     <div class="field"><label>Пароль</label><input type="password" id="pw-input" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()"/></div>
-    <button class="btn" onclick="doLogin()">Увійти</button>
+    <button class="btn btn-full" onclick="doLogin()">Увійти</button>
     <div class="err hidden" id="login-err">Невірний пароль</div>
   </div>
 </div>
@@ -101,48 +145,119 @@ tr:hover td{background:rgba(30,35,31,.025)}
 <div id="app" class="hidden">
   <nav class="sidebar">
     <div class="sidebar-logo">Mereely<span>Admin Panel</span></div>
-    <span class="nav-item active" onclick="showPage('dashboard',this)">Дашборд</span>
-    <span class="nav-item" onclick="showPage('products',this)">Товари</span>
-    <span class="nav-item" onclick="showPage('orders',this)">Замовлення</span>
-    <div class="sidebar-footer"><button onclick="logout()">Вийти</button></div>
+    <span class="nav-item active" onclick="showPage('dashboard',this)">📊 Дашборд</span>
+    <span class="nav-item" onclick="showPage('products',this)">👗 Товари</span>
+    <span class="nav-item" onclick="showPage('orders',this)">📦 Замовлення</span>
+    <div class="sidebar-footer">
+      <a href="index.html" style="display:block;font-size:12px;color:rgba(241,235,225,.5);text-decoration:none;margin-bottom:8px;transition:color .2s" onmouseover="this.style.color='#f1ebe1'" onmouseout="this.style.color='rgba(241,235,225,.5)'">← На сайт</a>
+      <button onclick="logout()">Вийти</button>
+    </div>
   </nav>
   <main class="main" id="main-content"></main>
 </div>
 
 <!-- PRODUCT MODAL -->
-<div class="modal-bg hidden" id="prod-modal">
-  <div class="modal">
+<div class="modal-bg hidden" id="prod-modal" onclick="handleModalBgClick(event)">
+  <div class="modal" onclick="event.stopPropagation()">
     <h3 id="modal-title">Новий товар</h3>
     <div class="form-grid">
+
+      <!-- Basic info -->
       <div class="field"><label>Назва *</label><input id="f-name" placeholder="Сукня «Сієна»"/></div>
-      <div class="field"><label>Ціна (грн) *</label><input id="f-price" type="number" placeholder="3490"/></div>
+      <div class="field"><label>Ціна (грн) *</label><input id="f-price" type="number" placeholder="3490" min="0"/></div>
       <div class="field"><label>Стара ціна (грн)</label><input id="f-old" type="number" placeholder=""/></div>
       <div class="field"><label>Категорія *</label>
-        <select id="f-cat" style="width:100%;background:#fff;border:1px solid rgba(30,35,31,.2);padding:13px 14px;color:#1e231f;outline:none">
-          <option value="Сукні">Сукні</option><option value="Верх">Верх</option><option value="Низ">Низ</option>
-          <option value="Верхній одяг">Верхній одяг</option><option value="Трикотаж">Трикотаж</option><option value="Аксесуари">Аксесуари</option>
+        <select id="f-cat">
+          <option value="Сукні">Сукні</option>
+          <option value="Верх">Верх</option>
+          <option value="Низ">Низ</option>
+          <option value="Верхній одяг">Верхній одяг</option>
+          <option value="Трикотаж">Трикотаж</option>
+          <option value="Аксесуари">Аксесуари</option>
         </select>
       </div>
       <div class="field"><label>Значок</label>
-        <select id="f-badge" style="width:100%;background:#fff;border:1px solid rgba(30,35,31,.2);padding:13px 14px;color:#1e231f;outline:none">
-          <option value="">— Немає —</option><option value="Новинка">Новинка</option><option value="Бестселер">Бестселер</option><option value="Sale">Sale</option>
+        <select id="f-badge">
+          <option value="">— Немає —</option>
+          <option value="Новинка">Новинка</option>
+          <option value="Бестселер">Бестселер</option>
+          <option value="Sale">Sale</option>
         </select>
       </div>
-      <div class="field"><label>Залишок (шт)</label><input id="f-stock" type="number" placeholder="10"/></div>
-      <div class="field"><label>Розміри (через кому)</label><input id="f-sizes" placeholder="XS,S,M,L"/></div>
+      <div class="field"><label>Залишок (шт)</label><input id="f-stock" type="number" placeholder="10" min="0"/></div>
       <div class="field"><label>Акцентний колір (hex)</label><input id="f-tone" placeholder="#7c8568"/></div>
-      <div class="field full"><label>Опис</label><textarea id="f-desc" rows="3" style="width:100%;background:#fff;border:1px solid rgba(30,35,31,.2);padding:13px 14px;outline:none;resize:vertical"></textarea></div>
-    </div>
+      <div class="field full"><label>Опис</label><textarea id="f-desc" rows="3" style="resize:vertical"></textarea></div>
+
+      <!-- Sizes -->
+      <div class="field full">
+        <span class="section-label">Доступні розміри</span>
+        <div class="size-chips" id="size-chips">
+          <!-- rendered by JS -->
+        </div>
+      </div>
+
+      <!-- Colors -->
+      <div class="field full">
+        <span class="section-label">Кольори товару</span>
+        <div class="color-palette" id="color-palette">
+          <!-- rendered by JS -->
+        </div>
+        <div class="color-custom-row">
+          <input type="color" id="custom-color-picker" value="#7c8568" title="Оберіть колір"/>
+          <input type="text" id="custom-color-name" placeholder="Назва кольору (напр. Олива)" style="flex:1"/>
+          <button class="btn btn-outline btn-sm" type="button" onclick="addCustomColor()">+ Додати</button>
+        </div>
+        <div class="selected-colors" id="selected-colors">
+          <!-- chips rendered by JS -->
+        </div>
+      </div>
+
+      <!-- Images -->
+      <div class="field full">
+        <span class="section-label">Фото товару (до 10 зображень)</span>
+        <div class="img-upload-area" id="drop-zone">
+          <input type="file" id="f-images" accept="image/*" multiple onchange="handleImageFiles(this.files)"/>
+          <p>📷 <strong>Клікніть або перетягніть</strong> фото сюди<br/><span style="font-size:12px">JPG, PNG, WebP — до 5 МБ кожне</span></p>
+        </div>
+        <div class="img-previews" id="img-previews"></div>
+      </div>
+
+    </div><!-- /form-grid -->
     <div class="modal-footer">
-      <button class="btn btn-outline btn-sm" onclick="closeProdModal()">Скасувати</button>
-      <button class="btn btn-sm" onclick="saveProd()">Зберегти</button>
+      <button class="btn btn-outline btn-sm" type="button" onclick="closeProdModal()">Скасувати</button>
+      <button class="btn btn-sm" type="button" onclick="saveProd()">Зберегти товар</button>
     </div>
   </div>
 </div>
 
 <script>
+/* ===================== CONSTANTS ===================== */
 const ADMIN_PW = 'mereely2024';
 
+const ALL_SIZES = ['XS','S','M','L','XL','XXL','One size'];
+
+const PALETTE_COLORS = [
+  {name:'Олива',     hex:'#7c8568'},
+  {name:'Шавлія',    hex:'#b8bca8'},
+  {name:'Пісок',     hex:'#d4c8a8'},
+  {name:'Графіт',    hex:'#54584f'},
+  {name:'Чорнило',   hex:'#3d4047'},
+  {name:'Теракота',  hex:'#a97860'},
+  {name:'Молоко',    hex:'#f0ebe0'},
+  {name:'Камел',     hex:'#c4a070'},
+  {name:'Чорний',    hex:'#1a1a1a'},
+  {name:'Білий',     hex:'#f8f5ef'},
+  {name:'Бордо',     hex:'#7a2535'},
+  {name:'Морська хвиля', hex:'#4a7c8c'},
+];
+
+/* ===================== STATE ===================== */
+let editingId = null;
+let selectedSizes = [];    // ['S','M','L']
+let selectedColors = [];   // [{name:'Олива', hex:'#7c8568'}]
+let uploadedImages = [];   // [{dataUrl, name}]
+
+/* ===================== AUTH ===================== */
 function doLogin(){
   const pw = document.getElementById('pw-input').value;
   if(pw === ADMIN_PW){
@@ -156,13 +271,13 @@ function doLogin(){
 }
 function logout(){ localStorage.removeItem('mrl_admin'); location.reload(); }
 
-// check already logged in
 if(localStorage.getItem('mrl_admin')==='1'){
   document.getElementById('login').classList.add('hidden');
   document.getElementById('app').classList.remove('hidden');
   showPage('dashboard', document.querySelector('.nav-item'));
 }
 
+/* ===================== ROUTING ===================== */
 function showPage(name, el){
   document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
   if(el) el.classList.add('active');
@@ -172,82 +287,218 @@ function showPage(name, el){
   else if(name==='orders') mc.innerHTML = renderOrders();
 }
 
-// ---- PRODUCTS ----
-function getProducts(){
-  try{ return JSON.parse(localStorage.getItem('mrl_products')||'[]'); }catch(e){ return []; }
-}
+/* ===================== PRODUCTS ===================== */
+function getProducts(){ try{ return JSON.parse(localStorage.getItem('mrl_products')||'[]'); }catch(e){ return []; } }
 function saveProducts(arr){ localStorage.setItem('mrl_products', JSON.stringify(arr)); }
 
 function renderProducts(){
   const prods = getProducts();
-  const rows = prods.length ? prods.map(p=>`
-    <tr>
-      <td><strong>${esc(p.name)}</strong></td>
+  const rows = prods.length ? prods.map(p=>{
+    const thumb = (p.images&&p.images[0])
+      ? `<img src="${p.images[0]}" class="prod-thumb" alt="${esc(p.name)}"/>`
+      : `<div class="prod-thumb-placeholder">👗</div>`;
+    const colorDots = (p.colors||[]).slice(0,4).map(c=>`<span title="${esc(c[0])}" style="display:inline-block;width:12px;height:12px;border-radius:50%;background:${esc(c[1])};border:1px solid rgba(0,0,0,.15);margin-right:2px"></span>`).join('');
+    return `<tr>
+      <td style="width:54px">${thumb}</td>
+      <td><strong>${esc(p.name)}</strong><br/><span style="font-size:12px;color:#6c7166">${(p.sizes||[]).join(', ')}</span></td>
       <td>${esc(p.cat)}</td>
-      <td><strong>${p.price} ₴</strong>${p.old?` <s style="color:#8a8f84;font-size:12px">${p.old} ₴</s>`:''}</td>
+      <td><strong>${p.price} ₴</strong>${p.old?` <s style="color:#8a8f84;font-size:11px">${p.old} ₴</s>`:''}</td>
+      <td>${colorDots}</td>
       <td>${p.badge?`<span class="badge badge-${p.badge==='Sale'?'sale':(p.badge==='Новинка'?'new':'best')}">${esc(p.badge)}</span>`:''}</td>
       <td>${p.stock||0}</td>
       <td><div class="actions">
-        <button class="btn btn-outline btn-sm" onclick="editProd(${p.id})">Редагувати</button>
-        <button class="btn btn-danger btn-sm" onclick="deleteProd(${p.id})">Видалити</button>
+        <button class="btn btn-outline btn-sm" onclick="editProd(${p.id})">Ред.</button>
+        <button class="btn btn-danger btn-sm" onclick="deleteProd(${p.id})">✕</button>
       </div></td>
-    </tr>`).join('') : `<tr><td colspan="6" style="text-align:center;padding:32px;color:#6c7166">Товарів поки немає</td></tr>`;
+    </tr>`;
+  }).join('') : `<tr><td colspan="8" style="text-align:center;padding:32px;color:#6c7166">Товарів поки немає — додайте перший!</td></tr>`;
+
   return `
-    <div class="page-header"><h2>Товари</h2><button class="btn btn-sm" onclick="openNewProd()">+ Додати товар</button></div>
+    <div class="page-header">
+      <h2>Товари</h2>
+      <button class="btn btn-sm" onclick="openNewProd()">+ Додати товар</button>
+    </div>
     <div class="card">
-      <table><thead><tr><th>Назва</th><th>Категорія</th><th>Ціна</th><th>Значок</th><th>Залишок</th><th>Дії</th></tr></thead>
-      <tbody>${rows}</tbody></table>
+      <table>
+        <thead><tr><th></th><th>Назва / Розміри</th><th>Категорія</th><th>Ціна</th><th>Кольори</th><th>Значок</th><th>Залишок</th><th>Дії</th></tr></thead>
+        <tbody>${rows}</tbody>
+      </table>
     </div>`;
 }
 
-let editingId = null;
+/* ---------- MODAL OPEN/CLOSE ---------- */
+function handleModalBgClick(e){ if(e.target===e.currentTarget) closeProdModal(); }
+
 function openNewProd(){
   editingId = null;
+  selectedSizes = [];
+  selectedColors = [];
+  uploadedImages = [];
   document.getElementById('modal-title').textContent = 'Новий товар';
-  ['name','price','old','desc','sizes','tone'].forEach(k=>document.getElementById('f-'+k).value='');
-  document.getElementById('f-stock').value='10';
-  document.getElementById('f-cat').value='Сукні';
-  document.getElementById('f-badge').value='';
+  document.getElementById('f-name').value = '';
+  document.getElementById('f-price').value = '';
+  document.getElementById('f-old').value = '';
+  document.getElementById('f-stock').value = '10';
+  document.getElementById('f-cat').value = 'Сукні';
+  document.getElementById('f-badge').value = '';
+  document.getElementById('f-tone').value = '#7c8568';
+  document.getElementById('f-desc').value = '';
+  document.getElementById('f-images').value = '';
+  renderSizeChips();
+  renderColorPalette();
+  renderSelectedColors();
+  renderImagePreviews();
   document.getElementById('prod-modal').classList.remove('hidden');
 }
+
 function editProd(id){
-  const p = getProducts().find(x=>x.id===id); if(!p) return;
+  const p = getProducts().find(x=>x.id===id);
+  if(!p) return;
   editingId = id;
+  selectedSizes = [...(p.sizes||[])];
+  selectedColors = (p.colors||[]).map(c=>({name:c[0], hex:c[1]}));
+  uploadedImages = (p.images||[]).map(url=>({dataUrl:url, name:''}));
   document.getElementById('modal-title').textContent = 'Редагувати товар';
   document.getElementById('f-name').value = p.name||'';
   document.getElementById('f-price').value = p.price||'';
   document.getElementById('f-old').value = p.old||'';
+  document.getElementById('f-stock').value = p.stock||10;
   document.getElementById('f-cat').value = p.cat||'Сукні';
   document.getElementById('f-badge').value = p.badge||'';
-  document.getElementById('f-stock').value = p.stock||10;
-  document.getElementById('f-sizes').value = (p.sizes||[]).join(',');
   document.getElementById('f-tone').value = p.tone||'#7c8568';
   document.getElementById('f-desc').value = p.desc||'';
+  document.getElementById('f-images').value = '';
+  renderSizeChips();
+  renderColorPalette();
+  renderSelectedColors();
+  renderImagePreviews();
   document.getElementById('prod-modal').classList.remove('hidden');
 }
-function closeProdModal(){ document.getElementById('prod-modal').classList.add('hidden'); }
+
+function closeProdModal(){
+  document.getElementById('prod-modal').classList.add('hidden');
+}
+
+/* ---------- SIZES ---------- */
+function renderSizeChips(){
+  const el = document.getElementById('size-chips');
+  if(!el) return;
+  el.innerHTML = ALL_SIZES.map(sz=>`
+    <button type="button" class="size-chip${selectedSizes.includes(sz)?' selected':''}" onclick="toggleSize('${sz}')">${sz}</button>
+  `).join('');
+}
+function toggleSize(sz){
+  if(selectedSizes.includes(sz)) selectedSizes = selectedSizes.filter(s=>s!==sz);
+  else selectedSizes.push(sz);
+  renderSizeChips();
+}
+
+/* ---------- COLORS ---------- */
+function renderColorPalette(){
+  const el = document.getElementById('color-palette');
+  if(!el) return;
+  el.innerHTML = PALETTE_COLORS.map(c=>{
+    const isSel = selectedColors.some(s=>s.hex===c.hex);
+    return `<span class="color-swatch${isSel?' selected':''}" style="background:${c.hex}" title="${esc(c.name)}" onclick="togglePaletteColor('${c.name}','${c.hex}')"></span>`;
+  }).join('');
+}
+function togglePaletteColor(name, hex){
+  const idx = selectedColors.findIndex(s=>s.hex===hex);
+  if(idx>=0) selectedColors.splice(idx,1);
+  else selectedColors.push({name, hex});
+  renderColorPalette();
+  renderSelectedColors();
+}
+function addCustomColor(){
+  const hex = document.getElementById('custom-color-picker').value;
+  const name = document.getElementById('custom-color-name').value.trim() || hex;
+  if(selectedColors.some(s=>s.hex===hex)) return;
+  selectedColors.push({name, hex});
+  document.getElementById('custom-color-name').value = '';
+  renderColorPalette();
+  renderSelectedColors();
+}
+function removeColor(hex){
+  selectedColors = selectedColors.filter(c=>c.hex!==hex);
+  renderColorPalette();
+  renderSelectedColors();
+}
+function renderSelectedColors(){
+  const el = document.getElementById('selected-colors');
+  if(!el) return;
+  if(!selectedColors.length){ el.innerHTML = '<span style="font-size:12px;color:#8a8f84">Жодного кольору не обрано</span>'; return; }
+  el.innerHTML = selectedColors.map(c=>`
+    <div class="selected-color-chip">
+      <span class="swatch" style="background:${esc(c.hex)}"></span>
+      <span>${esc(c.name)}</span>
+      <span class="rm" onclick="removeColor('${esc(c.hex)}')">×</span>
+    </div>`).join('');
+}
+
+/* ---------- IMAGES ---------- */
+function handleImageFiles(files){
+  const MAX = 10;
+  Array.from(files).slice(0, MAX - uploadedImages.length).forEach(file=>{
+    if(!file.type.startsWith('image/')) return;
+    if(file.size > 5*1024*1024){ alert(file.name+' — перевищує 5 МБ'); return; }
+    const reader = new FileReader();
+    reader.onload = e=>{ uploadedImages.push({dataUrl:e.target.result, name:file.name}); renderImagePreviews(); };
+    reader.readAsDataURL(file);
+  });
+}
+function removeImage(idx){
+  uploadedImages.splice(idx, 1);
+  renderImagePreviews();
+}
+function renderImagePreviews(){
+  const el = document.getElementById('img-previews');
+  if(!el) return;
+  el.innerHTML = uploadedImages.map((img,i)=>`
+    <div class="img-preview-item">
+      <img src="${img.dataUrl}" alt="фото ${i+1}"/>
+      <div class="rm-img" onclick="removeImage(${i})">×</div>
+      <div class="drag-handle">︙</div>
+    </div>`).join('');
+}
+
+/* Drag-and-drop for upload area */
+document.addEventListener('DOMContentLoaded', ()=>{
+  const dz = document.getElementById('drop-zone');
+  if(!dz) return;
+  dz.addEventListener('dragover', e=>{ e.preventDefault(); dz.classList.add('drag-over'); });
+  dz.addEventListener('dragleave', ()=>dz.classList.remove('drag-over'));
+  dz.addEventListener('drop', e=>{ e.preventDefault(); dz.classList.remove('drag-over'); handleImageFiles(e.dataTransfer.files); });
+});
+
+/* ---------- SAVE ---------- */
 function saveProd(){
   const name = document.getElementById('f-name').value.trim();
   const price = parseInt(document.getElementById('f-price').value)||0;
-  if(!name||!price){ alert('Заповніть назву та ціну'); return; }
+  if(!name){ alert('Вкажіть назву товару'); return; }
+  if(!price){ alert('Вкажіть ціну товару'); return; }
+  if(!selectedSizes.length){ if(!confirm('Не вибрано жодного розміру. Продовжити?')) return; }
+  if(!selectedColors.length){ if(!confirm('Не вибрано жодного кольору. Продовжити?')) return; }
+
   const prods = getProducts();
   const obj = {
     id: editingId || Date.now(),
     name, price,
-    old: parseInt(document.getElementById('f-old').value)||0||undefined,
     cat: document.getElementById('f-cat').value,
-    badge: document.getElementById('f-badge').value||undefined,
+    badge: document.getElementById('f-badge').value || undefined,
     stock: parseInt(document.getElementById('f-stock').value)||10,
-    sizes: document.getElementById('f-sizes').value.split(',').map(s=>s.trim()).filter(Boolean),
-    tone: document.getElementById('f-tone').value||'#7c8568',
+    sizes: [...selectedSizes],
+    tone: document.getElementById('f-tone').value || '#7c8568',
     desc: document.getElementById('f-desc').value.trim(),
-    colors: [['Чорнило','#3d3d3d']]
+    colors: selectedColors.map(c=>[c.name, c.hex]),
+    images: uploadedImages.map(i=>i.dataUrl),
   };
-  if(!obj.old) delete obj.old;
+  const oldPrice = parseInt(document.getElementById('f-old').value)||0;
+  if(oldPrice) obj.old = oldPrice;
   if(!obj.badge) delete obj.badge;
+
   if(editingId){
     const idx = prods.findIndex(x=>x.id===editingId);
-    if(idx>=0) prods[idx]=obj;
+    if(idx>=0) prods[idx] = obj; else prods.unshift(obj);
   } else {
     prods.unshift(obj);
   }
@@ -255,65 +506,86 @@ function saveProd(){
   closeProdModal();
   showPage('products', null);
 }
+
 function deleteProd(id){
-  if(!confirm('Видалити товар?')) return;
+  if(!confirm('Видалити товар? Це незворотно.')) return;
   saveProducts(getProducts().filter(p=>p.id!==id));
   showPage('products', null);
 }
 
-// ---- ORDERS ----
+/* ===================== ORDERS ===================== */
 function getOrders(){ try{ return JSON.parse(localStorage.getItem('mrl_orders')||'[]'); }catch(e){ return []; } }
 
 function renderOrders(){
   const orders = getOrders();
   const rows = orders.length ? orders.map(o=>{
     const date = new Date(o.date).toLocaleDateString('uk-UA',{day:'2-digit',month:'2-digit',year:'numeric'});
-    const itemsStr = (o.items||[]).map(i=>i.name+'×'+i.qty).join(', ');
+    const itemsStr = (o.items||[]).map(i=>esc(i.name)+'×'+i.qty).join(', ');
     const total = (o.items||[]).reduce((a,c)=>a+c.price*c.qty,0);
     return `<tr>
-      <td style="font-size:12px;color:#6c7166">#${String(o.id).slice(-6)}<br/>${date}</td>
+      <td style="font-size:12px;color:#6c7166;white-space:nowrap">#${String(o.id).slice(-6)}<br/>${date}</td>
       <td><strong>${esc(o.name||'')}</strong><br/><span style="font-size:12px;color:#6c7166">${esc(o.phone||'')}</span></td>
-      <td style="font-size:12px">${esc(itemsStr)}</td>
-      <td><strong>${total} ₴</strong>${o.discount?`<br/><span style="font-size:11px;color:#6f7a5e">−${o.discount}%</span>`:''}</td>
-      <td>${esc(o.city||'')} ${esc(o.warehouse||o.address||'')}</td>
+      <td style="font-size:12px;max-width:200px">${itemsStr}</td>
+      <td style="white-space:nowrap"><strong>${total.toLocaleString('uk-UA')} ₴</strong>${o.discount?`<br/><span style="font-size:11px;color:#6f7a5e">−${o.discount}%</span>`:''}</td>
+      <td style="font-size:12px">${esc(o.city||'')}${o.warehouse?'<br/>'+esc(o.warehouse):''}</td>
       <td><span class="order-status status-new">Нове</span></td>
     </tr>`;
-  }).join('') : `<tr><td colspan="6" style="text-align:center;padding:32px;color:#6c7166">Замовлень ще немає</td></tr>`;
+  }).join('') : `<tr><td colspan="6" style="text-align:center;padding:36px;color:#6c7166">Замовлень ще немає</td></tr>`;
   return `
     <div class="page-header"><h2>Замовлення</h2></div>
     <div class="card">
-      <table><thead><tr><th>ID / Дата</th><th>Клієнт</th><th>Товари</th><th>Сума</th><th>Доставка</th><th>Статус</th></tr></thead>
-      <tbody>${rows}</tbody></table>
+      <table>
+        <thead><tr><th>ID / Дата</th><th>Клієнт</th><th>Товари</th><th>Сума</th><th>Доставка</th><th>Статус</th></tr></thead>
+        <tbody>${rows}</tbody>
+      </table>
     </div>`;
 }
 
-// ---- DASHBOARD ----
+/* ===================== DASHBOARD ===================== */
 function renderDashboard(){
   const orders = getOrders();
   const prods = getProducts();
-  const total = orders.reduce((a,o)=>{
-    const t=(o.items||[]).reduce((x,c)=>x+c.price*c.qty,0); return a+t;
-  },0);
+  const revenue = orders.reduce((a,o)=>a+(o.items||[]).reduce((x,c)=>x+c.price*c.qty,0),0);
+  const weekOrders = orders.filter(o=>new Date(o.date)>new Date(Date.now()-86400000*7)).length;
   return `
     <div class="page-header"><h2>Дашборд</h2></div>
     <div class="stats-row">
       <div class="stat-card"><div class="num">${orders.length}</div><div class="lbl">Замовлень</div></div>
-      <div class="stat-card"><div class="num">${total.toLocaleString('uk-UA')} ₴</div><div class="lbl">Загальний дохід</div></div>
-      <div class="stat-card"><div class="num">${prods.length}</div><div class="lbl">Товарів (кастомних)</div></div>
-      <div class="stat-card"><div class="num">${orders.filter(o=>new Date(o.date)>new Date(Date.now()-86400000*7)).length}</div><div class="lbl">Замовлень за тиждень</div></div>
+      <div class="stat-card"><div class="num">${revenue.toLocaleString('uk-UA')} ₴</div><div class="lbl">Загальний дохід</div></div>
+      <div class="stat-card"><div class="num">${prods.length}</div><div class="lbl">Товарів</div></div>
+      <div class="stat-card"><div class="num">${weekOrders}</div><div class="lbl">За тиждень</div></div>
     </div>
     <div class="card"><h3>Останні замовлення</h3>
-      ${orders.slice(0,5).length ? `<table><thead><tr><th>Дата</th><th>Клієнт</th><th>Сума</th></tr></thead><tbody>
-        ${orders.slice(0,5).map(o=>{
-          const date=new Date(o.date).toLocaleDateString('uk-UA');
-          const total=(o.items||[]).reduce((a,c)=>a+c.price*c.qty,0);
-          return `<tr><td style="font-size:12px;color:#6c7166">${date}</td><td>${esc(o.name||'')}</td><td><strong>${total} ₴</strong></td></tr>`;
-        }).join('')}
-      </tbody></table>` : '<p style="color:#6c7166;font-size:14px">Замовлень поки немає</p>'}
+      ${orders.slice(0,5).length ? `
+        <table><thead><tr><th>Дата</th><th>Клієнт</th><th>Сума</th><th>Статус</th></tr></thead><tbody>
+          ${orders.slice(0,5).map(o=>{
+            const date = new Date(o.date).toLocaleDateString('uk-UA');
+            const total = (o.items||[]).reduce((a,c)=>a+c.price*c.qty,0);
+            return `<tr>
+              <td style="font-size:12px;color:#6c7166">${date}</td>
+              <td>${esc(o.name||'')}</td>
+              <td><strong>${total.toLocaleString('uk-UA')} ₴</strong></td>
+              <td><span class="order-status status-new">Нове</span></td>
+            </tr>`;
+          }).join('')}
+        </tbody></table>`
+      : '<p style="color:#6c7166;font-size:14px">Замовлень поки немає</p>'}
+    </div>
+    <div class="card"><h3>Промокоди</h3>
+      <table>
+        <thead><tr><th>Код</th><th>Знижка</th><th>Опис</th></tr></thead>
+        <tbody>
+          <tr><td><code style="background:#e8e2d8;padding:2px 6px;font-size:12px">MEREELY10</code></td><td>10%</td><td style="font-size:12px;color:#6c7166">Базова знижка</td></tr>
+          <tr><td><code style="background:#e8e2d8;padding:2px 6px;font-size:12px">FIRST15</code></td><td>15%</td><td style="font-size:12px;color:#6c7166">Перше замовлення</td></tr>
+          <tr><td><code style="background:#e8e2d8;padding:2px 6px;font-size:12px">SALE20</code></td><td>20%</td><td style="font-size:12px;color:#6c7166">Сезонний розпродаж</td></tr>
+          <tr><td><code style="background:#e8e2d8;padding:2px 6px;font-size:12px">UKRAINE</code></td><td>5%</td><td style="font-size:12px;color:#6c7166">Для всіх українців</td></tr>
+        </tbody>
+      </table>
     </div>`;
 }
 
-function esc(s){ return String(s).replace(/[<>&"]/g,c=>({'<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;'}[c])); }
+/* ===================== UTILS ===================== */
+function esc(s){ return String(s).replace(/[<>&"']/g,c=>({'<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;',"'":'&#39;'}[c])); }
 </script>
 </body>
 </html>
