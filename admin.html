@@ -148,6 +148,7 @@ tr:hover td{background:rgba(30,35,31,.025)}
     <span class="nav-item active" onclick="showPage('dashboard',this)">📊 Дашборд</span>
     <span class="nav-item" onclick="showPage('products',this)">👗 Товари</span>
     <span class="nav-item" onclick="showPage('orders',this)">📦 Замовлення</span>
+    <span class="nav-item" onclick="showPage('settings',this)">⚙️ Налаштування</span>
     <div class="sidebar-footer">
       <a href="index.html" style="display:block;font-size:12px;color:rgba(241,235,225,.5);text-decoration:none;margin-bottom:8px;transition:color .2s" onmouseover="this.style.color='#f1ebe1'" onmouseout="this.style.color='rgba(241,235,225,.5)'">← На сайт</a>
       <button onclick="logout()">Вийти</button>
@@ -285,6 +286,7 @@ function showPage(name, el){
   if(name==='dashboard') mc.innerHTML = renderDashboard();
   else if(name==='products') mc.innerHTML = renderProducts();
   else if(name==='orders') mc.innerHTML = renderOrders();
+  else if(name==='settings') mc.innerHTML = renderSettings();
 }
 
 /* ===================== PRODUCTS ===================== */
@@ -582,6 +584,57 @@ function renderDashboard(){
         </tbody>
       </table>
     </div>`;
+}
+
+/* ===================== SETTINGS ===================== */
+function renderSettings(){
+  const npKey = localStorage.getItem('mrl_np_key')||'';
+  return `
+    <div class="page-header"><h2>Налаштування</h2></div>
+    <div class="card">
+      <h3>API-ключ Нової Пошти</h3>
+      <p style="font-size:13.5px;color:#6c7166;margin-bottom:16px;line-height:1.6">
+        Для пошуку міст і відділень на сайті потрібен особистий API-ключ Нової Пошти.<br>
+        Отримати безкоштовно: <a href="https://my.novaposhta.ua/settings/index#apikeys" target="_blank" style="color:#a7613f;border-bottom:1px solid #a7613f">my.novaposhta.ua → Налаштування → API</a>
+      </p>
+      <div style="display:flex;gap:10px;align-items:stretch;max-width:520px">
+        <input id="np-key-input" type="text" value="${esc(npKey)}" placeholder="Ваш API-ключ (32 символи)" style="flex:1;border:1px solid #d0c9bc;padding:12px 14px;font-size:14px;font-family:'Manrope',sans-serif;outline:none;background:#faf8f4"/>
+        <button onclick="saveNpKey()" style="background:#28332c;color:#f1ebe1;padding:12px 20px;font-size:12px;letter-spacing:.14em;text-transform:uppercase;font-weight:600;border:none;cursor:pointer;white-space:nowrap">Зберегти</button>
+      </div>
+      <div id="np-key-msg" style="margin-top:10px;font-size:13px"></div>
+      <div style="margin-top:20px;padding:14px;background:#f4f0e8;border-left:3px solid #a7613f">
+        <p style="font-size:13px;color:#41463f;line-height:1.6"><strong>Як отримати ключ:</strong><br>
+        1. Зайдіть на <strong>my.novaposhta.ua</strong><br>
+        2. Меню → <strong>Налаштування → API</strong><br>
+        3. Натисніть <strong>"Створити ключ"</strong> і скопіюйте його сюди</p>
+      </div>
+    </div>
+    <div class="card">
+      <h3>Перевірка з'єднання</h3>
+      <button onclick="testNpKey()" style="background:#6f7a5e;color:#f1ebe1;padding:12px 20px;font-size:12px;letter-spacing:.14em;text-transform:uppercase;font-weight:600;border:none;cursor:pointer">Перевірити API-ключ</button>
+      <div id="np-test-msg" style="margin-top:12px;font-size:13.5px"></div>
+    </div>`;
+}
+
+function saveNpKey(){
+  const val = document.getElementById('np-key-input').value.trim();
+  localStorage.setItem('mrl_np_key', val);
+  const msg = document.getElementById('np-key-msg');
+  if(val){ msg.innerHTML = '<span style="color:#6f7a5e;font-weight:600">✓ Ключ збережено! Тепер пошук міст і відділень на сайті працюватиме.</span>'; }
+  else { msg.innerHTML = '<span style="color:#a7613f">Ключ видалено</span>'; }
+  setTimeout(()=>{ msg.innerHTML=''; },4000);
+}
+
+function testNpKey(){
+  const key = (document.getElementById('np-key-input')||{}).value || localStorage.getItem('mrl_np_key')||'';
+  const msg = document.getElementById('np-test-msg');
+  if(!key){ msg.innerHTML='<span style="color:#a7613f">Спочатку введіть API-ключ</span>'; return; }
+  msg.innerHTML='<span style="color:#8a8f84">Перевірка…</span>';
+  fetch('https://api.novaposhta.ua/v2.0/json/',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({apiKey:key,modelName:'Address',calledMethod:'searchSettlements',methodProperties:{CityName:'Київ',Limit:1,Page:1}})})
+    .then(r=>r.json()).then(d=>{
+      if(d.success){ msg.innerHTML='<span style="color:#6f7a5e;font-weight:600">✓ З\'єднання успішне! Ключ працює.</span>'; }
+      else { msg.innerHTML='<span style="color:#a7613f">Помилка: '+esc((d.errors||['невірний ключ'])[0])+'</span>'; }
+    }).catch(()=>{ msg.innerHTML='<span style="color:#a7613f">Помилка мережі. Перевірте інтернет-з\'єднання.</span>'; });
 }
 
 /* ===================== UTILS ===================== */

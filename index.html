@@ -143,7 +143,7 @@
         <article data-reveal style="opacity:0;transform:translateY(26px);transition:all .9s cubic-bezier(.16,.84,.44,1)">
           <div onClick="{{ p.open }}" style="position:relative;aspect-ratio:4/5;overflow:hidden;cursor:pointer;background:{{ p.tone }}" onMouseEnter="{{ p.hoverOn }}" onMouseLeave="{{ p.hoverOff }}">
             <div style="position:absolute;inset:0;background-image:repeating-linear-gradient(125deg,rgba(0,0,0,.045) 0 2px,transparent 2px 11px);transition:transform 1.1s cubic-bezier(.16,.84,.44,1);transform:{{ p.imgScale }}"></div>
-            <span style="position:absolute;left:12px;bottom:10px;font-family:monospace;font-size:9px;letter-spacing:.1em;color:rgba(255,255,255,.7)">{{ p.shotLabel }}</span>
+            <span style="position:absolute;left:12px;bottom:10px;right:12px;font-family:monospace;font-size:9px;letter-spacing:.1em;color:rgba(255,255,255,.7);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ p.shotLabel }}</span>
             <sc-if value="{{ p.hasBadge }}" hint-placeholder-val="{{ false }}"><span style="position:absolute;top:12px;left:12px;background:{{ p.badgeBg }};color:#f1ebe1;font-size:10px;letter-spacing:.14em;text-transform:uppercase;font-weight:700;padding:5px 11px">{{ p.badge }}</span></sc-if>
             <button onClick="{{ p.toggleWish }}" aria-label="В обране" style="position:absolute;top:10px;right:10px;width:34px;height:34px;border-radius:50%;background:rgba(241,235,225,.85);display:flex;align-items:center;justify-content:center;transition:transform .3s" style-hover="transform:scale(1.12)">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="{{ p.wishFill }}" stroke="#28332c" stroke-width="1.4"><path d="M12 20s-7-4.5-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.5-7 10-7 10z"/></svg>
@@ -339,7 +339,7 @@
           <article style="opacity:1">
             <div onClick="{{ p.open }}" style="position:relative;aspect-ratio:4/5;overflow:hidden;cursor:pointer;background:{{ p.tone }}" onMouseEnter="{{ p.hoverOn }}" onMouseLeave="{{ p.hoverOff }}">
               <div style="position:absolute;inset:0;background-image:repeating-linear-gradient(125deg,rgba(0,0,0,.045) 0 2px,transparent 2px 11px);transition:transform 1.1s cubic-bezier(.16,.84,.44,1);transform:{{ p.imgScale }}"></div>
-              <span style="position:absolute;left:12px;bottom:10px;font-family:monospace;font-size:9px;letter-spacing:.1em;color:rgba(255,255,255,.7)">{{ p.shotLabel }}</span>
+              <span style="position:absolute;left:12px;bottom:10px;right:12px;font-family:monospace;font-size:9px;letter-spacing:.1em;color:rgba(255,255,255,.7);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ p.shotLabel }}</span>
               <sc-if value="{{ p.hasBadge }}" hint-placeholder-val="{{ false }}"><span style="position:absolute;top:12px;left:12px;background:{{ p.badgeBg }};color:#f1ebe1;font-size:10px;letter-spacing:.14em;text-transform:uppercase;font-weight:700;padding:5px 11px">{{ p.badge }}</span></sc-if>
               <button onClick="{{ p.toggleWish }}" aria-label="В обране" style="position:absolute;top:10px;right:10px;width:34px;height:34px;border-radius:50%;background:rgba(241,235,225,.85);display:flex;align-items:center;justify-content:center;transition:transform .3s" style-hover="transform:scale(1.12)"><svg width="16" height="16" viewBox="0 0 24 24" fill="{{ p.wishFill }}" stroke="#28332c" stroke-width="1.4"><path d="M12 20s-7-4.5-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.5-7 10-7 10z"/></svg></button>
               <button onClick="{{ p.quick }}" style="position:absolute;left:0;right:0;bottom:0;background:rgba(40,51,44,.94);color:#f1ebe1;padding:14px;font-size:11px;letter-spacing:.2em;text-transform:uppercase;font-weight:600;transform:{{ p.quickShift }};opacity:{{ p.quickOpacity }};transition:all .4s cubic-bezier(.16,.84,.44,1)">Швидкий перегляд</button>
@@ -929,10 +929,15 @@ class Component extends DCLogic {
   _npSearch(q){
     if(this._npT) clearTimeout(this._npT);
     if(!q||q.length<2){ this.setState({coCities:[],coSearching:false}); return; }
+    const key = this._npKey;
+    if(!key){
+      this.setState({coCities:[{Present:'⚠ API-ключ не налаштовано — додайте в Адмінці → Налаштування',DeliveryCity:'',Ref:''}],coSearching:false});
+      return;
+    }
     this.setState({coSearching:true});
     this._npT = setTimeout(()=>{
-      const key = this._npKey || '9ea03d4d48e39ab6d7c1168b1daf6b78';
-      fetch('https://api.novaposhta.ua/v2.0/json/',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({apiKey:key,modelName:'Address',calledMethod:'searchSettlements',methodProperties:{CityName:q,Limit:8,Page:1}})})
+      const key2 = this._npKey;
+      fetch('https://api.novaposhta.ua/v2.0/json/',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({apiKey:key2,modelName:'Address',calledMethod:'searchSettlements',methodProperties:{CityName:q,Limit:8,Page:1}})})
         .then(r=>r.json()).then(d=>{
           const items = (d.data&&d.data[0]&&d.data[0].Addresses)||[];
           this.setState({coCities:items,coSearching:false});
@@ -941,8 +946,9 @@ class Component extends DCLogic {
   }
 
   _npWarehouses(ref){
-    const key = this._npKey || '9ea03d4d48e39ab6d7c1168b1daf6b78';
-    fetch('https://api.novaposhta.ua/v2.0/json/',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({apiKey:key,modelName:'AddressGeneral',calledMethod:'getWarehouses',methodProperties:{SettlementRef:ref,Limit:100,Page:1}})})
+    const key2 = this._npKey;
+    if(!key2||!ref) return;
+    fetch('https://api.novaposhta.ua/v2.0/json/',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({apiKey:key2,modelName:'AddressGeneral',calledMethod:'getWarehouses',methodProperties:{SettlementRef:ref,Limit:100,Page:1}})})
       .then(r=>r.json()).then(d=>{
         const wh = (d.data)||[];
         this.setState({coWarehouses:wh});
@@ -1235,7 +1241,7 @@ class Component extends DCLogic {
       setCityQ:(e)=>{ const q=e.target.value; this.setState(s=>({co:{...s.co,cityQ:q,cityRef:'',warehouse:''},coWarehouses:[],coErr:{...s.coErr,city:null}})); this._npSearch(q); },
       npSearching:S.coSearching,
       hasCitySugg:S.coCities.length>0,
-      citySugg:S.coCities.map(c=>({ label:(c.Present||c.Description||''), pick:()=>{ this.setState(s=>({co:{...s.co,cityQ:c.Present||c.Description,cityRef:c.DeliveryCity||c.Ref},coCities:[]})); this._npWarehouses(c.DeliveryCity||c.Ref); } })),
+      citySugg:S.coCities.map(c=>({ label:(c.Present||c.Description||''), pick:()=>{ const ref=c.DeliveryCity||c.Ref; if(!ref){ return; } this.setState(s=>({co:{...s.co,cityQ:c.Present||c.Description,cityRef:ref},coCities:[]})); this._npWarehouses(ref); } })),
       hasWarehouses:S.coWarehouses.length>0,
       warehouseOpts:S.coWarehouses.slice(0,80).map(w=>({ref:w.Ref||'',label:w.Description||''})),
       setWarehouse:(e)=>this.setState(s=>({co:{...s.co,warehouse:e.target.value},coErr:{...s.coErr,warehouse:null}})),
