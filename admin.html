@@ -719,27 +719,10 @@ async function uploadMeestData(){
     if(!cities.length) throw new Error('Міста не знайдено в файлі — перевірте формат');
     if(!branches.length) throw new Error('Відділення не знайдено в файлі — перевірте формат');
 
-    let streets = [];
-    if(streetFile){
-      msg.innerHTML='<span style="color:#6c7166">Парсую вулиці…</span>';
-      const cityByUid = {};
-      for(const c of cities) cityByUid[c.uid] = c.name;
-      for(const line of streetFile.text.split(/\r?\n/)){
-        const p = parseLine(line.trim());
-        if(p.length < 7 || !isUid(p[0]) || !isUid(p[5])) continue;
-        const type=(p[1]||'').trim(); const name=(p[3]||'').trim(); const cityUid=p[5].trim();
-        const cityName=cityByUid[cityUid]||(p[6]||'').trim();
-        if(!name||!cityName) continue;
-        streets.push({ name:(type&&type!==name?type+' '+name:name).trim(), cityUid, cityName });
-      }
-    }
-
     localStorage.setItem('mrl_meest_data', JSON.stringify({ cities, branches }));
     localStorage.setItem('mrl_meest_date', new Date().toLocaleString('uk-UA'));
-    if(streets.length) localStorage.setItem('mrl_ukr_streets', JSON.stringify(streets));
 
-    const streetInfo = streets.length ? ', '+streets.length+' вулиць' : '';
-    msg.innerHTML = '<span style="color:#6f7a5e;font-weight:600">✓ Завантажено '+branches.length+' відділень у '+cities.length+' містах'+streetInfo+'!</span>';
+    msg.innerHTML = '<span style="color:#6f7a5e;font-weight:600">✓ Завантажено '+branches.length+' відділень у '+cities.length+' містах!</span>';
     setTimeout(()=>showPage('settings',document.querySelector('[data-page="settings"]')),1800);
   } catch(err){
     msg.innerHTML = '<span style="color:#a7613f">Помилка: '+esc(err.message)+'</span>';
