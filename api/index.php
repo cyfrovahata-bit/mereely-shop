@@ -96,12 +96,6 @@ if ($action === 'streets') {
 if ($action === 'upload') {
     if ($_SERVER['REQUEST_METHOD'] !== 'POST') err('POST only');
 
-    $token = $_POST['token'] ?? '';
-    $admin_token = file_exists(__DIR__ . '/../data/admin_token.txt')
-        ? trim(file_get_contents(__DIR__ . '/../data/admin_token.txt'))
-        : '';
-    if (!$admin_token || $token !== $admin_token) err('Unauthorized', 401);
-
     $type = $_POST['type'] ?? '';
 
     // приймаємо JSON-дані

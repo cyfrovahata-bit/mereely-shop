@@ -619,7 +619,6 @@ function renderSettings(){
 }
 
 function renderMeestSettings(){
-  const token = localStorage.getItem('mrl_admin_token')||'';
   // Статус бази завантажується асинхронно
   setTimeout(async ()=>{
     const el = document.getElementById('meest-db-status');
@@ -640,14 +639,6 @@ function renderMeestSettings(){
     <p style="font-size:13.5px;color:#6c7166;margin-bottom:12px;line-height:1.6">
       Завантажте ZIP-архів Meest (locations.zip). Дані збережуться в базу на сервері і будуть доступні для всіх клієнтів.
     </p>
-    <div style="margin-bottom:12px">
-      <label style="font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:#6c7166;display:block;margin-bottom:4px">Токен адміна</label>
-      <div style="display:flex;gap:8px">
-        <input id="admin-token-input" type="password" value="${esc(token)}" placeholder="Секретний токен для захисту API" style="flex:1;background:#fff;border:1px solid rgba(30,35,31,.2);padding:10px 12px;font-size:13px;color:#1e231f;outline:none;font-family:'Manrope',sans-serif"/>
-        <button onclick="saveAdminToken()" style="background:#28332c;color:#f1ebe1;padding:10px 16px;font-size:11px;letter-spacing:.1em;text-transform:uppercase;font-weight:600;border:none;cursor:pointer;white-space:nowrap">Зберегти</button>
-      </div>
-      <div id="token-msg" style="margin-top:6px;font-size:12px;color:#6c7166"></div>
-    </div>
     <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:8px">
       <input type="file" id="meest-file-input" accept=".zip" style="font-size:13px;font-family:'Manrope',sans-serif"/>
       <button onclick="uploadMeestData()" style="background:#28332c;color:#f1ebe1;padding:12px 20px;font-size:12px;letter-spacing:.14em;text-transform:uppercase;font-weight:600;border:none;cursor:pointer;white-space:nowrap">Завантажити в базу</button>
@@ -658,20 +649,10 @@ function renderMeestSettings(){
   </div>`;
 }
 
-function saveAdminToken(){
-  const val = document.getElementById('admin-token-input').value.trim();
-  localStorage.setItem('mrl_admin_token', val);
-  document.getElementById('token-msg').innerHTML = val
-    ? '<span style="color:#6f7a5e">✓ Токен збережено в браузері</span>'
-    : '<span style="color:#a7613f">Токен видалено</span>';
-}
-
 async function uploadMeestData(){
   const input = document.getElementById('meest-file-input');
   const msg = document.getElementById('meest-upload-msg');
-  const token = localStorage.getItem('mrl_admin_token')||'';
   if(!input||!input.files||!input.files[0]){ msg.innerHTML='<span style="color:#a7613f">Оберіть ZIP-файл</span>'; return; }
-  if(!token){ msg.innerHTML='<span style="color:#a7613f">Вкажіть токен адміна</span>'; return; }
   msg.innerHTML='<span style="color:#6c7166">Розпаковую архів…</span>';
   try {
     const zip = await JSZip.loadAsync(input.files[0]);
@@ -754,7 +735,7 @@ async function uploadMeestData(){
       const r = await fetch('/api/?action=upload', {
         method:'POST',
         headers:{'Content-Type':'application/json'},
-        body: JSON.stringify({token, type, ...body})
+        body: JSON.stringify({type, ...body})
       });
       if(!r.ok){ const d=await r.json(); throw new Error(d.error||'Помилка сервера'); }
       return r.json();
@@ -775,7 +756,7 @@ async function uploadMeestData(){
     await fetch('/api/?action=upload', {
       method:'POST',
       headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({token, type:'updated', date: new Date().toLocaleString('uk-UA')})
+      body: JSON.stringify({type:'updated', date: new Date().toLocaleString('uk-UA')})
     });
 
     const lockerCount = branches.filter(b=>(b.name||'').toLowerCase().includes('поштомат')).length;
@@ -789,14 +770,12 @@ async function uploadMeestData(){
 }
 
 async function clearMeestData(){
-  const token = localStorage.getItem('mrl_admin_token')||'';
-  if(!token){ alert('Вкажіть токен адміна'); return; }
   if(!confirm('Очистити всі дані Meest з бази?')) return;
   try {
     await fetch('/api/?action=upload', {
       method:'POST',
       headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({token, type:'clear'})
+      body: JSON.stringify({type:'clear'})
     });
     showPage('settings',document.querySelector('[data-page="settings"]'));
   } catch(e){ alert('Помилка: '+e.message); }
