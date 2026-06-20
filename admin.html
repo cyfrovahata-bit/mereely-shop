@@ -668,6 +668,13 @@ async function uploadMeestData(){
       });
       return key ? zip.files[key] : null;
     };
+
+    // визначає роздільник файлу (таб або крапка з комою)
+    const parseLine = line => {
+      if(line.includes('\t')) return line.split('\t');
+      return line.split(';');
+    };
+
     const cityFile = findFile('Города.txt');
     const branchFile = findFile('Подразделения.txt');
     if(!cityFile) throw new Error('Файл Города.txt не знайдено в архіві');
@@ -678,9 +685,13 @@ async function uploadMeestData(){
     // UIDГорода;Наименование;НаименованиеRU;Вид;UIDРайон;UIDОбласть;UIDПодразделения;ЗонаДоставки;ОтсутствуетАО
     const cities = [];
     for(const line of cityText.split(/\r?\n/)){
-      const p = line.trim().split(';');
+      const trimmed = line.trim();
+      if(!trimmed) continue;
+      const p = parseLine(trimmed);
       if(p.length < 4 || !p[0] || !p[1]) continue;
-      cities.push({ uid: p[0].trim(), name: p[1].trim(), type: p[3].trim() });
+      const uid = p[0].trim(); const name = p[1].trim();
+      if(!uid || !name || uid.length < 5) continue; // пропустити заголовок
+      cities.push({ uid, name, type: p[3] ? p[3].trim() : '' });
     }
 
     msg.innerHTML='<span style="color:#6c7166">Парсую відділення…</span>';
@@ -688,9 +699,13 @@ async function uploadMeestData(){
     // UIDПодразделение;Наименование;ОтображениеПоиска;УточнениеАдреса;UIDГорода
     const branches = [];
     for(const line of branchText.split(/\r?\n/)){
-      const p = line.trim().split(';');
+      const trimmed = line.trim();
+      if(!trimmed) continue;
+      const p = parseLine(trimmed);
       if(p.length < 5 || !p[0] || !p[1]) continue;
-      branches.push({ uid: p[0].trim(), name: p[1].trim(), search: p[2].trim(), address: p[3].trim(), cityUid: p[4].trim() });
+      const uid = p[0].trim(); const name = p[1].trim(); const cityUid = p[4].trim();
+      if(!uid || !name || !cityUid || uid.length < 5) continue;
+      branches.push({ uid, name, search: (p[2]||'').trim(), address: (p[3]||'').trim(), cityUid });
     }
 
     if(!cities.length) throw new Error('Міста не знайдено — перевірте формат файлу');
