@@ -628,7 +628,7 @@ function renderMeestSettings(){
       const d = await r.json();
       if(d.counts){
         const lockers = d.counts.branches_locker||0;
-        el.innerHTML = `<div style="padding:10px 14px;background:#e8f0e8;border-left:3px solid #6f7a5e;font-size:13px;color:#41463f">✓ В базі: <b>${d.counts.cities||0}</b> міст, <b>${d.counts.branches||0}</b> відділень та поштоматів, <b>${d.counts.streets||0}</b> вулиць. Оновлено: ${d.updated||'невідомо'}</div>`;
+        el.innerHTML = `<div style="padding:10px 14px;background:#e8f0e8;border-left:3px solid #6f7a5e;font-size:13px;color:#41463f">✓ В базі: <b>${d.counts.cities||0}</b> міст, <b>${d.counts.branches||0}</b> відділень, <b>${d.counts.lockers||0}</b> поштоматів, <b>${d.counts.streets||0}</b> вулиць. Оновлено: ${d.updated||'невідомо'}</div>`;
       } else {
         el.innerHTML = '<div style="font-size:13px;color:#a7613f">База порожня або не ініціалізована</div>';
       }

@@ -159,14 +159,32 @@ if ($action === 'upload') {
 // --- Статус бази ---
 if ($action === 'status') {
     $counts = [
-        'cities'   => $db->query("SELECT COUNT(*) FROM cities")->fetchColumn(),
-        'branches' => $db->query("SELECT COUNT(*) FROM branches")->fetchColumn(),
-        'streets'  => $db->query("SELECT COUNT(*) FROM streets")->fetchColumn(),
+        'cities'        => $db->query("SELECT COUNT(*) FROM cities")->fetchColumn(),
+        'branches'      => $db->query("SELECT COUNT(*) FROM branches WHERE is_locker=0")->fetchColumn(),
+        'lockers'       => $db->query("SELECT COUNT(*) FROM branches WHERE is_locker=1")->fetchColumn(),
+        'streets'       => $db->query("SELECT COUNT(*) FROM streets")->fetchColumn(),
     ];
     $updated = file_exists(__DIR__ . '/../data/updated.txt')
         ? trim(file_get_contents(__DIR__ . '/../data/updated.txt'))
         : '';
     json_out(['counts' => $counts, 'updated' => $updated]);
+}
+
+// --- Діагностика ---
+if ($action === 'debug') {
+    $city = trim($_GET['city'] ?? '');
+    $rows = $db->prepare("SELECT uid, name, type FROM cities WHERE mb_lower(name) LIKE :q LIMIT 20");
+    $rows->execute([':q' => '%' . mb_strtolower($city, 'UTF-8') . '%']);
+    $cities = $rows->fetchAll(PDO::FETCH_ASSOC);
+    $result = [];
+    foreach ($cities as $c) {
+        $br = $db->prepare("SELECT COUNT(*) FROM branches WHERE city_uid=? AND is_locker=0");
+        $br->execute([$c['uid']]);
+        $lk = $db->prepare("SELECT COUNT(*) FROM branches WHERE city_uid=? AND is_locker=1");
+        $lk->execute([$c['uid']]);
+        $result[] = ['city'=>$c['name'],'type'=>$c['type'],'uid'=>$c['uid'],'branches'=>(int)$br->fetchColumn(),'lockers'=>(int)$lk->fetchColumn()];
+    }
+    json_out($result);
 }
 
 err('Unknown action');
