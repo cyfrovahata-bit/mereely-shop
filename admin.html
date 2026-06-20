@@ -662,68 +662,75 @@ async function uploadMeestData(){
   try {
     const zip = await JSZip.loadAsync(input.files[0]);
 
-    // знайти файл в архіві без урахування регістру і шляху
-    const findFile = name => {
-      const nl = name.toLowerCase();
-      const key = Object.keys(zip.files).find(k => k.split('/').pop().toLowerCase() === nl);
-      return key ? zip.files[key] : null;
-    };
-
     // читати файл з автодетектом кодування (UTF-8 або Windows-1251)
     const readText = async f => {
       const buf = await f.async('arraybuffer');
       try {
         const text = new TextDecoder('utf-8',{fatal:true}).decode(buf);
-        return text.replace(/^﻿/,''); // прибрати BOM
+        return text.replace(/^﻿/,'');
       } catch(e){
         return new TextDecoder('windows-1251').decode(buf);
       }
     };
 
     const parseLine = line => line.includes('\t') ? line.split('\t') : line.split(';');
-    const isUid = s => /^[0-9a-f]{8}-[0-9a-f]{4}-/i.test(s);
+    const isUid = s => /^[0-9a-f]{8}-[0-9a-f]{4}-/i.test((s||'').trim());
 
-    const cityFile = findFile('Города.txt');
-    const branchFile = findFile('Подразделения.txt');
-    const streetFile = findFile('Улицы.txt');
-    if(!cityFile) throw new Error('Файл Города.txt не знайдено в архіві');
-    if(!branchFile) throw new Error('Файл Подразделения.txt не знайдено в архіві');
+    // читаємо всі .txt файли і автовизначаємо тип по структурі
+    msg.innerHTML='<span style="color:#6c7166">Аналізую файли в архіві…</span>';
+    const txts = Object.keys(zip.files).filter(k=>!zip.files[k].dir&&k.toLowerCase().endsWith('.txt'));
+    if(!txts.length) throw new Error('В архіві не знайдено .txt файлів');
+
+    let cityFile=null, branchFile=null, streetFile=null;
+    for(const key of txts){
+      const text = await readText(zip.files[key]);
+      const lines = text.split(/\r?\n/).filter(l=>l.trim());
+      // перші дані-рядки (пропускаємо заголовок)
+      const dataLines = lines.filter(l=>isUid(l.split(';')[0])||isUid(l.split('\t')[0]));
+      if(!dataLines.length) continue;
+      const p = parseLine(dataLines[0]);
+      const cols = p.length;
+      const lastIsUid = isUid(p[p.length-1]);
+      const hasManyUids = p.filter(x=>isUid(x)).length >= 3;
+      if(cols >= 8 && hasManyUids){ cityFile = {key, text}; }         // Города: 9+ колонок, 3+ UUID
+      else if(cols === 4 && lastIsUid){ branchFile = {key, text}; }   // Підрозділи: 4 колонки, UUID в кінці
+      else if(cols >= 10 && !hasManyUids){ streetFile = {key, text}; } // Вулиці: 10+ колонок, 1 UUID
+    }
+
+    if(!cityFile) throw new Error('Файл з містами (Города.txt) не знайдено — перевірте архів');
+    if(!branchFile) throw new Error('Файл з відділеннями (Подразделения.txt) не знайдено — перевірте архів');
 
     msg.innerHTML='<span style="color:#6c7166">Парсую міста…</span>';
-    // UIDГорода;Наименование;НаименованиеRU;Вид;UIDРайон;UIDОбласть;UIDПодразделения;ЗонаДоставки;ОтсутствуетАО
     const cities = [];
-    for(const line of (await readText(cityFile)).split(/\r?\n/)){
+    for(const line of cityFile.text.split(/\r?\n/)){
       const p = parseLine(line.trim());
-      if(p.length < 4 || !isUid(p[0])) continue;
+      if(!isUid(p[0])) continue;
       cities.push({ uid:p[0].trim(), name:p[1].trim(), type:(p[3]||'').trim() });
     }
 
     msg.innerHTML='<span style="color:#6c7166">Парсую відділення…</span>';
-    // UIDПодразделение;Наименование;ОтображениеПоиска;UIDГорода  (4 поля)
     const branches = [];
-    for(const line of (await readText(branchFile)).split(/\r?\n/)){
+    for(const line of branchFile.text.split(/\r?\n/)){
       const p = parseLine(line.trim());
       if(p.length < 4 || !isUid(p[0]) || !isUid(p[p.length-1])) continue;
       branches.push({ uid:p[0].trim(), name:p[1].trim(), address:(p[2]||'').trim(), cityUid:p[p.length-1].trim() });
     }
 
-    if(!cities.length) throw new Error('Міста не знайдено — перевірте формат файлу');
-    if(!branches.length) throw new Error('Відділення не знайдено — перевірте формат файлу');
+    if(!cities.length) throw new Error('Міста не знайдено в файлі — перевірте формат');
+    if(!branches.length) throw new Error('Відділення не знайдено в файлі — перевірте формат');
 
-    // Парсинг вулиць для Укрпошти (якщо є у архіві)
-    // UIDУлицы;Тип;ТипRU;Наименование;НаименованиеRU;UIDГорода;НаименованиеГорода;...
     let streets = [];
     if(streetFile){
       msg.innerHTML='<span style="color:#6c7166">Парсую вулиці…</span>';
       const cityByUid = {};
       for(const c of cities) cityByUid[c.uid] = c.name;
-      for(const line of (await readText(streetFile)).split(/\r?\n/)){
+      for(const line of streetFile.text.split(/\r?\n/)){
         const p = parseLine(line.trim());
         if(p.length < 7 || !isUid(p[0]) || !isUid(p[5])) continue;
         const type=(p[1]||'').trim(); const name=(p[3]||'').trim(); const cityUid=p[5].trim();
         const cityName=cityByUid[cityUid]||(p[6]||'').trim();
         if(!name||!cityName) continue;
-        streets.push({ name:(type+' '+name).trim(), cityUid, cityName });
+        streets.push({ name:(type&&type!==name?type+' '+name:name).trim(), cityUid, cityName });
       }
     }
 
