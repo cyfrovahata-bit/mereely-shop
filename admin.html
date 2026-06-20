@@ -632,8 +632,8 @@ function renderMeestSettings(){
   return `<div class="card">
     <h3>Відділення Meest Express</h3>
     <p style="font-size:13.5px;color:#6c7166;margin-bottom:16px;line-height:1.6">
-      Завантажте ZIP-архів з офіційного сайту Meest (locations.zip).<br>
-      Архів повинен містити файли: <code style="background:#f0ece4;padding:2px 6px;font-size:12px">Города.txt</code> та <code style="background:#f0ece4;padding:2px 6px;font-size:12px">Подразделения.txt</code>
+      Завантажте ZIP-архів з бази Meest (locations.zip).<br>
+      Буде зчитано: <code style="background:#f0ece4;padding:2px 6px;font-size:12px">Города.txt</code>, <code style="background:#f0ece4;padding:2px 6px;font-size:12px">Подразделения.txt</code>, та <code style="background:#f0ece4;padding:2px 6px;font-size:12px">Улицы.txt</code> (вулиці для Укрпошти).
     </p>
     ${info}
     <div style="margin-top:16px;display:flex;gap:10px;align-items:center;flex-wrap:wrap">
@@ -661,61 +661,79 @@ async function uploadMeestData(){
   msg.innerHTML='<span style="color:#6c7166">Розпаковую архів…</span>';
   try {
     const zip = await JSZip.loadAsync(input.files[0]);
+
+    // знайти файл в архіві без урахування регістру і шляху
     const findFile = name => {
-      const key = Object.keys(zip.files).find(k => {
-        const base = k.split('/').pop();
-        return base.toLowerCase() === name.toLowerCase();
-      });
+      const nl = name.toLowerCase();
+      const key = Object.keys(zip.files).find(k => k.split('/').pop().toLowerCase() === nl);
       return key ? zip.files[key] : null;
     };
 
-    // визначає роздільник файлу (таб або крапка з комою)
-    const parseLine = line => {
-      if(line.includes('\t')) return line.split('\t');
-      return line.split(';');
+    // читати файл з автодетектом кодування (UTF-8 або Windows-1251)
+    const readText = async f => {
+      const buf = await f.async('arraybuffer');
+      try {
+        const text = new TextDecoder('utf-8',{fatal:true}).decode(buf);
+        return text.replace(/^﻿/,''); // прибрати BOM
+      } catch(e){
+        return new TextDecoder('windows-1251').decode(buf);
+      }
     };
+
+    const parseLine = line => line.includes('\t') ? line.split('\t') : line.split(';');
+    const isUid = s => /^[0-9a-f]{8}-[0-9a-f]{4}-/i.test(s);
 
     const cityFile = findFile('Города.txt');
     const branchFile = findFile('Подразделения.txt');
+    const streetFile = findFile('Улицы.txt');
     if(!cityFile) throw new Error('Файл Города.txt не знайдено в архіві');
     if(!branchFile) throw new Error('Файл Подразделения.txt не знайдено в архіві');
 
     msg.innerHTML='<span style="color:#6c7166">Парсую міста…</span>';
-    const cityText = await cityFile.async('string');
     // UIDГорода;Наименование;НаименованиеRU;Вид;UIDРайон;UIDОбласть;UIDПодразделения;ЗонаДоставки;ОтсутствуетАО
     const cities = [];
-    for(const line of cityText.split(/\r?\n/)){
-      const trimmed = line.trim();
-      if(!trimmed) continue;
-      const p = parseLine(trimmed);
-      if(p.length < 4 || !p[0] || !p[1]) continue;
-      const uid = p[0].trim(); const name = p[1].trim();
-      if(!uid || !name || uid.length < 5) continue; // пропустити заголовок
-      cities.push({ uid, name, type: p[3] ? p[3].trim() : '' });
+    for(const line of (await readText(cityFile)).split(/\r?\n/)){
+      const p = parseLine(line.trim());
+      if(p.length < 4 || !isUid(p[0])) continue;
+      cities.push({ uid:p[0].trim(), name:p[1].trim(), type:(p[3]||'').trim() });
     }
 
     msg.innerHTML='<span style="color:#6c7166">Парсую відділення…</span>';
-    const branchText = await branchFile.async('string');
-    // UIDПодразделение;Наименование;ОтображениеПоиска(адреса);UIDГорода  (4 поля)
+    // UIDПодразделение;Наименование;ОтображениеПоиска;UIDГорода  (4 поля)
     const branches = [];
-    for(const line of branchText.split(/\r?\n/)){
-      const trimmed = line.trim();
-      if(!trimmed) continue;
-      const p = parseLine(trimmed);
-      if(p.length < 4 || !p[0] || !p[1]) continue;
-      const uid = p[0].trim(); const name = p[1].trim(); const cityUid = p[p.length-1].trim();
-      if(!uid || !name || !cityUid || uid.length < 5) continue;
-      const address = p.length >= 4 ? (p[p.length-2]||'').trim() : '';
-      branches.push({ uid, name, address, cityUid });
+    for(const line of (await readText(branchFile)).split(/\r?\n/)){
+      const p = parseLine(line.trim());
+      if(p.length < 4 || !isUid(p[0]) || !isUid(p[p.length-1])) continue;
+      branches.push({ uid:p[0].trim(), name:p[1].trim(), address:(p[2]||'').trim(), cityUid:p[p.length-1].trim() });
     }
 
     if(!cities.length) throw new Error('Міста не знайдено — перевірте формат файлу');
     if(!branches.length) throw new Error('Відділення не знайдено — перевірте формат файлу');
 
+    // Парсинг вулиць для Укрпошти (якщо є у архіві)
+    // UIDУлицы;Тип;ТипRU;Наименование;НаименованиеRU;UIDГорода;НаименованиеГорода;...
+    let streets = [];
+    if(streetFile){
+      msg.innerHTML='<span style="color:#6c7166">Парсую вулиці…</span>';
+      const cityByUid = {};
+      for(const c of cities) cityByUid[c.uid] = c.name;
+      for(const line of (await readText(streetFile)).split(/\r?\n/)){
+        const p = parseLine(line.trim());
+        if(p.length < 7 || !isUid(p[0]) || !isUid(p[5])) continue;
+        const type=(p[1]||'').trim(); const name=(p[3]||'').trim(); const cityUid=p[5].trim();
+        const cityName=cityByUid[cityUid]||(p[6]||'').trim();
+        if(!name||!cityName) continue;
+        streets.push({ name:(type+' '+name).trim(), cityUid, cityName });
+      }
+    }
+
     localStorage.setItem('mrl_meest_data', JSON.stringify({ cities, branches }));
     localStorage.setItem('mrl_meest_date', new Date().toLocaleString('uk-UA'));
-    msg.innerHTML = '<span style="color:#6f7a5e;font-weight:600">✓ Завантажено '+branches.length+' відділень у '+cities.length+' містах!</span>';
-    setTimeout(()=>showPage('settings',document.querySelector('[data-page="settings"]')),1500);
+    if(streets.length) localStorage.setItem('mrl_ukr_streets', JSON.stringify(streets));
+
+    const streetInfo = streets.length ? ', '+streets.length+' вулиць' : '';
+    msg.innerHTML = '<span style="color:#6f7a5e;font-weight:600">✓ Завантажено '+branches.length+' відділень у '+cities.length+' містах'+streetInfo+'!</span>';
+    setTimeout(()=>showPage('settings',document.querySelector('[data-page="settings"]')),1800);
   } catch(err){
     msg.innerHTML = '<span style="color:#a7613f">Помилка: '+esc(err.message)+'</span>';
   }

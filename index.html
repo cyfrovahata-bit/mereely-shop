@@ -1144,15 +1144,34 @@ class Component extends DCLogic {
   _ukrStreetSearch(q, city){
     clearTimeout(this._ukrStreetT);
     if(!q||q.length<2){ this.setState({ukrStreets:[]}); return; }
+    // \u0441\u043f\u043e\u0447\u0430\u0442\u043a\u0443 \u0448\u0443\u043a\u0430\u0454\u043c\u043e \u0432 \u043b\u043e\u043a\u0430\u043b\u044c\u043d\u0438\u0445 \u0434\u0430\u043d\u0438\u0445 \u0437 \u0430\u0440\u0445\u0456\u0432\u0443 Meest
+    try {
+      const raw = localStorage.getItem('mrl_ukr_streets');
+      if(raw){
+        const all = JSON.parse(raw);
+        const ql = q.toLowerCase(); const cl = (city||'').toLowerCase();
+        const seen = new Set();
+        const res = all.filter(s=>{
+          const nl = s.name.toLowerCase();
+          if(!nl.includes(ql)) return false;
+          if(cl && s.cityName && !s.cityName.toLowerCase().includes(cl)) return false;
+          if(seen.has(s.name)) return false;
+          seen.add(s.name); return true;
+        }).slice(0,10).map(s=>({label:s.name+(s.cityName?' ('+s.cityName+')':''),name:s.name}));
+        if(res.length){ this.setState({ukrStreets:res}); return; }
+      }
+    } catch(e){}
+    // fallback \u2014 Nominatim
     this._ukrStreetT=setTimeout(()=>{
       const qs=city?`${q}, ${city}, \u0423\u043a\u0440\u0430\u0457\u043d\u0430`:q+', \u0423\u043a\u0440\u0430\u0457\u043d\u0430';
       fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(qs)}&countrycodes=ua&featuretype=street&format=json&limit=8&accept-language=uk`,{headers:{'Accept-Language':'uk'}})
         .then(r=>r.json()).then(d=>{
           const seen=new Set();
-          const streets=d.filter(x=>x.type==='road'||x.class==='highway'||x.addresstype==='road').map(x=>{
-            const name=(x.address&&(x.address.road||x.address.pedestrian))||x.name||x.display_name.split(',')[0].trim();
+          const streets=d.map(x=>{
+            const addr=x.address||{};
+            const name=addr.road||addr.pedestrian||x.name||x.display_name.split(',')[0].trim();
             return {label:name,name};
-          }).filter(x=>{ if(seen.has(x.name)) return false; seen.add(x.name); return true; });
+          }).filter(x=>{ if(!x.name||seen.has(x.name)) return false; seen.add(x.name); return true; }).slice(0,8);
           this.setState({ukrStreets:streets});
         }).catch(()=>this.setState({ukrStreets:[]}));
     },400);
