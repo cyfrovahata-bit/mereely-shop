@@ -1000,8 +1000,8 @@ class Component extends DCLogic {
     this.allSizes = ['XS','S','M','L','XL','One size'];
     this._npKey = '';
     try { this._npKey = localStorage.getItem('mrl_np_key')||''; } catch(e){}
-    this._meestData = null;
-    try { this._meestData = JSON.parse(localStorage.getItem('mrl_meest_data')||'null'); } catch(e){}
+    this._meestApiOk = null;
+    this._meestCityT = null;
     this._promos = {MEREELY10:10,FIRST15:15,SALE20:20,UKRAINE:5};
 
     // restore cart from localStorage
@@ -1024,7 +1024,7 @@ class Component extends DCLogic {
       co:{name:'',phone:'',email:'',cityQ:'',cityRef:'',warehouse:'',ukrOblast:'',ukrCity:'',ukrCityUid:'',ukrStreet:'',ukrHouse:'',ukrApt:'',ukrZip:'',meestCity:'',meestCityUid:'',meestBranch:'',meestCourierCity:'',meestCourierStreet:'',meestCourierHouse:'',meestCourierApt:''},
       coMeestMode:'branch', coMeestLockerFilter:'',
       coDeliveryType:'np', coNpType:'branch', coNpWhFilter:'',
-      coErr:{}, coCities:[], coWarehouses:[], coSearching:false, ukrCities:[], ukrStreets:[], meestCities:[],
+      coErr:{}, coCities:[], coWarehouses:[], coSearching:false, ukrCities:[], ukrStreets:[], meestCities:[], meestBranches:[], meestBranchesLoaded:false,
       coPromo:'', coPromoApplied:false, coPromoDiscount:0, coPromoErr:false
     };
     this._toastT = null;
@@ -1133,75 +1133,53 @@ class Component extends DCLogic {
       }).catch(()=>this.setState({coWarehouses:[]}));
   }
 
-  _ukrCitySearch(q){
+  _loadMeestBranches(cityUid, mode){
+    if(!cityUid) return;
+    const type = mode==='locker'?'locker':'branch';
+    this.setState({meestBranches:[],meestBranchesLoaded:false});
+    fetch('/api/?action=branches&city_uid='+encodeURIComponent(cityUid)+'&type='+type)
+      .then(r=>r.json())
+      .then(data=>{ this.setState({meestBranches:Array.isArray(data)?data:[],meestBranchesLoaded:true}); })
+      .catch(()=>this.setState({meestBranches:[],meestBranchesLoaded:true}));
+  }
+
+    _ukrCitySearch(q){
     clearTimeout(this._ukrCityT);
     if(!q||q.length<2){ this.setState({ukrCities:[]}); return; }
-    try {
-      if(!this._meestData){ try{ this._meestData=JSON.parse(localStorage.getItem('mrl_meest_data')||'null'); }catch(e){} }
-      const md = this._meestData;
-      if(md && md.cities && md.cities.length){
-        const ql = q.toLowerCase();
-        const seen = new Set();
-        const res = md.cities
-          .filter(c=>{ const n=c.name.toLowerCase(); return n.includes(ql) && !seen.has(c.name) && seen.add(c.name); })
-          .sort((a,b)=>{ const as=a.name.toLowerCase().startsWith(ql)?0:1; const bs=b.name.toLowerCase().startsWith(ql)?0:1; return as-bs||a.name.localeCompare(b.name,'uk'); })
-          .slice(0,8)
-          .map(c=>({label:c.name+(c.type?' ('+c.type+')':''), name:c.name, uid:c.uid}));
-        this.setState({ukrCities:res});
-        return;
-      }
-    } catch(e){}
-    this._ukrCityT=setTimeout(()=>{
-      fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(q)}&countrycodes=ua&format=json&limit=8&accept-language=uk&addressdetails=1`,{headers:{'Accept-Language':'uk'}})
-        .then(r=>r.json()).then(d=>{
-          const seen=new Set();
-          const cities=d.filter(x=>x.class==='place').map(x=>{
-            const addr=x.address||{};
-            const name=addr.city||addr.town||addr.village||x.name||x.display_name.split(',')[0].trim();
-            return {label:name, name, uid:''};
-          }).filter(x=>{ if(!x.name||seen.has(x.name)) return false; seen.add(x.name); return true; }).slice(0,8);
-          this.setState({ukrCities:cities});
-        }).catch(()=>this.setState({ukrCities:[]}));
-    },350);
+    this._ukrCityT=setTimeout(async ()=>{
+      try {
+        const r = await fetch(`/api/?action=cities&q=${encodeURIComponent(q)}&limit=8`);
+        const data = await r.json();
+        const cities = data.map(c=>({label:c.name+(c.type?' ('+c.type+')':''), name:c.name, uid:c.uid}));
+        this.setState({ukrCities:cities});
+      } catch(e){ this.setState({ukrCities:[]}); }
+    },200);
   }
+
   _ukrStreetSearch(q, cityUid, cityName){
     clearTimeout(this._ukrStreetT);
     if(!q||q.length<2){ this.setState({ukrStreets:[]}); return; }
-    try {
-      if(!this._meestData){ try{ this._meestData=JSON.parse(localStorage.getItem('mrl_meest_data')||'null'); }catch(e){} }
-      const md = this._meestData;
-      if(md && md.branches && cityUid){
-        const ql = q.toLowerCase();
-        const seen = new Set();
-        const res = md.branches
-          .filter(b=>b.cityUid===cityUid && b.address)
-          .map(b=>{
-            let addr = b.address.trim();
-            if(cityName && addr.toLowerCase().startsWith(cityName.toLowerCase())) addr = addr.slice(cityName.length).trim();
-            const lc = addr.lastIndexOf(',');
-            if(lc > 0) addr = addr.slice(0, lc).trim();
-            return addr;
-          })
-          .filter(s=>{ if(!s||!s.toLowerCase().includes(ql)||seen.has(s)) return false; seen.add(s); return true; })
-          .sort((a,b)=>{ const al=a.toLowerCase().startsWith(ql)?0:1, bl=b.toLowerCase().startsWith(ql)?0:1; return al-bl||a.localeCompare(b,'uk'); })
-          .slice(0,8)
-          .map(s=>({label:s, name:s}));
-        if(res.length){ this.setState({ukrStreets:res}); return; }
-      }
-    } catch(e){}
-    this._ukrStreetT=setTimeout(()=>{
-      const qs=cityName?`${q}, ${cityName}, \u0423\u043a\u0440\u0430\u0457\u043d\u0430`:q+', \u0423\u043a\u0440\u0430\u0457\u043d\u0430';
+    this._ukrStreetT=setTimeout(async ()=>{
+      try {
+        const url = cityUid
+          ? `/api/?action=streets&q=${encodeURIComponent(q)}&city_uid=${encodeURIComponent(cityUid)}`
+          : `/api/?action=streets&q=${encodeURIComponent(q)}`;
+        const r = await fetch(url);
+        const data = await r.json();
+        if(data.length){
+          this.setState({ukrStreets:data.map(s=>({label:s,name:s}))});
+          return;
+        }
+      } catch(e){}
+      // fallback Nominatim
+      const qs=cityName?`${q}, ${cityName}, Україна`:q+', Україна';
       fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(qs)}&countrycodes=ua&featuretype=street&format=json&limit=8&accept-language=uk`,{headers:{'Accept-Language':'uk'}})
         .then(r=>r.json()).then(d=>{
           const seen=new Set();
-          const streets=d.map(x=>{
-            const addr=x.address||{};
-            const name=addr.road||addr.pedestrian||x.name||x.display_name.split(',')[0].trim();
-            return {label:name,name};
-          }).filter(x=>{ if(!x.name||seen.has(x.name)) return false; seen.add(x.name); return true; }).slice(0,8);
+          const streets=d.map(x=>{ const a=x.address||{}; const n=a.road||a.pedestrian||x.name||x.display_name.split(',')[0].trim(); return {label:n,name:n}; }).filter(x=>{ if(!x.name||seen.has(x.name)) return false; seen.add(x.name); return true; }).slice(0,8);
           this.setState({ukrStreets:streets});
         }).catch(()=>this.setState({ukrStreets:[]}));
-    },400);
+    },250);
   }
 
   fmt(n){ return String(n).replace(/\B(?=(\d{3})+(?!\d))/g,'\u202f')+' \u20b4'; }
@@ -1559,17 +1537,17 @@ class Component extends DCLogic {
       meestPickupLabel:S.coMeestMode==='locker'?'Поштомат':'Відділення',
       meestPickupLabelLower:S.coMeestMode==='locker'?'поштоматів':'відділень',
       meestPickupPlaceholder:S.coMeestMode==='locker'?'Оберіть поштомат...':'Оберіть відділення...',
-      setMeestBranchMode:()=>this.setState(s=>({coMeestMode:'branch',co:{...s.co,meestBranch:''},coErr:{...s.coErr,meestBranch:null}})),
-      setMeestLockerMode:()=>this.setState(s=>({coMeestMode:'locker',co:{...s.co,meestBranch:''},coErr:{...s.coErr,meestBranch:null}})),
-      meestHasData:(()=>{ if(!this._meestData){ try{this._meestData=JSON.parse(localStorage.getItem('mrl_meest_data')||'null');}catch(e){} } return !!(this._meestData&&this._meestData.cities&&this._meestData.cities.length>0); })(),
-      meestNoData:!(this._meestData&&this._meestData.cities&&this._meestData.cities.length>0),
-      meestCitySugg:S.meestCities.map(c=>({label:c.name+(c.type?' ('+c.type+')':''),pick:()=>this.setState(s=>({co:{...s.co,meestCity:c.name,meestCityUid:c.uid,meestBranch:''},meestCities:[],coErr:{...s.coErr,meestCity:null}}))})),
+      setMeestBranchMode:()=>{ this.setState(s=>({coMeestMode:'branch',co:{...s.co,meestBranch:''},meestBranches:[],meestBranchesLoaded:false,coErr:{...s.coErr,meestBranch:null}})); if(this.state.co.meestCityUid) this._loadMeestBranches(this.state.co.meestCityUid,'branch'); },
+      setMeestLockerMode:()=>{ this.setState(s=>({coMeestMode:'locker',co:{...s.co,meestBranch:''},meestBranches:[],meestBranchesLoaded:false,coErr:{...s.coErr,meestBranch:null}})); if(this.state.co.meestCityUid) this._loadMeestBranches(this.state.co.meestCityUid,'locker'); },
+      meestHasData:true,
+      meestNoData:false,
+      meestCitySugg:S.meestCities.map(c=>({label:c.name+(c.type?' ('+c.type+')':''),pick:()=>{ this.setState(s=>({co:{...s.co,meestCity:c.name,meestCityUid:c.uid,meestBranch:''},meestCities:[],meestBranches:[],coErr:{...s.coErr,meestCity:null}})); this._loadMeestBranches(c.uid, S.coMeestMode); }})),
       hasMeestCitySugg:S.meestCities.length>0,
-      meestBranchOpts:(()=>{ const md=this._meestData; if(!md||!md.branches) return []; const uid=S.co.meestCityUid; if(!uid) return []; const isLocker=S.coMeestMode==='locker'; return md.branches.filter(b=>b.cityUid===uid).filter(b=>isLocker?(b.name||'').toLowerCase().includes('поштомат'):!(b.name||'').toLowerCase().includes('поштомат')).map(b=>({val:b.uid,label:[b.name,b.address].filter(Boolean).join(' — ')})); })(),
-      hasMeestBranches:(()=>{ const md=this._meestData; if(!md||!md.branches) return false; const uid=S.co.meestCityUid; if(!uid) return false; const isLocker=S.coMeestMode==='locker'; return md.branches.filter(b=>b.cityUid===uid).some(b=>isLocker?(b.name||'').toLowerCase().includes('поштомат'):!(b.name||'').toLowerCase().includes('поштомат')); })(),
-      meestBranchCount:(()=>{ const md=this._meestData; if(!md||!md.branches) return 0; const uid=S.co.meestCityUid; if(!uid) return 0; const isLocker=S.coMeestMode==='locker'; return md.branches.filter(b=>b.cityUid===uid).filter(b=>isLocker?(b.name||'').toLowerCase().includes('поштомат'):!(b.name||'').toLowerCase().includes('поштомат')).length; })(),
-      meestCityChosenNoBranches:(()=>{ const uid=S.co.meestCityUid; if(!uid) return false; const md=this._meestData; if(!md||!md.branches) return false; const isLocker=S.coMeestMode==='locker'; return !md.branches.filter(b=>b.cityUid===uid).some(b=>isLocker?(b.name||'').toLowerCase().includes('поштомат'):!(b.name||'').toLowerCase().includes('поштомат')); })(),
-      setMeestCity:(e)=>{ const v=e.target.value; const md=this._meestData; if(!md||!md.cities){ this.setState(s=>({co:{...s.co,meestCity:v,meestBranch:''},coErr:{...s.coErr,meestCity:null}})); return; } const q=v.toLowerCase(); const res=!q?[]:md.cities.filter(c=>c.name.toLowerCase().includes(q)).sort((a,b)=>{ const as=a.name.toLowerCase().startsWith(q)?0:1; const bs=b.name.toLowerCase().startsWith(q)?0:1; return as-bs||a.name.localeCompare(b.name,'uk'); }).slice(0,8); this.setState(s=>({co:{...s.co,meestCity:v,meestCityUid:'',meestBranch:''},meestCities:res,coErr:{...s.coErr,meestCity:null}})); },
+      meestBranchOpts:S.meestBranches.map(b=>({val:b.uid,label:[b.name,b.address].filter(Boolean).join(' — ')})),
+      hasMeestBranches:S.meestBranches.length>0,
+      meestBranchCount:S.meestBranches.length,
+      meestCityChosenNoBranches:!!(S.co.meestCityUid && !S.meestBranches.length && S.meestBranchesLoaded),
+      setMeestCity:(e)=>{ const v=e.target.value; clearTimeout(this._meestCityT); this.setState(s=>({co:{...s.co,meestCity:v,meestCityUid:'',meestBranch:''},meestCities:[],meestBranches:[],meestBranchesLoaded:false,coErr:{...s.coErr,meestCity:null}})); if(!v||v.length<2) return; this._meestCityT=setTimeout(async ()=>{ try{ const r=await fetch('/api/?action=cities&q='+encodeURIComponent(v)+'&limit=8'); const data=await r.json(); this.setState({meestCities:data}); }catch(e){} },200); },
       setMeestBranch:(e)=>this.setState(s=>({co:{...s.co,meestBranch:e.target.value},coErr:{...s.coErr,meestBranch:null}})),
       setMeestCourierCity:(e)=>this.setState(s=>({co:{...s.co,meestCourierCity:e.target.value},coErr:{...s.coErr,meestCourierCity:null}})),
       setMeestCourierStreet:(e)=>this.setState(s=>({co:{...s.co,meestCourierStreet:e.target.value},coErr:{...s.coErr,meestCourierStreet:null}})),

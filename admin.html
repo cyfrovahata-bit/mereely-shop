@@ -619,64 +619,72 @@ function renderSettings(){
 }
 
 function renderMeestSettings(){
-  let info = '';
-  try {
-    const raw = localStorage.getItem('mrl_meest_data');
-    const d = raw ? JSON.parse(raw) : null;
-    if(d && d.cities && d.cities.length){
-      info = `<div style="margin-top:12px;padding:10px 14px;background:#e8f0e8;border-left:3px solid #6f7a5e;font-size:13px;color:#41463f">✓ Завантажено: <b>${d.branches.length}</b> відділень у <b>${d.cities.length}</b> містах. Оновлено: ${localStorage.getItem('mrl_meest_date')||'невідомо'}</div>`;
-    } else {
-      info = '<div style="margin-top:12px;font-size:13px;color:#a7613f">Дані не завантажені</div>';
-    }
-  } catch(e){ info = '<div style="margin-top:12px;font-size:13px;color:#a7613f">Помилка читання даних</div>'; }
+  const token = localStorage.getItem('mrl_admin_token')||'';
+  // Статус бази завантажується асинхронно
+  setTimeout(async ()=>{
+    const el = document.getElementById('meest-db-status');
+    if(!el) return;
+    try {
+      const r = await fetch('/api/?action=status');
+      const d = await r.json();
+      if(d.counts){
+        const lockers = d.counts.branches_locker||0;
+        el.innerHTML = `<div style="padding:10px 14px;background:#e8f0e8;border-left:3px solid #6f7a5e;font-size:13px;color:#41463f">✓ В базі: <b>${d.counts.cities||0}</b> міст, <b>${d.counts.branches||0}</b> відділень та поштоматів, <b>${d.counts.streets||0}</b> вулиць. Оновлено: ${d.updated||'невідомо'}</div>`;
+      } else {
+        el.innerHTML = '<div style="font-size:13px;color:#a7613f">База порожня або не ініціалізована</div>';
+      }
+    } catch(e){ el.innerHTML = '<div style="font-size:13px;color:#a7613f">Не вдалося з\'єднатися з API</div>'; }
+  }, 0);
   return `<div class="card">
-    <h3>Відділення Meest Express</h3>
-    <p style="font-size:13.5px;color:#6c7166;margin-bottom:16px;line-height:1.6">
-      Завантажте ZIP-архів з бази Meest (locations.zip).<br>
-      Буде зчитано: <code style="background:#f0ece4;padding:2px 6px;font-size:12px">Города.txt</code>, <code style="background:#f0ece4;padding:2px 6px;font-size:12px">Подразделения.txt</code>, та <code style="background:#f0ece4;padding:2px 6px;font-size:12px">Улицы.txt</code> (вулиці для Укрпошти).
+    <h3>Meest Express + Укрпошта — база даних</h3>
+    <p style="font-size:13.5px;color:#6c7166;margin-bottom:12px;line-height:1.6">
+      Завантажте ZIP-архів Meest (locations.zip). Дані збережуться в базу на сервері і будуть доступні для всіх клієнтів.
     </p>
-    ${info}
-    <div style="margin-top:16px;display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+    <div style="margin-bottom:12px">
+      <label style="font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:#6c7166;display:block;margin-bottom:4px">Токен адміна</label>
+      <div style="display:flex;gap:8px">
+        <input id="admin-token-input" type="password" value="${esc(token)}" placeholder="Секретний токен для захисту API" style="flex:1;background:#fff;border:1px solid rgba(30,35,31,.2);padding:10px 12px;font-size:13px;color:#1e231f;outline:none;font-family:'Manrope',sans-serif"/>
+        <button onclick="saveAdminToken()" style="background:#28332c;color:#f1ebe1;padding:10px 16px;font-size:11px;letter-spacing:.1em;text-transform:uppercase;font-weight:600;border:none;cursor:pointer;white-space:nowrap">Зберегти</button>
+      </div>
+      <div id="token-msg" style="margin-top:6px;font-size:12px;color:#6c7166"></div>
+    </div>
+    <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:8px">
       <input type="file" id="meest-file-input" accept=".zip" style="font-size:13px;font-family:'Manrope',sans-serif"/>
-      <button onclick="uploadMeestData()" style="background:#28332c;color:#f1ebe1;padding:12px 20px;font-size:12px;letter-spacing:.14em;text-transform:uppercase;font-weight:600;border:none;cursor:pointer;white-space:nowrap">Завантажити</button>
+      <button onclick="uploadMeestData()" style="background:#28332c;color:#f1ebe1;padding:12px 20px;font-size:12px;letter-spacing:.14em;text-transform:uppercase;font-weight:600;border:none;cursor:pointer;white-space:nowrap">Завантажити в базу</button>
       <button onclick="clearMeestData()" style="background:#a7613f;color:#f1ebe1;padding:12px 16px;font-size:12px;letter-spacing:.14em;text-transform:uppercase;font-weight:600;border:none;cursor:pointer;white-space:nowrap">Очистити</button>
     </div>
-    <div id="meest-upload-msg" style="margin-top:10px;font-size:13px"></div>
-    <div style="margin-top:16px;padding:14px;background:#f4f0e8;border-left:3px solid #a7613f">
-      <p style="font-size:13px;color:#41463f;line-height:1.6"><strong>Формат JSON-файлу:</strong><br>
-      Масив записів, кожен містить поля <b>city</b> (назва міста), <b>branch</b> або <b>name</b> (назва відділення), <b>address</b> (адреса). Приклад:<br>
-      <code style="font-size:11.5px;background:#fff;padding:6px 8px;display:block;margin-top:6px;white-space:pre">[
-  {"city":"Київ","branch":"Відділення №1","address":"вул. Хрещатик, 1"},
-  {"city":"Київ","branch":"Поштомат №101","address":"ТРЦ Ocean Plaza"},
-  {"city":"Львів","branch":"Відділення №5","address":"пр. Свободи, 10"}
-]</code></p>
-    </div>
+    <div id="meest-upload-msg" style="margin-top:8px;font-size:13px"></div>
+    <div id="meest-db-status" style="margin-top:10px;font-size:13px;color:#6c7166">Завантаження статусу…</div>
   </div>`;
+}
+
+function saveAdminToken(){
+  const val = document.getElementById('admin-token-input').value.trim();
+  localStorage.setItem('mrl_admin_token', val);
+  document.getElementById('token-msg').innerHTML = val
+    ? '<span style="color:#6f7a5e">✓ Токен збережено в браузері</span>'
+    : '<span style="color:#a7613f">Токен видалено</span>';
 }
 
 async function uploadMeestData(){
   const input = document.getElementById('meest-file-input');
   const msg = document.getElementById('meest-upload-msg');
+  const token = localStorage.getItem('mrl_admin_token')||'';
   if(!input||!input.files||!input.files[0]){ msg.innerHTML='<span style="color:#a7613f">Оберіть ZIP-файл</span>'; return; }
+  if(!token){ msg.innerHTML='<span style="color:#a7613f">Вкажіть токен адміна</span>'; return; }
   msg.innerHTML='<span style="color:#6c7166">Розпаковую архів…</span>';
   try {
     const zip = await JSZip.loadAsync(input.files[0]);
 
-    // читати файл з автодетектом кодування (UTF-8 або Windows-1251)
     const readText = async f => {
       const buf = await f.async('arraybuffer');
-      try {
-        const text = new TextDecoder('utf-8',{fatal:true}).decode(buf);
-        return text.replace(/^﻿/,'');
-      } catch(e){
-        return new TextDecoder('windows-1251').decode(buf);
-      }
+      try { return new TextDecoder('utf-8',{fatal:true}).decode(buf).replace(/^﻿/,''); }
+      catch(e){ return new TextDecoder('windows-1251').decode(buf); }
     };
 
     const parseLine = line => line.includes('\t') ? line.split('\t') : line.split(';');
     const isUid = s => /^[0-9a-f]{8}-[0-9a-f]{4}-/i.test((s||'').trim());
 
-    // читаємо всі .txt файли і автовизначаємо тип по структурі
     msg.innerHTML='<span style="color:#6c7166">Аналізую файли в архіві…</span>';
     const txts = Object.keys(zip.files).filter(k=>!zip.files[k].dir&&k.toLowerCase().endsWith('.txt'));
     if(!txts.length) throw new Error('В архіві не знайдено .txt файлів');
@@ -685,25 +693,24 @@ async function uploadMeestData(){
     for(const key of txts){
       const text = await readText(zip.files[key]);
       const lines = text.split(/\r?\n/).filter(l=>l.trim());
-      // перші дані-рядки (пропускаємо заголовок)
       const dataLines = lines.filter(l=>isUid(l.split(';')[0])||isUid(l.split('\t')[0]));
       if(!dataLines.length) continue;
       const p = parseLine(dataLines[0]);
       const cols = p.length;
       const lastIsUid = isUid(p[p.length-1]);
       const hasManyUids = p.filter(x=>isUid(x)).length >= 3;
-      if(cols >= 8 && hasManyUids){ cityFile = {key, text}; }         // Города: 9+ колонок, 3+ UUID
+      if(cols >= 8 && hasManyUids){ cityFile = {key, text}; }
       else if(cols === 4 && lastIsUid){
-        // Відрізняємо Підрозділи від Районів: адреси відділень містять цифри (буд. номер)
-        const hasAddressWithDigit = dataLines.slice(0,30).some(l=>{ const pp=parseLine(l); return pp.length>=4&&/\d/.test(pp[2]||''); });
-        if(hasAddressWithDigit) branchFile = {key, text};
-      }   // Підрозділи: 4 колонки, UUID в кінці, є числа в адресі
-      else if(cols >= 10 && !hasManyUids){ streetFile = {key, text}; } // Вулиці: 10+ колонок, 1 UUID
+        const hasAddr = dataLines.slice(0,30).some(l=>{ const pp=parseLine(l); return pp.length>=4&&/\d/.test(pp[2]||''); });
+        if(hasAddr) branchFile = {key, text};
+      }
+      else if(cols >= 10 && !hasManyUids && !streetFile){ streetFile = {key, text}; }
     }
 
-    if(!cityFile) throw new Error('Файл з містами (Города.txt) не знайдено — перевірте архів');
-    if(!branchFile) throw new Error('Файл з відділеннями (Подразделения.txt) не знайдено — перевірте архів');
+    if(!cityFile) throw new Error('Файл з містами не знайдено');
+    if(!branchFile) throw new Error('Файл з відділеннями не знайдено');
 
+    // --- Парсинг міст ---
     msg.innerHTML='<span style="color:#6c7166">Парсую міста…</span>';
     const cities = [];
     for(const line of cityFile.text.split(/\r?\n/)){
@@ -711,7 +718,9 @@ async function uploadMeestData(){
       if(!isUid(p[0])) continue;
       cities.push({ uid:p[0].trim(), name:p[1].trim(), type:(p[3]||'').trim() });
     }
+    if(!cities.length) throw new Error('Міста не знайдено');
 
+    // --- Парсинг відділень ---
     msg.innerHTML='<span style="color:#6c7166">Парсую відділення…</span>';
     const branches = [];
     for(const line of branchFile.text.split(/\r?\n/)){
@@ -719,27 +728,81 @@ async function uploadMeestData(){
       if(p.length < 4 || !isUid(p[0]) || !isUid(p[p.length-1])) continue;
       branches.push({ uid:p[0].trim(), name:p[1].trim(), address:(p[2]||'').trim(), cityUid:p[p.length-1].trim() });
     }
+    if(!branches.length) throw new Error('Відділення не знайдено');
 
-    if(!cities.length) throw new Error('Міста не знайдено в файлі — перевірте формат');
-    if(!branches.length) throw new Error('Відділення не знайдено в файлі — перевірте формат');
+    // --- Парсинг вулиць ---
+    const streets = {}; // { cityUid: [streetNames] }
+    if(streetFile){
+      msg.innerHTML='<span style="color:#6c7166">Парсую вулиці (може тривати ~30 сек)…</span>';
+      await new Promise(r=>setTimeout(r,10)); // дати UI оновитись
+      const branchCityUids = new Set(branches.map(b=>b.cityUid));
+      for(const line of streetFile.text.split(/\r?\n/)){
+        const p = parseLine(line.trim());
+        if(p.length < 6) continue;
+        const cityUid = p[5].trim();
+        // зберігаємо вулиці для всіх міст (не тільки з відділеннями)
+        const stype = p[1].trim(); const sname = p[3].trim();
+        if(!sname || sname === '---') continue;
+        const street = (stype + ' ' + sname).trim();
+        if(!streets[cityUid]) streets[cityUid] = [];
+        streets[cityUid].push(street);
+      }
+    }
 
-    localStorage.setItem('mrl_meest_data', JSON.stringify({ cities, branches }));
-    localStorage.setItem('mrl_meest_date', new Date().toLocaleString('uk-UA'));
+    // --- Надсилаємо на сервер ---
+    const post = async (type, body) => {
+      const r = await fetch('/api/?action=upload', {
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({token, type, ...body})
+      });
+      if(!r.ok){ const d=await r.json(); throw new Error(d.error||'Помилка сервера'); }
+      return r.json();
+    };
+
+    msg.innerHTML='<span style="color:#6c7166">Завантажую міста на сервер…</span>';
+    await post('cities', {cities});
+
+    msg.innerHTML='<span style="color:#6c7166">Завантажую відділення на сервер…</span>';
+    await post('branches', {branches});
+
+    if(Object.keys(streets).length){
+      msg.innerHTML='<span style="color:#6c7166">Завантажую вулиці на сервер…</span>';
+      await post('streets', {streets});
+    }
+
+    // Оновлюємо дату
+    await fetch('/api/?action=upload', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({token, type:'updated', date: new Date().toLocaleString('uk-UA')})
+    });
 
     const lockerCount = branches.filter(b=>(b.name||'').toLowerCase().includes('поштомат')).length;
-    const branchCount = branches.length - lockerCount;
-    msg.innerHTML = '<span style="color:#6f7a5e;font-weight:600">✓ Завантажено: '+branchCount+' відділень та '+lockerCount+' поштоматів у '+cities.length+' містах!</span>';
-    setTimeout(()=>showPage('settings',document.querySelector('[data-page="settings"]')),1800);
+    const streetCount = Object.values(streets).reduce((a,v)=>a+v.length,0);
+    msg.innerHTML = `<span style="color:#6f7a5e;font-weight:600">✓ Завантажено: ${branches.length-lockerCount} відділень, ${lockerCount} поштоматів, ${streetCount} вулиць у ${cities.length} містах!</span>`;
+    // оновити статус
+    setTimeout(()=>showPage('settings',document.querySelector('[data-page="settings"]')),2000);
   } catch(err){
     msg.innerHTML = '<span style="color:#a7613f">Помилка: '+esc(err.message)+'</span>';
   }
 }
 
-function clearMeestData(){
-  localStorage.removeItem('mrl_meest_data');
-  localStorage.removeItem('mrl_meest_date');
-  showPage('settings',document.querySelector('[data-page="settings"]'));
+async function clearMeestData(){
+  const token = localStorage.getItem('mrl_admin_token')||'';
+  if(!token){ alert('Вкажіть токен адміна'); return; }
+  if(!confirm('Очистити всі дані Meest з бази?')) return;
+  try {
+    await fetch('/api/?action=upload', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({token, type:'clear'})
+    });
+    showPage('settings',document.querySelector('[data-page="settings"]'));
+  } catch(e){ alert('Помилка: '+e.message); }
 }
+
+
 
 function saveNpKey(){
   const val = document.getElementById('np-key-input').value.trim();
