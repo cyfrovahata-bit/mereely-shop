@@ -96,46 +96,40 @@ if ($action === 'streets') {
 if ($action === 'upload') {
     if ($_SERVER['REQUEST_METHOD'] !== 'POST') err('POST only');
 
-    $type = $_POST['type'] ?? '';
+    $input = json_decode(file_get_contents('php://input'), true) ?? [];
+    $type = $input['type'] ?? '';
 
-    // приймаємо JSON-дані
     if ($type === 'cities') {
-        $data = json_decode(file_get_contents('php://input'), true);
-        if (!$data || !isset($data['cities'])) err('Invalid data');
-
+        if (!isset($input['cities'])) err('Invalid data');
         $db->exec('BEGIN');
         $db->exec('DELETE FROM cities');
         $ins = $db->prepare('INSERT OR REPLACE INTO cities (uid, name, type) VALUES (?,?,?)');
-        foreach ($data['cities'] as $c) {
+        foreach ($input['cities'] as $c) {
             $ins->execute([$c['uid'], $c['name'], $c['type'] ?? '']);
         }
         $db->exec('COMMIT');
-        json_out(['ok' => true, 'count' => count($data['cities'])]);
+        json_out(['ok' => true, 'count' => count($input['cities'])]);
     }
 
     if ($type === 'branches') {
-        $data = json_decode(file_get_contents('php://input'), true);
-        if (!$data || !isset($data['branches'])) err('Invalid data');
-
+        if (!isset($input['branches'])) err('Invalid data');
         $db->exec('BEGIN');
         $db->exec('DELETE FROM branches');
         $ins = $db->prepare('INSERT OR REPLACE INTO branches (uid, name, address, city_uid, is_locker) VALUES (?,?,?,?,?)');
-        foreach ($data['branches'] as $b) {
+        foreach ($input['branches'] as $b) {
             $is_locker = (int)(stripos($b['name'] ?? '', 'поштомат') !== false);
             $ins->execute([$b['uid'], $b['name'], $b['address'] ?? '', $b['cityUid'], $is_locker]);
         }
         $db->exec('COMMIT');
-        json_out(['ok' => true, 'count' => count($data['branches'])]);
+        json_out(['ok' => true, 'count' => count($input['branches'])]);
     }
 
     if ($type === 'streets') {
-        $data = json_decode(file_get_contents('php://input'), true);
-        if (!$data || !isset($data['streets'])) err('Invalid data');
-
+        if (!isset($input['streets'])) err('Invalid data');
         $db->exec('BEGIN');
         $db->exec('DELETE FROM streets');
         $ins = $db->prepare('INSERT INTO streets (city_uid, name) VALUES (?,?)');
-        foreach ($data['streets'] as $city_uid => $names) {
+        foreach ($input['streets'] as $city_uid => $names) {
             foreach ($names as $name) {
                 $ins->execute([$city_uid, $name]);
             }
@@ -145,7 +139,7 @@ if ($action === 'upload') {
     }
 
     if ($type === 'updated') {
-        $date = $_POST['date'] ?? date('d.m.Y H:i');
+        $date = $input['date'] ?? date('d.m.Y H:i');
         file_put_contents(__DIR__ . '/../data/updated.txt', $date);
         json_out(['ok' => true]);
     }
