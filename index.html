@@ -998,8 +998,6 @@ class Component extends DCLogic {
     this.categories = ['Сукні','Верх','Низ','Верхній одяг','Трикотаж','Аксесуари'];
     this.allColors = [['Олива',C.olive],['Шавлія',C.sage],['Пісок',C.sand],['Графіт',C.graphite],['Чорнило',C.ink],['Теракота',C.clay],['Молоко',C.milk],['Камел',C.camel]];
     this.allSizes = ['XS','S','M','L','XL','One size'];
-    this._npKey = '';
-    try { this._npKey = localStorage.getItem('mrl_np_key')||''; } catch(e){}
     this._meestApiOk = null;
     this._meestCityT = null;
     this._promos = {MEREELY10:10,FIRST15:15,SALE20:20,UKRAINE:5};
@@ -1104,19 +1102,18 @@ class Component extends DCLogic {
     }
   }
 
+  _npPost(body){
+    return fetch('/api/?action=np',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)}).then(r=>r.json());
+  }
+
   _npSearch(q){
     if(this._npT) clearTimeout(this._npT);
     if(!q||q.length<2){ this.setState({coCities:[],coSearching:false}); return; }
-    const key = this._npKey;
-    if(!key){
-      this.setState({coCities:[{Present:'⚠ API-ключ не налаштовано — додайте в Адмінці → Налаштування',DeliveryCity:'',Ref:''}],coSearching:false});
-      return;
-    }
     this.setState({coSearching:true});
     this._npT = setTimeout(()=>{
-      const key2 = this._npKey;
-      fetch('https://api.novaposhta.ua/v2.0/json/',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({apiKey:key2,modelName:'Address',calledMethod:'searchSettlements',methodProperties:{CityName:q,Limit:8,Page:1}})})
-        .then(r=>r.json()).then(d=>{
+      this._npPost({modelName:'Address',calledMethod:'searchSettlements',methodProperties:{CityName:q,Limit:8,Page:1}})
+        .then(d=>{
+          if(d.error){ this.setState({coCities:[{Present:'⚠ '+d.error,DeliveryCity:'',Ref:''}],coSearching:false}); return; }
           const items = (d.data&&d.data[0]&&d.data[0].Addresses)||[];
           this.setState({coCities:items,coSearching:false});
         }).catch(()=>this.setState({coCities:[],coSearching:false}));
@@ -1124,10 +1121,9 @@ class Component extends DCLogic {
   }
 
   _npWarehouses(ref, cityName){
-    const key2 = this._npKey;
-    if(!key2||!cityName) return;
-    fetch('https://api.novaposhta.ua/v2.0/json/',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({apiKey:key2,modelName:'AddressGeneral',calledMethod:'getWarehouses',methodProperties:{CityName:cityName,Limit:500,Page:1}})})
-      .then(r=>r.json()).then(d=>{
+    if(!cityName) return;
+    this._npPost({modelName:'AddressGeneral',calledMethod:'getWarehouses',methodProperties:{CityName:cityName,Limit:500,Page:1}})
+      .then(d=>{
         const wh = Array.isArray(d.data)?d.data:[];
         this.setState({coWarehouses:wh});
       }).catch(()=>this.setState({coWarehouses:[]}));

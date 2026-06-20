@@ -892,16 +892,15 @@ async function saveNpKey(){
   setTimeout(()=>{ msg.innerHTML=''; },4000);
 }
 
-function testNpKey(){
-  const key = (document.getElementById('np-key-input')||{}).value || localStorage.getItem('mrl_np_key')||'';
+async function testNpKey(){
   const msg = document.getElementById('np-test-msg');
-  if(!key){ msg.innerHTML='<span style="color:#a7613f">Спочатку введіть API-ключ</span>'; return; }
   msg.innerHTML='<span style="color:#8a8f84">Перевірка…</span>';
-  fetch('https://api.novaposhta.ua/v2.0/json/',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({apiKey:key,modelName:'Address',calledMethod:'searchSettlements',methodProperties:{CityName:'Київ',Limit:1,Page:1}})})
-    .then(r=>r.json()).then(d=>{
-      if(d.success){ msg.innerHTML='<span style="color:#6f7a5e;font-weight:600">✓ З\'єднання успішне! Ключ працює.</span>'; }
-      else { msg.innerHTML='<span style="color:#a7613f">Помилка: '+esc((d.errors||['невірний ключ'])[0])+'</span>'; }
-    }).catch(()=>{ msg.innerHTML='<span style="color:#a7613f">Помилка мережі. Перевірте інтернет-з\'єднання.</span>'; });
+  try {
+    const d = await fetch('/api/?action=np',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({modelName:'Address',calledMethod:'searchSettlements',methodProperties:{CityName:'Київ',Limit:1,Page:1}})}).then(r=>r.json());
+    if(d.error){ msg.innerHTML='<span style="color:#a7613f">'+esc(d.error)+'</span>'; return; }
+    if(d.success){ msg.innerHTML='<span style="color:#6f7a5e;font-weight:600">✓ З\'єднання успішне! Ключ працює.</span>'; }
+    else { msg.innerHTML='<span style="color:#a7613f">Помилка: '+esc((d.errors||['невірний ключ'])[0])+'</span>'; }
+  } catch(e){ msg.innerHTML='<span style="color:#a7613f">Помилка мережі.</span>'; }
 }
 
 /* ===================== UTILS ===================== */

@@ -156,9 +156,35 @@ if ($action === 'status') {
     json_out(['counts' => $counts, 'updated' => $updated]);
 }
 
+// --- Проксі Nova Poshta (ключ залишається на сервері) ---
+if ($action === 'np') {
+    if ($_SERVER['REQUEST_METHOD'] !== 'POST') err('POST only');
+    $s = $db->prepare("SELECT value FROM settings WHERE key='np_api_key'");
+    $s->execute();
+    $np_key = $s->fetchColumn() ?: '';
+    if (!$np_key) err('Nova Poshta API key not configured', 503);
+    $body = json_decode(file_get_contents('php://input'), true) ?? [];
+    $body['apiKey'] = $np_key;
+    $ch = curl_init('https://api.novaposhta.ua/v2.0/json/');
+    curl_setopt_array($ch, [
+        CURLOPT_POST => true,
+        CURLOPT_POSTFIELDS => json_encode($body, JSON_UNESCAPED_UNICODE),
+        CURLOPT_HTTPHEADER => ['Content-Type: application/json'],
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_TIMEOUT => 10,
+    ]);
+    $resp = curl_exec($ch);
+    $err  = curl_error($ch);
+    curl_close($ch);
+    if ($err) err('NP request failed: ' . $err, 502);
+    header('Content-Type: application/json; charset=utf-8');
+    echo $resp;
+    exit;
+}
+
 // --- Налаштування (читання/запис) ---
 if ($action === 'settings_get') {
-    $rows = $db->query("SELECT key, value FROM settings")->fetchAll(PDO::FETCH_KEY_PAIR);
+    $rows = $db->query("SELECT key, value FROM settings WHERE key != 'np_api_key'")->fetchAll(PDO::FETCH_KEY_PAIR);
     json_out($rows);
 }
 
