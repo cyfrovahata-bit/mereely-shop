@@ -366,7 +366,7 @@
 
   <div style="display:grid;grid-template-columns:{{ pCols }};gap:clamp(24px,4vw,60px);align-items:start">
     <!-- GALLERY -->
-    <div style="display:flex;flex-direction:{{ pGalleryDir }};gap:14px;position:{{ pGalleryPos }};top:90px">
+    <div style="display:flex;flex-direction:{{ pGalleryDir }};gap:14px;position:{{ pGalleryPos }};top:{{ pGalleryTop }}">
       <div style="display:flex;flex-direction:{{ pThumbDir }};gap:10px;flex:none">
         <sc-for list="{{ pThumbs }}" as="th" hint-placeholder-count="4">
           <button onClick="{{ th.sel }}" aria-label="Фото" style="width:72px;height:90px;flex:none;background:{{ th.tone }};border:1px solid {{ th.border }};position:relative;overflow:hidden;transition:border-color .25s"><div style="position:absolute;inset:0;background-image:repeating-linear-gradient(135deg,rgba(0,0,0,.05) 0 2px,transparent 2px 8px)"></div></button>
@@ -1281,7 +1281,7 @@ class Component extends DCLogic {
       pQtyInc:()=>this.setState(s=>({pQty:s.pQty+1})), pQtyDec:()=>this.setState(s=>({pQty:Math.max(1,s.pQty-1)})),
       pCols:isMobile?'1fr':(isTablet?'1fr 1fr':'1.15fr 1fr'),
       pGalleryDir:isMobile?'column-reverse':'row', pThumbDir:isMobile?'row':'column',
-      pGalleryPos:isMobile?'relative':'sticky',
+      pGalleryPos:isMobile?'relative':'sticky', pGalleryTop:isMobile?'0':'90px',
       addCurrent:()=>{ if(this.addToCart(PD,S.pColor,S.pSize,S.pQty)!==false) this.setState({cartOpen:true}); },
       buyNow:()=>{ if(this.addToCart(PD,S.pColor,S.pSize,S.pQty)!==false){ this.toast('Купівля в один клік — менеджер зателефонує'); this.setState({cartOpen:true}); } },
       pTabsList, pTab:S.pTab, pTabDesc:S.pTab==='desc', pTabCare:S.pTab==='care', pTabReviews:S.pTab==='reviews',
