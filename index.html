@@ -1097,7 +1097,7 @@ class Component extends DCLogic {
   _npWarehouses(ref){
     const key2 = this._npKey;
     if(!key2||!ref) return;
-    fetch('https://api.novaposhta.ua/v2.0/json/',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({apiKey:key2,modelName:'Address',calledMethod:'getWarehouses',methodProperties:{SettlementRef:ref,Limit:500,Page:1}})})
+    fetch('https://api.novaposhta.ua/v2.0/json/',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({apiKey:key2,modelName:'AddressGeneral',calledMethod:'getWarehouses',methodProperties:{CityRef:ref,Limit:500,Page:1}})})
       .then(r=>r.json()).then(d=>{
         const wh = (d.data)||[];
         this.setState({coWarehouses:wh});
