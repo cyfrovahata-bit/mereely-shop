@@ -325,7 +325,7 @@
 
         <div style="border-top:1px solid rgba(30,35,31,.16);padding:18px 0">
           <div style="display:flex;justify-content:space-between;margin-bottom:14px"><span style="font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:#6c7166">Ціна до</span><span style="font-size:13px;font-weight:600">{{ priceMaxFmt }}</span></div>
-          <input type="range" min="1000" max="7000" step="100" value="{{ priceMax }}" onInput="{{ setPrice }}" aria-label="Максимальна ціна" style="width:100%;accent-color:#28332c;cursor:pointer"/>
+          <input type="range" min="0" max="{{ priceMaxLimit }}" step="100" value="{{ priceMax }}" onInput="{{ setPrice }}" aria-label="Максимальна ціна" style="width:100%;accent-color:#28332c;cursor:pointer"/>
         </div>
       </div>
     </aside>
@@ -1048,7 +1048,7 @@ class Component extends DCLogic {
       cart:savedCart, cartOpen:false, menuOpen:false, wishlist:[],
       homeTab:'new', hoverId:null,
       newsEmail:'', newsErr:false, newsDone:false,
-      filters:{cat:'all', sizes:[], colors:[], priceMax:7000}, sort:'pop', filtersOpen:true,
+      filters:{cat:'all', sizes:[], colors:[], priceMax:999999}, sort:'pop', filtersOpen:true,
       quick:null, quickColor:0,
       pid:1, pImg:0, pColor:0, pSize:null, pQty:1, pTab:'desc', zoom:false, zoomXY:'50% 50%',
       delivery:'np',
@@ -1075,6 +1075,35 @@ class Component extends DCLogic {
     window.addEventListener('popstate', this._popHandler);
     this._parsePath();
     this._updateTitle();
+    this._loadProducts();
+  }
+  async _loadProducts(){
+    try {
+      const r = await fetch('/api/?action=products');
+      const data = await r.json();
+      if(!Array.isArray(data)||data.length===0) return;
+      const C = this.C;
+      this.products = data.map(p=>({
+        id: p.id,
+        name: p.name||'',
+        cat: p.category||'',
+        price: p.price||0,
+        old: p.old_price||0,
+        desc: p.description||'',
+        colors: Array.isArray(p.colors)&&p.colors.length ? p.colors.map(c=>Array.isArray(c)?c:[c,C.olive]) : [['Базовий',C.olive]],
+        sizes: Array.isArray(p.sizes)&&p.sizes.length ? p.sizes : ['S','M','L'],
+        imgs: Array.isArray(p.images)&&p.images.length ? p.images : [`[ ${p.name} ]`],
+        tone: C.olive,
+        slug: 'item-'+p.id,
+        badge: null,
+        stock: 10,
+      }));
+      const cats=[...new Set(this.products.map(p=>p.cat).filter(Boolean))];
+      this.categories = cats;
+      this.allColors=[...new Map(this.products.flatMap(p=>p.colors).map(c=>[c[0],c])).values()];
+      this.allSizes=[...new Set(this.products.flatMap(p=>p.sizes))];
+      this.setState({_prodsLoaded:true});
+    } catch(e){ console.warn('products load error',e); }
   }
   componentDidUpdate(prevProps, prevState){
     if(prevState && prevState.page!==this.state.page){ window.scrollTo(0,0); }
@@ -1276,19 +1305,18 @@ class Component extends DCLogic {
       };
     };
 
-    const homeList = S.homeTab==='new' ? this.products.filter(p=>p.badge==='Новинка'||[1,3,9].includes(p.id)).slice(0,4)
-                                       : this.products.filter(p=>p.badge==='Бестселер'||[7,12].includes(p.id)).slice(0,4);
+    const homeList = this.products.slice(0,4);
     const homeProducts = homeList.map(mkProd);
 
     const productCols = isMobile?'repeat(2,1fr)':(isTablet?'repeat(3,1fr)':'repeat(4,1fr)');
 
+    const tones=['#7c8568','#9c6248','#b8bca8','#54584f','#c9cdb9','#9a8662'];
     const catTiles = this.categories.map((name,i)=>{
       const cnt=this.products.filter(p=>p.cat===name).length;
-      const tones=['#7c8568','#9c6248','#b8bca8','#54584f','#c9cdb9','#9a8662'];
       return {name,count:cnt,idx:'0'+(i+1),tone:tones[i%tones.length],
         ratio:isMobile?'1':'4/5',
         go:()=>{ const cslug=this.catSlugs[name]||''; this._pushRoute('catalog'+(cslug?'/'+cslug:''));document.title=name+' — Каталог | Mereely Shop'; this.setState(s=>({page:'catalog',filters:{...s.filters,cat:name}})); window.scrollTo(0,0); }};
-    });
+    }).filter(t=>t.count>0);
     const catGridCols = isMobile?'repeat(2,1fr)':(isTablet?'repeat(3,1fr)':'repeat(3,1fr)');
 
     const trust=[
@@ -1352,14 +1380,18 @@ class Component extends DCLogic {
     const sortFns={pop:()=>0,new:(a,b)=>b.id-a.id,priceAsc:(a,b)=>a.price-b.price,priceDesc:(a,b)=>b.price-a.price};
     clist=[...clist].sort(sortFns[S.sort]||(()=>0));
     const catalogProducts=clist.map(mkProd);
-    const catChips=[['all','Усі речі']].concat(this.categories.map(c=>[c,c])).map(([v,l])=>({label:l,active:F.cat===v,bg:F.cat===v?'#28332c':'transparent',color:F.cat===v?'#f1ebe1':'#1e231f',sel:()=>this.setState(s=>({filters:{...s.filters,cat:v}}))}));
-    const sizeChips=this.allSizes.map(sz=>({label:sz,bg:F.sizes.includes(sz)?'#28332c':'transparent',color:F.sizes.includes(sz)?'#f1ebe1':'#1e231f',toggle:()=>this.setState(s=>{const h=s.filters.sizes.includes(sz);return{filters:{...s.filters,sizes:h?s.filters.sizes.filter(x=>x!==sz):[...s.filters.sizes,sz]}};})}));
-    const colorChips=this.allColors.map(([n,hex])=>({name:n,hex,ring:F.colors.includes(n)?'#28332c':'rgba(30,35,31,.25)',scale:F.colors.includes(n)?'scale(.78)':'scale(1)',toggle:()=>this.setState(s=>{const h=s.filters.colors.includes(n);return{filters:{...s.filters,colors:h?s.filters.colors.filter(x=>x!==n):[...s.filters.colors,n]}};})}));
-    const activeFilterCount=(F.cat!=='all'?1:0)+F.sizes.length+F.colors.length+(F.priceMax<7000?1:0);
+    const activeCats=this.categories.filter(c=>this.products.some(p=>p.cat===c));
+    const catChips=[['all','Усі речі']].concat(activeCats.map(c=>[c,c])).map(([v,l])=>({label:l,active:F.cat===v,bg:F.cat===v?'#28332c':'transparent',color:F.cat===v?'#f1ebe1':'#1e231f',sel:()=>this.setState(s=>({filters:{...s.filters,cat:v}}))}));
+    const availSizes=[...new Set(this.products.flatMap(p=>p.sizes))];
+    const sizeChips=availSizes.map(sz=>({label:sz,bg:F.sizes.includes(sz)?'#28332c':'transparent',color:F.sizes.includes(sz)?'#f1ebe1':'#1e231f',toggle:()=>this.setState(s=>{const h=s.filters.sizes.includes(sz);return{filters:{...s.filters,sizes:h?s.filters.sizes.filter(x=>x!==sz):[...s.filters.sizes,sz]}};})}));
+    const availColors=[...new Map(this.products.flatMap(p=>p.colors).map(c=>[c[0],c])).values()];
+    const colorChips=availColors.map(([n,hex])=>({name:n,hex,ring:F.colors.includes(n)?'#28332c':'rgba(30,35,31,.25)',scale:F.colors.includes(n)?'scale(.78)':'scale(1)',toggle:()=>this.setState(s=>{const h=s.filters.colors.includes(n);return{filters:{...s.filters,colors:h?s.filters.colors.filter(x=>x!==n):[...s.filters.colors,n]}};})}));
+    const maxPrice=Math.max(...this.products.map(p=>p.price),1000);
+    const activeFilterCount=(F.cat!=='all'?1:0)+F.sizes.length+F.colors.length+(F.priceMax<maxPrice?1:0);
     const sortOpts=[['pop','Популярні'],['new','Спершу нові'],['priceAsc','Ціна: зростання'],['priceDesc','Ціна: спадання']].map(([v,l])=>({value:v,label:l}));
 
     // ===== PRODUCT =====
-    const PD=this.products.find(x=>x.id===S.pid)||this.products[0];
+    const PD=this.products.find(x=>x.id===S.pid)||this.products[0]||{id:0,name:'',cat:'',price:0,old:0,desc:'',colors:[['',this.C.olive]],sizes:[],imgs:[''],tone:this.C.olive,slug:'',badge:null};
     const pColors=PD.colors.map((c,i)=>({name:c[0],hex:c[1],ring:i===S.pColor?'#28332c':'rgba(30,35,31,.25)',pick:()=>this.setState({pColor:i})}));
     const pSizes=PD.sizes.map(sz=>({label:sz,bg:S.pSize===sz?'#28332c':'transparent',color:S.pSize===sz?'#f1ebe1':'#1e231f',pick:()=>this.setState({pSize:sz})}));
     const pThumbs=PD.imgs.map((cap,i)=>({cap,tone:PD.tone,border:i===S.pImg?'#28332c':'rgba(30,35,31,.12)',sel:()=>this.setState({pImg:i})}));
@@ -1453,9 +1485,9 @@ class Component extends DCLogic {
       catalogProducts, catalogCount:clist.length, catalogEmpty:clist.length===0,
       catChips, sizeChips, colorChips, activeFilterCount, hasActiveFilters:activeFilterCount>0,
       sortOpts, sort:S.sort, setSort:(e)=>this.setState({sort:e.target.value}),
-      priceMax:F.priceMax, priceMaxFmt:fmt(F.priceMax),
+      priceMax:F.priceMax, priceMaxFmt:fmt(F.priceMax), priceMaxLimit:maxPrice,
       setPrice:(e)=>this.setState(s=>({filters:{...s.filters,priceMax:+e.target.value}})),
-      clearFilters:()=>this.setState({filters:{cat:'all',sizes:[],colors:[],priceMax:7000}}),
+      clearFilters:()=>this.setState({filters:{cat:'all',sizes:[],colors:[],priceMax:maxPrice}}),
       catalogCols: isMobile?'1fr':'250px 1fr',
       catalogGridCols: isMobile?'repeat(2,1fr)':(isTablet?'repeat(2,1fr)':'repeat(3,1fr)'),
       showFilterToggle:isMobile, filtersOpen:S.filtersOpen,
