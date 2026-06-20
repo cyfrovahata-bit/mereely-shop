@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<script src="./support.js"></script>
+<script src="/support.js"></script>
 </head>
 <body>
 <x-dc>
@@ -927,9 +927,9 @@ class Component extends DCLogic {
     this._onResize(); window.addEventListener('resize', this._onResize);
     this._io = new IntersectionObserver((es)=>{ es.forEach(e=>{ if(e.isIntersecting){ e.target.style.opacity='1'; e.target.style.transform='none'; this._io.unobserve(e.target); } }); },{threshold:.12,rootMargin:'0px 0px -8% 0px'});
     this._scan();
-    this._popHandler = ()=>this._parseHash();
+    this._popHandler = ()=>this._parsePath();
     window.addEventListener('popstate', this._popHandler);
-    this._parseHash();
+    this._parsePath();
     this._updateTitle();
   }
   componentDidUpdate(prevProps, prevState){
@@ -957,10 +957,10 @@ class Component extends DCLogic {
     return S.page;
   }
 
-  _parseHash(){
-    const hash=location.hash.replace(/^#/,'').trim();
-    if(!hash||hash==='home'){ this.setState({page:'home'}); return; }
-    const parts=hash.split('/');
+  _parsePath(){
+    const path=location.pathname.replace(/^\/+/,'').trim();
+    if(!path||path==='home'){ this.setState({page:'home'}); return; }
+    const parts=path.split('/');
     const seg=parts[0];
     if(seg==='catalog'){
       const catSlug=parts[1]||'';
@@ -1027,14 +1027,15 @@ class Component extends DCLogic {
   fmt(n){ return String(n).replace(/\B(?=(\d{3})+(?!\d))/g,'\u202f')+' \u20b4'; }
   toast(m){ if(this._toastT) clearTimeout(this._toastT); this.setState({toast:m,toastShow:true}); this._toastT=setTimeout(()=>this.setState({toastShow:false}),2400); }
 
-  _pushHash(route){
-    const cur=location.hash.replace(/^#/,'');
-    if(route!==cur) history.pushState(null,'','#'+(route||''));
+  _pushRoute(path){
+    const cur=location.pathname;
+    const next='/'+path;
+    if(next!==cur) history.pushState(null,'',next);
   }
-  nav(p){ return (e)=>{ if(e&&e.preventDefault)e.preventDefault(); this._pushHash(p==='home'?'':p); this.setState({page:p,menuOpen:false,quick:null}); this._updateTitle(); }; }
+  nav(p){ return (e)=>{ if(e&&e.preventDefault)e.preventDefault(); this._pushRoute(p==='home'?'':p); this.setState({page:p,menuOpen:false,quick:null}); this._updateTitle(); }; }
   openProduct(id){ 
     const p=this.products.find(x=>x.id===id);
-    this._pushHash('product/'+(p?p.slug:id));
+    this._pushRoute('product/'+(p?p.slug:id));
     document.title=(p?p.name+' — ':'')+('Mereely Shop — жіночий одяг ручної роботи');
     this.setState({page:'product',pid:id,pImg:0,pColor:0,pSize:null,pQty:1,pTab:'desc',quick:null,menuOpen:false,zoom:false}); 
     window.scrollTo(0,0); 
@@ -1096,7 +1097,7 @@ class Component extends DCLogic {
       const big = i===0;
       return {name,count:cnt,idx:'0'+(i+1),tone:tones[i%tones.length],
         ratio:isMobile?'1':(big?'1/1':'4/5'),
-        go:()=>{ const cslug=this.catSlugs[name]||''; this._pushHash('catalog'+(cslug?'/'+cslug:'')); document.title=name+' — Каталог | Mereely Shop'; this.setState(s=>({page:'catalog',filters:{...s.filters,cat:name}})); window.scrollTo(0,0); }};
+        go:()=>{ const cslug=this.catSlugs[name]||''; this._pushRoute('catalog'+(cslug?'/'+cslug:''));document.title=name+' — Каталог | Mereely Shop'; this.setState(s=>({page:'catalog',filters:{...s.filters,cat:name}})); window.scrollTo(0,0); }};
     });
     const catGridCols = isMobile?'repeat(2,1fr)':(isTablet?'repeat(3,1fr)':'repeat(3,1fr)');
 
@@ -1246,7 +1247,7 @@ class Component extends DCLogic {
       cartSubFmt:fmt(cartSub), cartShipFmt: ship===0?'Безкоштовно':fmt(ship), cartTotalFmt:fmt(cartTotal),
       cartTransform:S.cartOpen?'translateX(0)':'translateX(100%)',
       cartOverlayOpacity:S.cartOpen?'1':'0', cartOverlayPE:S.cartOpen?'auto':'none',
-      goCatalogFromCart:()=>{ this._pushHash('catalog'); this.setState({page:'catalog',cartOpen:false}); },
+      goCatalogFromCart:()=>{ this._pushRoute('catalog'); this.setState({page:'catalog',cartOpen:false}); },
       checkout:()=>{ this.setState({cartOpen:false,checkoutOpen:true}); },
       // mobile menu
       menuTransform:S.menuOpen?'translateX(0)':'translateX(-100%)',
@@ -1291,7 +1292,7 @@ class Component extends DCLogic {
       pZoomMove:(e)=>{ if(!S.zoom)return; const r=e.currentTarget.getBoundingClientRect(); const x=((e.clientX-r.left)/r.width*100).toFixed(1); const y=((e.clientY-r.top)/r.height*100).toFixed(1); this.setState({zoomXY:x+'% '+y+'%'}); },
       pZoomLeave:()=>{ if(S.zoom) this.setState({zoom:false}); },
       showStickyBuy:S.page==='product'&&isMobile,
-      pBreadcrumbCat:()=>{ const cslug=this.catSlugs[PD.cat]||''; this._pushHash('catalog'+(cslug?'/'+cslug:'')); this.setState(s=>({page:'catalog',filters:{...s.filters,cat:PD.cat}})); window.scrollTo(0,0); },
+      pBreadcrumbCat:()=>{ const cslug=this.catSlugs[PD.cat]||''; this._pushRoute('catalog'+(cslug?'/'+cslug:''));this.setState(s=>({page:'catalog',filters:{...s.filters,cat:PD.cat}})); window.scrollTo(0,0); },
       // about
       aboutValues, aboutStats, aboutStatCols:isMobile?'1fr 1fr':'repeat(4,1fr)',
       aboutStoryCols:isMobile?'1fr':'1fr 1fr', aboutValCols:isMobile?'1fr':'repeat(3,1fr)',

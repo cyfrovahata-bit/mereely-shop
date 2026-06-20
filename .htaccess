@@ -1,0 +1,11 @@
+Options -MultiViews
+RewriteEngine On
+RewriteBase /
+
+# Redirect existing files and directories normally (admin.html, support.js, sitemap.xml, etc.)
+RewriteCond %{REQUEST_FILENAME} -f [OR]
+RewriteCond %{REQUEST_FILENAME} -d
+RewriteRule ^ - [L]
+
+# All other routes → index.html (SPA routing)
+RewriteRule ^ /index.html [L]
