@@ -134,7 +134,7 @@ foreach (explode("\n", str_replace("\r", '', $branch_text)) as $line) {
         trim($p[1] ?? ''),
         trim($p[2] ?? ''),
         trim($p[count($p)-1]),
-        (int)(stripos($p[1] ?? '', 'поштомат') !== false),
+        (int)(mb_stripos($p[1] ?? '', 'поштомат', 0, 'UTF-8') !== false),
     ];
 }
 log_msg('Знайдено відділень: ' . count($branches));

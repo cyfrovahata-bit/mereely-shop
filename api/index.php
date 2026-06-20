@@ -118,7 +118,7 @@ if ($action === 'upload') {
         $db->exec('DELETE FROM branches');
         $ins = $db->prepare('INSERT OR REPLACE INTO branches (uid, name, address, city_uid, is_locker) VALUES (?,?,?,?,?)');
         foreach ($input['branches'] as $b) {
-            $is_locker = (int)(stripos($b['name'] ?? '', 'поштомат') !== false);
+            $is_locker = (int)(mb_stripos($b['name'] ?? '', 'поштомат', 0, 'UTF-8') !== false);
             $ins->execute([$b['uid'], $b['name'], $b['address'] ?? '', $b['cityUid'], $is_locker]);
         }
         $db->exec('COMMIT');
