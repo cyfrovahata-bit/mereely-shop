@@ -696,16 +696,17 @@ async function uploadMeestData(){
 
     msg.innerHTML='<span style="color:#6c7166">Парсую відділення…</span>';
     const branchText = await branchFile.async('string');
-    // UIDПодразделение;Наименование;ОтображениеПоиска;УточнениеАдреса;UIDГорода
+    // UIDПодразделение;Наименование;ОтображениеПоиска(адреса);UIDГорода  (4 поля)
     const branches = [];
     for(const line of branchText.split(/\r?\n/)){
       const trimmed = line.trim();
       if(!trimmed) continue;
       const p = parseLine(trimmed);
-      if(p.length < 5 || !p[0] || !p[1]) continue;
-      const uid = p[0].trim(); const name = p[1].trim(); const cityUid = p[4].trim();
+      if(p.length < 4 || !p[0] || !p[1]) continue;
+      const uid = p[0].trim(); const name = p[1].trim(); const cityUid = p[p.length-1].trim();
       if(!uid || !name || !cityUid || uid.length < 5) continue;
-      branches.push({ uid, name, search: (p[2]||'').trim(), address: (p[3]||'').trim(), cityUid });
+      const address = p.length >= 4 ? (p[p.length-2]||'').trim() : '';
+      branches.push({ uid, name, address, cityUid });
     }
 
     if(!cities.length) throw new Error('Міста не знайдено — перевірте формат файлу');
