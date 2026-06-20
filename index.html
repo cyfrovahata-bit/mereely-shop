@@ -141,7 +141,8 @@
       <sc-for list="{{ homeProducts }}" as="p" hint-placeholder-count="4">
         <article data-reveal style="opacity:0;transform:translateY(26px);transition:all .9s cubic-bezier(.16,.84,.44,1)">
           <div onClick="{{ p.open }}" style="position:relative;aspect-ratio:4/5;overflow:hidden;cursor:pointer;background:{{ p.tone }}" onMouseEnter="{{ p.hoverOn }}" onMouseLeave="{{ p.hoverOff }}">
-            <div style="position:absolute;inset:0;background-image:repeating-linear-gradient(125deg,rgba(0,0,0,.045) 0 2px,transparent 2px 11px);transition:transform 1.1s cubic-bezier(.16,.84,.44,1);transform:{{ p.imgScale }}"></div>
+            <sc-if value="{{ p.hasImg }}" hint-placeholder-val="{{ false }}"><img src="{{ p.imgSrc }}" alt="{{ p.name }}" loading="lazy" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:transform 1.1s cubic-bezier(.16,.84,.44,1);transform:{{ p.imgScale }}"/></sc-if>
+            <sc-if value="{{ p.hasImg }}" hint-placeholder-val="{{ true }}"><div style="position:absolute;inset:0;background-image:repeating-linear-gradient(125deg,rgba(0,0,0,.045) 0 2px,transparent 2px 11px);transition:transform 1.1s cubic-bezier(.16,.84,.44,1);transform:{{ p.imgScale }}"></div></sc-if>
             <span style="position:absolute;left:12px;bottom:10px;right:12px;font-family:monospace;font-size:9px;letter-spacing:.1em;color:rgba(255,255,255,.7);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ p.shotLabel }}</span>
             <sc-if value="{{ p.hasBadge }}" hint-placeholder-val="{{ false }}"><span style="position:absolute;top:12px;left:12px;background:{{ p.badgeBg }};color:#f1ebe1;font-size:10px;letter-spacing:.14em;text-transform:uppercase;font-weight:700;padding:5px 11px">{{ p.badge }}</span></sc-if>
             <button onClick="{{ p.toggleWish }}" aria-label="В обране" style="position:absolute;top:10px;right:10px;width:34px;height:34px;border-radius:50%;background:rgba(241,235,225,.85);display:flex;align-items:center;justify-content:center;transition:transform .3s" style-hover="transform:scale(1.12)">
@@ -343,7 +344,8 @@
         <sc-for list="{{ catalogProducts }}" as="p" hint-placeholder-count="6">
           <article style="opacity:1">
             <div onClick="{{ p.open }}" style="position:relative;aspect-ratio:4/5;overflow:hidden;cursor:pointer;background:{{ p.tone }}" onMouseEnter="{{ p.hoverOn }}" onMouseLeave="{{ p.hoverOff }}">
-              <div style="position:absolute;inset:0;background-image:repeating-linear-gradient(125deg,rgba(0,0,0,.045) 0 2px,transparent 2px 11px);transition:transform 1.1s cubic-bezier(.16,.84,.44,1);transform:{{ p.imgScale }}"></div>
+              <sc-if value="{{ p.hasImg }}" hint-placeholder-val="{{ false }}"><img src="{{ p.imgSrc }}" alt="{{ p.name }}" loading="lazy" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:transform 1.1s cubic-bezier(.16,.84,.44,1);transform:{{ p.imgScale }}"/></sc-if>
+              <sc-if value="{{ p.hasImg }}" hint-placeholder-val="{{ true }}"><div style="position:absolute;inset:0;background-image:repeating-linear-gradient(125deg,rgba(0,0,0,.045) 0 2px,transparent 2px 11px);transition:transform 1.1s cubic-bezier(.16,.84,.44,1);transform:{{ p.imgScale }}"></div></sc-if>
               <span style="position:absolute;left:12px;bottom:10px;right:12px;font-family:monospace;font-size:9px;letter-spacing:.1em;color:rgba(255,255,255,.7);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ p.shotLabel }}</span>
               <sc-if value="{{ p.hasBadge }}" hint-placeholder-val="{{ false }}"><span style="position:absolute;top:12px;left:12px;background:{{ p.badgeBg }};color:#f1ebe1;font-size:10px;letter-spacing:.14em;text-transform:uppercase;font-weight:700;padding:5px 11px">{{ p.badge }}</span></sc-if>
               <button onClick="{{ p.toggleWish }}" aria-label="В обране" style="position:absolute;top:10px;right:10px;width:34px;height:34px;border-radius:50%;background:rgba(241,235,225,.85);display:flex;align-items:center;justify-content:center;transition:transform .3s" style-hover="transform:scale(1.12)"><svg width="16" height="16" viewBox="0 0 24 24" fill="{{ p.wishFill }}" stroke="#28332c" stroke-width="1.4"><path d="M12 20s-7-4.5-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.5-7 10-7 10z"/></svg></button>
@@ -372,12 +374,16 @@
     <div style="display:flex;flex-direction:{{ pGalleryDir }};gap:14px;position:{{ pGalleryPos }};top:{{ pGalleryTop }}">
       <div style="display:flex;flex-direction:{{ pThumbDir }};gap:10px;flex:none">
         <sc-for list="{{ pThumbs }}" as="th" hint-placeholder-count="4">
-          <button onClick="{{ th.sel }}" aria-label="Фото" style="width:72px;height:90px;flex:none;background:{{ th.tone }};border:1px solid {{ th.border }};position:relative;overflow:hidden;transition:border-color .25s"><div style="position:absolute;inset:0;background-image:repeating-linear-gradient(135deg,rgba(0,0,0,.05) 0 2px,transparent 2px 8px)"></div></button>
+          <button onClick="{{ th.sel }}" aria-label="Фото" style="width:72px;height:90px;flex:none;background:{{ th.tone }};border:1px solid {{ th.border }};position:relative;overflow:hidden;transition:border-color .25s">
+            <sc-if value="{{ th.hasImg }}" hint-placeholder-val="{{ false }}"><img src="{{ th.imgSrc }}" alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover"/></sc-if>
+            <sc-if value="{{ th.hasImg }}" hint-placeholder-val="{{ true }}"><div style="position:absolute;inset:0;background-image:repeating-linear-gradient(135deg,rgba(0,0,0,.05) 0 2px,transparent 2px 8px)"></div></sc-if>
+          </button>
         </sc-for>
       </div>
       <div onMouseMove="{{ pZoomMove }}" onMouseLeave="{{ pZoomLeave }}" onClick="{{ pZoomToggle }}" style="flex:1;aspect-ratio:4/5;background:{{ pMainTone }};position:relative;overflow:hidden;cursor:{{ pZoomCursor }}">
-        <div style="position:absolute;inset:0;background-image:radial-gradient(circle at 35% 25%,rgba(255,255,255,.12),transparent 50%),repeating-linear-gradient(135deg,rgba(0,0,0,.05) 0 2px,transparent 2px 13px);transform:{{ pMainTransform }};transform-origin:{{ pMainOrigin }};transition:transform .25s ease-out"></div>
-        <span style="position:absolute;left:50%;bottom:16px;transform:translateX(-50%);font-family:monospace;font-size:10px;letter-spacing:.1em;color:rgba(255,255,255,.72);text-align:center;width:90%">{{ pMainShot }}</span>
+        <sc-if value="{{ pHasMainImg }}" hint-placeholder-val="{{ false }}"><img src="{{ pMainShot }}" alt="{{ pName }}" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transform:{{ pMainTransform }};transform-origin:{{ pMainOrigin }};transition:transform .25s ease-out"/></sc-if>
+        <sc-if value="{{ pHasMainImg }}" hint-placeholder-val="{{ true }}"><div style="position:absolute;inset:0;background-image:radial-gradient(circle at 35% 25%,rgba(255,255,255,.12),transparent 50%),repeating-linear-gradient(135deg,rgba(0,0,0,.05) 0 2px,transparent 2px 13px);transform:{{ pMainTransform }};transform-origin:{{ pMainOrigin }};transition:transform .25s ease-out"></div></sc-if>
+        <span style="position:absolute;left:50%;bottom:16px;transform:translateX(-50%);font-family:monospace;font-size:10px;letter-spacing:.1em;color:rgba(255,255,255,.72);text-align:center;width:90%">{{ pMainLabel }}</span>
         <span style="position:absolute;top:14px;right:14px;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,.65)">наведіть · клік для zoom</span>
         <span style="position:absolute;left:-12px;top:-12px;width:54px;height:54px;border-left:1px solid #28332c;border-top:1px solid #28332c"></span>
       </div>
@@ -437,8 +443,12 @@
       <sc-for list="{{ pTabsList }}" as="t" hint-placeholder-count="3"><button onClick="{{ t.sel }}" style="padding:20px 0;font-size:13px;letter-spacing:.1em;text-transform:uppercase;font-weight:600;color:{{ t.color }};border-bottom:2px solid {{ t.bd }};margin-bottom:-1px;transition:all .25s">{{ t.label }}</button></sc-for>
     </div>
     <div style="padding:28px 0;min-height:120px">
-      <sc-if value="{{ pTabDesc }}" hint-placeholder-val="{{ true }}"><p style="font-size:15.5px;line-height:1.85;color:#41463f;max-width:680px">{{ pDesc }} Кожна річ проходить ручний контроль якості в нашому ательє в Києві. Ми використовуємо лише сертифіковані тканини й приховану фурнітуру преміумкласу.</p></sc-if>
-      <sc-if value="{{ pTabCare }}" hint-placeholder-val="{{ false }}"><p style="font-size:15.5px;line-height:1.85;color:#41463f;max-width:680px">{{ careText }}</p></sc-if>
+      <sc-if value="{{ pTabDesc }}" hint-placeholder-val="{{ true }}">
+        <p style="font-size:15.5px;line-height:1.85;color:#41463f;max-width:680px">{{ pDesc }}</p>
+        <sc-if value="{{ hasMaterial }}" hint-placeholder-val="{{ false }}"><p style="font-size:13px;color:#6c7166;margin-top:12px"><b>Матеріал:</b> {{ pMaterial }}</p></sc-if>
+        <sc-if value="{{ hasManufacturer }}" hint-placeholder-val="{{ false }}"><p style="font-size:13px;color:#6c7166;margin-top:4px"><b>Виробник:</b> {{ pManufacturer }}</p></sc-if>
+      </sc-if>
+      <sc-if value="{{ pTabCare }}" hint-placeholder-val="{{ false }}"><p style="font-size:15px;line-height:2;color:#41463f;max-width:680px;white-space:pre-line">{{ careText }}</p></sc-if>
       <sc-if value="{{ pTabReviews }}" hint-placeholder-val="{{ false }}">
         <div style="display:flex;flex-direction:column;gap:24px">
           <sc-for list="{{ pReviews }}" as="r" hint-placeholder-count="3">
@@ -460,7 +470,8 @@
       <sc-for list="{{ pRelated }}" as="p" hint-placeholder-count="4">
         <article>
           <div onClick="{{ p.open }}" style="position:relative;aspect-ratio:4/5;overflow:hidden;cursor:pointer;background:{{ p.tone }}" onMouseEnter="{{ p.hoverOn }}" onMouseLeave="{{ p.hoverOff }}">
-            <div style="position:absolute;inset:0;background-image:repeating-linear-gradient(125deg,rgba(0,0,0,.045) 0 2px,transparent 2px 11px);transition:transform 1.1s cubic-bezier(.16,.84,.44,1);transform:{{ p.imgScale }}"></div>
+            <sc-if value="{{ p.hasImg }}" hint-placeholder-val="{{ false }}"><img src="{{ p.imgSrc }}" alt="{{ p.name }}" loading="lazy" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover"/></sc-if>
+            <sc-if value="{{ p.hasImg }}" hint-placeholder-val="{{ true }}"><div style="position:absolute;inset:0;background-image:repeating-linear-gradient(125deg,rgba(0,0,0,.045) 0 2px,transparent 2px 11px)"></div></sc-if>
             <sc-if value="{{ p.hasBadge }}" hint-placeholder-val="{{ false }}"><span style="position:absolute;top:12px;left:12px;background:{{ p.badgeBg }};color:#f1ebe1;font-size:10px;letter-spacing:.14em;text-transform:uppercase;font-weight:700;padding:5px 11px">{{ p.badge }}</span></sc-if>
           </div>
           <div style="padding-top:14px;display:flex;justify-content:space-between;gap:10px"><h3 onClick="{{ p.open }}" style="font-family:'Forum',serif;font-size:18px;font-weight:400;cursor:pointer">{{ p.name }}</h3><span style="font-size:14px;font-weight:600;white-space:nowrap">{{ p.priceFmt }}</span></div>
@@ -954,7 +965,10 @@
   <sc-if value="{{ quickHas }}" hint-placeholder-val="{{ false }}">
     <div onClick="{{ stop }}" style="background:#f1ebe1;max-width:840px;width:100%;max-height:90vh;overflow:auto;display:grid;grid-template-columns:{{ quickCols }};position:relative">
       <button onClick="{{ closeQuick }}" aria-label="Закрити" style="position:absolute;top:14px;right:14px;z-index:3;width:36px;height:36px;border-radius:50%;background:rgba(241,235,225,.9);display:flex;align-items:center;justify-content:center"><svg width="15" height="15" viewBox="0 0 24 24" stroke="#1e231f" stroke-width="1.5"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
-      <div style="aspect-ratio:4/5;background:{{ quickTone }};position:relative;overflow:hidden;min-height:300px"><div style="position:absolute;inset:0;background-image:repeating-linear-gradient(135deg,rgba(0,0,0,.05) 0 2px,transparent 2px 12px)"></div><span style="position:absolute;left:14px;bottom:12px;font-family:monospace;font-size:10px;color:rgba(255,255,255,.7)">{{ quickShot }}</span></div>
+      <div style="aspect-ratio:4/5;background:{{ quickTone }};position:relative;overflow:hidden;min-height:300px">
+        <sc-if value="{{ quickHasImg }}" hint-placeholder-val="{{ false }}"><img src="{{ quickShot }}" alt="{{ quickName }}" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover"/></sc-if>
+        <sc-if value="{{ quickHasImg }}" hint-placeholder-val="{{ true }}"><div style="position:absolute;inset:0;background-image:repeating-linear-gradient(135deg,rgba(0,0,0,.05) 0 2px,transparent 2px 12px)"></div></sc-if>
+      </div>
       <div style="padding:clamp(24px,4vw,38px);display:flex;flex-direction:column">
         <span style="font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:#8a8f84">{{ quickCategory }}</span>
         <h3 style="font-family:'Forum',serif;font-size:30px;font-weight:400;margin-top:8px;line-height:1.05">{{ quickName }}</h3>
@@ -1082,7 +1096,12 @@ class Component extends DCLogic {
       const r = await fetch('/api/?action=products');
       const data = await r.json();
       if(!Array.isArray(data)||data.length===0) return;
-      const C = this.C;
+      // Нормалізуємо колір: підтримуємо {name,hex}, [name,hex], або рядок
+      const normColor = c => {
+        if(Array.isArray(c)) return {name:c[0]||'', hex:c[1]||'#9a9a8a'};
+        if(c && typeof c==='object') return {name:c.name||'', hex:c.hex||c.color||'#9a9a8a'};
+        return {name:String(c), hex:'#9a9a8a'};
+      };
       this.products = data.map(p=>({
         id: p.id,
         name: p.name||'',
@@ -1090,17 +1109,20 @@ class Component extends DCLogic {
         price: p.price||0,
         old: p.old_price||0,
         desc: p.description||'',
-        colors: Array.isArray(p.colors)&&p.colors.length ? p.colors.map(c=>Array.isArray(c)?c:[c,C.olive]) : [['Базовий',C.olive]],
-        sizes: Array.isArray(p.sizes)&&p.sizes.length ? p.sizes : ['S','M','L'],
-        imgs: Array.isArray(p.images)&&p.images.length ? p.images : [`[ ${p.name} ]`],
-        tone: C.olive,
+        care: p.care||'',
+        material: p.material||'',
+        manufacturer: p.manufacturer||'',
+        colors: Array.isArray(p.colors)&&p.colors.length ? p.colors.map(normColor) : [],
+        sizes: Array.isArray(p.sizes)&&p.sizes.length ? p.sizes : [],
+        imgs: Array.isArray(p.images)&&p.images.length ? p.images : [],
+        tone: this.C.olive,
         slug: 'item-'+p.id,
         badge: null,
-        stock: 10,
+        stock: 0,
       }));
       const cats=[...new Set(this.products.map(p=>p.cat).filter(Boolean))];
       this.categories = cats;
-      this.allColors=[...new Map(this.products.flatMap(p=>p.colors).map(c=>[c[0],c])).values()];
+      this.allColors=[...new Map(this.products.flatMap(p=>p.colors).map(c=>[c.name,c])).values()];
       this.allSizes=[...new Set(this.products.flatMap(p=>p.sizes))];
       this.setState({_prodsLoaded:true});
     } catch(e){ console.warn('products load error',e); }
@@ -1264,7 +1286,8 @@ class Component extends DCLogic {
   addToCart(prod,color,size,qty){
     size = size || (prod.sizes.length===1?prod.sizes[0]:null);
     if(!size){ this.toast('Оберіть, будь ласка, розмір'); return false; }
-    const colorName = prod.colors[color][0];
+    const _c=prod.colors[color]||prod.colors[0]||{name:'',hex:''};
+    const colorName=_c.name||_c[0]||'';
     const key = prod.id+'-'+colorName+'-'+size;
     this.setState(s=>{ const cart=[...s.cart]; const ex=cart.find(c=>c.key===key); if(ex){ ex.qty+=qty; } else { cart.push({key,id:prod.id,name:prod.name,price:prod.price,tone:prod.tone,color:colorName,size,qty}); } return {cart}; });
     this.toast(prod.name+' — додано в кошик');
@@ -1288,13 +1311,17 @@ class Component extends DCLogic {
     const mkProd=(p)=>{
       const inWish=S.wishlist.includes(p.id);
       const hov=S.hoverId===p.id;
+      const img0=p.imgs[0]||'';
+      const isUrl=img0.startsWith('/') || img0.startsWith('http');
+      const colors=p.colors.map(c=>Array.isArray(c)?{name:c[0],hex:c[1]}:(c.name?c:{name:c,hex:'#9a9a8a'}));
       return {
         ...p, category:p.cat,
         priceFmt:fmt(p.price), oldFmt:p.old?fmt(p.old):'', hasOld:!!p.old,
         priceColor:p.old?'#a7613f':'#1e231f',
         hasBadge:!!p.badge, badge:p.badge||'', badgeBg:p.badge==='Sale'?'#a7613f':'#28332c',
-        shotLabel:p.imgs[0],
-        colors:p.colors.map(c=>({name:c[0],hex:c[1]})),
+        shotLabel:isUrl?'':img0,
+        hasImg:isUrl, imgSrc:isUrl?img0:'',
+        colors,
         wishFill:inWish?'#a7613f':'none',
         imgScale:hov?'scale(1.06)':'scale(1)',
         quickShift:hov?'translateY(0)':'translateY(100%)', quickOpacity:hov?'1':'0',
@@ -1373,7 +1400,7 @@ class Component extends DCLogic {
     let clist=this.products.filter(p=>{
       if(F.cat!=='all'&&p.cat!==F.cat) return false;
       if(F.sizes.length&&!p.sizes.some(s=>F.sizes.includes(s))) return false;
-      if(F.colors.length&&!p.colors.some(c=>F.colors.includes(c[0]))) return false;
+      if(F.colors.length&&!p.colors.some(c=>F.colors.includes(c.name||c[0]))) return false;
       if(p.price>F.priceMax) return false;
       return true;
     });
@@ -1384,25 +1411,25 @@ class Component extends DCLogic {
     const catChips=[['all','Усі речі']].concat(activeCats.map(c=>[c,c])).map(([v,l])=>({label:l,active:F.cat===v,bg:F.cat===v?'#28332c':'transparent',color:F.cat===v?'#f1ebe1':'#1e231f',sel:()=>this.setState(s=>({filters:{...s.filters,cat:v}}))}));
     const availSizes=[...new Set(this.products.flatMap(p=>p.sizes))];
     const sizeChips=availSizes.map(sz=>({label:sz,bg:F.sizes.includes(sz)?'#28332c':'transparent',color:F.sizes.includes(sz)?'#f1ebe1':'#1e231f',toggle:()=>this.setState(s=>{const h=s.filters.sizes.includes(sz);return{filters:{...s.filters,sizes:h?s.filters.sizes.filter(x=>x!==sz):[...s.filters.sizes,sz]}};})}));
-    const availColors=[...new Map(this.products.flatMap(p=>p.colors).map(c=>[c[0],c])).values()];
-    const colorChips=availColors.map(([n,hex])=>({name:n,hex,ring:F.colors.includes(n)?'#28332c':'rgba(30,35,31,.25)',scale:F.colors.includes(n)?'scale(.78)':'scale(1)',toggle:()=>this.setState(s=>{const h=s.filters.colors.includes(n);return{filters:{...s.filters,colors:h?s.filters.colors.filter(x=>x!==n):[...s.filters.colors,n]}};})}));
+    const availColors=[...new Map(this.products.flatMap(p=>p.colors).map(c=>[c.name||c[0],c])).values()];
+    const colorChips=availColors.map(c=>{const n=c.name||c[0]||'',hex=c.hex||c[1]||'#9a9a8a';return{name:n,hex,ring:F.colors.includes(n)?'#28332c':'rgba(30,35,31,.25)',scale:F.colors.includes(n)?'scale(.78)':'scale(1)',toggle:()=>this.setState(s=>{const h=s.filters.colors.includes(n);return{filters:{...s.filters,colors:h?s.filters.colors.filter(x=>x!==n):[...s.filters.colors,n]}};})}});
     const maxPrice=Math.max(...this.products.map(p=>p.price),1000);
     const activeFilterCount=(F.cat!=='all'?1:0)+F.sizes.length+F.colors.length+(F.priceMax<maxPrice?1:0);
     const sortOpts=[['pop','Популярні'],['new','Спершу нові'],['priceAsc','Ціна: зростання'],['priceDesc','Ціна: спадання']].map(([v,l])=>({value:v,label:l}));
 
     // ===== PRODUCT =====
-    const PD=this.products.find(x=>x.id===S.pid)||this.products[0]||{id:0,name:'',cat:'',price:0,old:0,desc:'',colors:[['',this.C.olive]],sizes:[],imgs:[''],tone:this.C.olive,slug:'',badge:null};
-    const pColors=PD.colors.map((c,i)=>({name:c[0],hex:c[1],ring:i===S.pColor?'#28332c':'rgba(30,35,31,.25)',pick:()=>this.setState({pColor:i})}));
+    const PD=this.products.find(x=>x.id===S.pid)||this.products[0]||{id:0,name:'',cat:'',price:0,old:0,desc:'',care:'',material:'',manufacturer:'',colors:[],sizes:[],imgs:[''],tone:this.C.olive,slug:'',badge:null};
+    const pdColors=PD.colors.map(c=>Array.isArray(c)?{name:c[0],hex:c[1]}:(c.name?c:{name:String(c),hex:'#9a9a8a'}));
+    const pColors=pdColors.map((c,i)=>({name:c.name,hex:c.hex,ring:i===S.pColor?'#28332c':'rgba(30,35,31,.25)',pick:()=>this.setState({pColor:i})}));
     const pSizes=PD.sizes.map(sz=>({label:sz,bg:S.pSize===sz?'#28332c':'transparent',color:S.pSize===sz?'#f1ebe1':'#1e231f',pick:()=>this.setState({pSize:sz})}));
-    const pThumbs=PD.imgs.map((cap,i)=>({cap,tone:PD.tone,border:i===S.pImg?'#28332c':'rgba(30,35,31,.12)',sel:()=>this.setState({pImg:i})}));
+    const pThumbs=PD.imgs.map((url,i)=>{const isU=url&&(url.startsWith('/')||url.startsWith('http'));return{imgSrc:isU?url:'',hasImg:isU,cap:isU?'':url,tone:PD.tone,border:i===S.pImg?'#28332c':'rgba(30,35,31,.12)',sel:()=>this.setState({pImg:i})};});
+    const pMainUrl=PD.imgs[S.pImg]||PD.imgs[0]||'';
+    const pHasMainImg=pMainUrl.startsWith('/')||pMainUrl.startsWith('http');
     const pRelated=this.products.filter(x=>x.cat===PD.cat&&x.id!==PD.id).concat(this.products.filter(x=>x.cat!==PD.cat)).slice(0,4).map(mkProd);
-    const pReviews=[
-      {stars:'★★★★★',name:'Ірина',date:'2 тижні тому',text:'Розмір сів ідеально, тканина приємна до тіла. Беріть свій звичайний розмір.'},
-      {stars:'★★★★★',name:'Наталя',date:'місяць тому',text:'Колір точно як на фото. Доставка Новою Поштою за день. Дуже задоволена.'},
-      {stars:'★★★★☆',name:'Вікторія',date:'2 місяці тому',text:'Чудова якість. Хотіла б більше відтінків — сподіваюся, додадуть.'}
-    ];
-    const pTabsList=[['desc','Опис'],['care','Догляд'],['reviews','Відгуки · 3']].map(([v,l])=>({label:l,color:S.pTab===v?'#1e231f':'#8a8f84',bd:S.pTab===v?'#28332c':'transparent',sel:()=>this.setState({pTab:v})}));
-    const careText='Делікатне прання при 30°C або хімчистка. Не відбілювати. Прасувати з вивороту при середній температурі. Зберігати на вішаку, далі від прямого сонця.';
+    const pReviews=[];
+    const hasCare=!!(PD.care&&PD.care.trim());
+    const pTabsList=[['desc','Опис'],...(hasCare?[['care','Догляд']]:[]),...(pReviews.length?[['reviews','Відгуки · '+pReviews.length]]:[])].map(([v,l])=>({label:l,color:S.pTab===v?'#1e231f':'#8a8f84',bd:S.pTab===v?'#28332c':'transparent',sel:()=>this.setState({pTab:v})}));
+    const careText=PD.care||'';
 
     // ===== ABOUT =====
     const aboutValues=[
@@ -1476,7 +1503,7 @@ class Component extends DCLogic {
       // quick view
       quickHas:!!qp, quickOverlayOpacity:qp?'1':'0', quickOverlayPE:qp?'auto':'none',
       quickCols:isMobile?'1fr':'1fr 1fr',
-      quickTone:qp?qp.tone:'#7c8568', quickShot:qp?qp.imgs[0]:'', quickCategory:qp?qp.cat:'',
+      quickTone:qp?qp.tone:'#7c8568', quickShot:qp?(qp.imgs[0]||''):'', quickHasImg:!!(qp&&qp.imgs[0]&&(qp.imgs[0].startsWith('/')||qp.imgs[0].startsWith('http'))), quickCategory:qp?qp.cat:'',
       quickName:qp?qp.name:'', quickPrice:qp?fmt(qp.price):'', quickDesc:qp?qp.desc:'', quickColors,
       closeQuick:()=>this.setState({quick:null}), stop:(e)=>e.stopPropagation(),
       quickAdd:()=>{ if(qp){ const done=this.addToCart(qp,S.quickColor,qp.sizes.length===1?qp.sizes[0]:null,1); if(done!==false){ this.setState({quick:null,cartOpen:true}); } } },
@@ -1497,8 +1524,10 @@ class Component extends DCLogic {
       // product
       P:PD, pName:PD.name, pCat:PD.cat, pPriceFmt:fmt(PD.price), pOldFmt:PD.old?fmt(PD.old):'', pHasOld:!!PD.old,
       pPriceColor:PD.old?'#a7613f':'#1e231f', pDesc:PD.desc,
-      pMainTone:PD.tone, pMainShot:PD.imgs[S.pImg]||PD.imgs[0], pThumbs, pColors, pSizes,
-      pStock:PD.stock, pStockText:'Залишилось '+PD.stock+' шт', pStockColor:PD.stock<=4?'#a7613f':'#6f7a5e',
+      pMaterial:PD.material||'', pManufacturer:PD.manufacturer||'',
+      hasMaterial:!!(PD.material&&PD.material.trim()), hasManufacturer:!!(PD.manufacturer&&PD.manufacturer.trim()),
+      pMainTone:PD.tone, pMainShot:pHasMainImg?pMainUrl:'', pHasMainImg, pMainLabel:pHasMainImg?'':pMainUrl, pThumbs, pColors, pSizes,
+      pStock:PD.stock||0, pStockText:(PD.stock>0?'Залишилось '+PD.stock+' шт':''), pStockColor:(PD.stock<=4&&PD.stock>0)?'#a7613f':'#6f7a5e',
       pStockLow:PD.stock<=4, pQty:S.pQty,
       pQtyInc:()=>this.setState(s=>({pQty:s.pQty+1})), pQtyDec:()=>this.setState(s=>({pQty:Math.max(1,s.pQty-1)})),
       pCols:isMobile?'1fr':(isTablet?'1fr 1fr':'1.15fr 1fr'),

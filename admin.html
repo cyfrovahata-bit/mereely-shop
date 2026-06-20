@@ -148,6 +148,7 @@ tr:hover td{background:rgba(30,35,31,.025)}
     <div class="sidebar-logo">Mereely<span>Admin Panel</span></div>
     <span class="nav-item active" onclick="showPage('dashboard',this)">📊 Дашборд</span>
     <span class="nav-item" onclick="showPage('products',this)">👗 Товари</span>
+    <span class="nav-item" onclick="showPage('categories',this)">🗂 Категорії</span>
     <span class="nav-item" onclick="showPage('orders',this)">📦 Замовлення</span>
     <span class="nav-item" onclick="showPage('subscribers',this)">📧 Підписники</span>
     <span class="nav-item" onclick="showPage('settings',this)">⚙️ Налаштування</span>
@@ -170,14 +171,7 @@ tr:hover td{background:rgba(30,35,31,.025)}
       <div class="field"><label>Ціна (грн) *</label><input id="f-price" type="number" placeholder="3490" min="0"/></div>
       <div class="field"><label>Стара ціна (грн)</label><input id="f-old" type="number" placeholder=""/></div>
       <div class="field"><label>Категорія *</label>
-        <select id="f-cat">
-          <option value="Сукні">Сукні</option>
-          <option value="Верх">Верх</option>
-          <option value="Низ">Низ</option>
-          <option value="Верхній одяг">Верхній одяг</option>
-          <option value="Трикотаж">Трикотаж</option>
-          <option value="Аксесуари">Аксесуари</option>
-        </select>
+        <select id="f-cat"><!-- заповнюється JS --></select>
       </div>
       <div class="field"><label>Значок</label>
         <select id="f-badge">
@@ -187,16 +181,44 @@ tr:hover td{background:rgba(30,35,31,.025)}
           <option value="Sale">Sale</option>
         </select>
       </div>
-      <div class="field"><label>Акцентний колір (hex)</label><input id="f-tone" placeholder="#7c8568"/></div>
+      <div class="field"><label>Матеріал</label><input id="f-material" placeholder="Льон 100%, бавовна 70%"/></div>
+      <div class="field"><label>Виробник</label><input id="f-manufacturer" placeholder="Ательє Mereely, Київ"/></div>
       <div class="field" style="display:flex;align-items:center;gap:10px;padding-top:20px">
         <input type="checkbox" id="f-active" checked style="width:18px;height:18px;cursor:pointer"/>
         <label for="f-active" style="font-size:14px;cursor:pointer;letter-spacing:normal;text-transform:none;color:#1e231f">Показувати на сайті</label>
       </div>
-      <div class="field full"><label>Опис</label><textarea id="f-desc" rows="3" style="resize:vertical"></textarea></div>
+      <div class="field full">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+          <label style="margin:0">Опис</label>
+          <div style="display:flex;gap:6px">
+            <button type="button" class="btn btn-outline btn-sm" onclick="aiGenerate('description')">✨ Згенерувати</button>
+            <button type="button" class="btn btn-outline btn-sm" onclick="aiGenerate('description')" title="Перегенерувати">↺</button>
+          </div>
+        </div>
+        <textarea id="f-desc" rows="3" style="resize:vertical"></textarea>
+        <div id="ai-desc-status" style="font-size:12px;color:#6c7166;margin-top:4px"></div>
+      </div>
+      <div class="field full">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+          <label style="margin:0">Догляд</label>
+          <div style="display:flex;gap:6px">
+            <button type="button" class="btn btn-outline btn-sm" onclick="aiGenerate('care')">✨ Згенерувати</button>
+            <button type="button" class="btn btn-outline btn-sm" onclick="aiGenerate('care')" title="Перегенерувати">↺</button>
+          </div>
+        </div>
+        <textarea id="f-care" rows="3" style="resize:vertical" placeholder="🌡 Прання при 30°C&#10;🚫 Не відбілювати&#10;✋ Прасувати при низькій температурі"></textarea>
+        <div id="ai-care-status" style="font-size:12px;color:#6c7166;margin-top:4px"></div>
+      </div>
 
       <!-- Sizes -->
       <div class="field full">
         <span class="section-label">Доступні розміри</span>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px" id="size-presets">
+          <button type="button" class="btn btn-outline btn-sm" onclick="applyPreset('standard')">Стандартний (XS–XL)</button>
+          <button type="button" class="btn btn-outline btn-sm" onclick="applyPreset('european')">Євро (36–44)</button>
+          <button type="button" class="btn btn-outline btn-sm" onclick="applyPreset('onesize')">One size</button>
+          <button type="button" class="btn btn-outline btn-sm" onclick="applyPreset('numeric')">Числовий (40–50)</button>
+        </div>
         <div class="size-chips" id="size-chips">
           <!-- rendered by JS -->
         </div>
@@ -240,7 +262,14 @@ tr:hover td{background:rgba(30,35,31,.025)}
 /* ===================== CONSTANTS ===================== */
 const ADMIN_PW = 'mereely2024';
 
-const ALL_SIZES = ['XS','S','M','L','XL','XXL','One size'];
+const ALL_SIZES = ['XS','S','M','L','XL','XXL','One size','36','37','38','39','40','41','42','43','44','46','48','50'];
+const SIZE_PRESETS = {
+  standard: ['XS','S','M','L','XL'],
+  european: ['36','38','40','42','44'],
+  onesize:  ['One size'],
+  numeric:  ['40','42','44','46','48','50'],
+};
+const DEFAULT_CATS = ['Сукні','Верх','Низ','Верхній одяг','Трикотаж','Аксесуари'];
 
 const PALETTE_COLORS = [
   {name:'Олива',     hex:'#7c8568'},
@@ -290,6 +319,7 @@ function showPage(name, el){
   const mc = document.getElementById('main-content');
   if(name==='dashboard')   { mc.innerHTML = '<div class="page-header"><h2>Дашборд</h2></div><div style="color:#6c7166;padding:20px">Завантаження…</div>'; loadDashboard(); }
   else if(name==='products')    { mc.innerHTML = '<div class="page-header"><h2>Товари</h2></div><div style="color:#6c7166;padding:20px">Завантаження…</div>'; loadProducts(); }
+  else if(name==='categories')  { mc.innerHTML = '<div class="page-header"><h2>Категорії</h2></div><div style="color:#6c7166;padding:20px">Завантаження…</div>'; loadCategories(); }
   else if(name==='orders')      { mc.innerHTML = '<div class="page-header"><h2>Замовлення</h2></div><div style="color:#6c7166;padding:20px">Завантаження…</div>'; loadOrders(); }
   else if(name==='subscribers') { mc.innerHTML = '<div class="page-header"><h2>Підписники</h2></div><div style="color:#6c7166;padding:20px">Завантаження…</div>'; loadSubscribers(); }
   else if(name==='settings')    { mc.innerHTML = renderSettings(); }
@@ -386,12 +416,14 @@ function openNewProd(){
   document.getElementById('f-name').value = '';
   document.getElementById('f-price').value = '';
   document.getElementById('f-old').value = '';
-  document.getElementById('f-cat').value = 'Сукні';
   document.getElementById('f-badge').value = '';
-  document.getElementById('f-tone').value = '#7c8568';
   document.getElementById('f-desc').value = '';
+  document.getElementById('f-care').value = '';
+  document.getElementById('f-material').value = '';
+  document.getElementById('f-manufacturer').value = '';
   document.getElementById('f-active').checked = true;
   document.getElementById('f-images').value = '';
+  populateCatSelect('Сукні');
   renderSizeChips();
   renderColorPalette();
   renderSelectedColors();
@@ -410,11 +442,13 @@ function editProd(id){
   document.getElementById('f-name').value = p.name||'';
   document.getElementById('f-price').value = p.price||'';
   document.getElementById('f-old').value = p.old_price||'';
-  document.getElementById('f-cat').value = p.category||'Сукні';
   document.getElementById('f-badge').value = p.badge||'';
-  document.getElementById('f-tone').value = p.tone||'#7c8568';
   document.getElementById('f-desc').value = p.description||'';
+  document.getElementById('f-care').value = p.care||'';
+  document.getElementById('f-material').value = p.material||'';
+  document.getElementById('f-manufacturer').value = p.manufacturer||'';
   document.getElementById('f-active').checked = !!p.active;
+  populateCatSelect(p.category||'Сукні');
   document.getElementById('f-images').value = '';
   renderSizeChips();
   renderColorPalette();
@@ -439,6 +473,48 @@ function toggleSize(sz){
   if(selectedSizes.includes(sz)) selectedSizes = selectedSizes.filter(s=>s!==sz);
   else selectedSizes.push(sz);
   renderSizeChips();
+}
+function applyPreset(preset){
+  selectedSizes = [...(SIZE_PRESETS[preset]||[])];
+  renderSizeChips();
+}
+
+/* ---------- AI генерація ---------- */
+async function aiGenerate(type){
+  const name = document.getElementById('f-name').value.trim();
+  if(!name){ alert('Спочатку вкажіть назву товару'); return; }
+  const statusEl = document.getElementById(type==='care' ? 'ai-care-status' : 'ai-desc-status');
+  const targetEl = document.getElementById(type==='care' ? 'f-care' : 'f-desc');
+  statusEl.textContent = '✨ Генерую…';
+  try {
+    const res = await apiPost('ai_generate', {
+      type,
+      name,
+      category: document.getElementById('f-cat').value,
+      material: document.getElementById('f-material').value,
+      colors: selectedColors,
+    });
+    if(!res.ok) throw new Error(res.error||'Помилка');
+    targetEl.value = res.text;
+    statusEl.innerHTML = '<span style="color:#6f7a5e">✓ Готово</span>';
+    setTimeout(()=>statusEl.textContent='', 3000);
+  } catch(e){
+    statusEl.innerHTML = '<span style="color:#a7613f">'+esc(e.message)+'</span>';
+  }
+}
+
+/* ---------- Заповнення категорій у select ---------- */
+async function populateCatSelect(currentVal){
+  const sel = document.getElementById('f-cat');
+  if(!sel) return;
+  // Беремо категорії з API + дефолтні
+  let cats = [...DEFAULT_CATS];
+  try {
+    const r = await fetch('/api/?action=categories');
+    const d = await r.json();
+    if(Array.isArray(d)&&d.length) cats=[...new Set([...d.map(x=>x.name),...DEFAULT_CATS])];
+  } catch(e){}
+  sel.innerHTML = cats.map(c=>`<option value="${esc(c)}"${c===currentVal?' selected':''}>${esc(c)}</option>`).join('');
 }
 
 /* ---------- COLORS ---------- */
@@ -548,6 +624,9 @@ async function saveProd(){
       category: document.getElementById('f-cat').value,
       badge: document.getElementById('f-badge').value||'',
       description: document.getElementById('f-desc').value.trim(),
+      care: document.getElementById('f-care').value.trim(),
+      material: document.getElementById('f-material').value.trim(),
+      manufacturer: document.getElementById('f-manufacturer').value.trim(),
       sizes: [...selectedSizes],
       colors: selectedColors,
       images: imageUrls,
@@ -608,6 +687,87 @@ async function loadOrders(){
 
 async function updateOrderStatus(id, status){
   await apiPost('order_status', {id, status});
+}
+
+/* ===================== CATEGORIES ===================== */
+async function loadCategories(){
+  const mc = document.getElementById('main-content');
+  try {
+    const cats = await api('categories');
+    const rows = (cats||[]).map(c=>`
+      <tr>
+        <td>${c.id}</td>
+        <td>${esc(c.name)}</td>
+        <td>${c.image?`<img src="${esc(c.image)}" style="width:60px;height:60px;object-fit:cover;border-radius:4px"/>`:'—'}</td>
+        <td>
+          <button class="btn btn-outline btn-sm" onclick="editCategory(${c.id})">Редагувати</button>
+          <button class="btn btn-sm" style="background:#c0392b;margin-left:6px" onclick="deleteCategory(${c.id})">Видалити</button>
+        </td>
+      </tr>`).join('');
+    mc.innerHTML = `
+      <div class="page-header"><h2>Категорії</h2><button class="btn btn-sm" onclick="openNewCategory()">+ Нова категорія</button></div>
+      <div class="card" style="overflow-x:auto">
+        <table style="width:100%;border-collapse:collapse;font-size:14px">
+          <thead><tr style="border-bottom:2px solid #e0d8cc"><th style="text-align:left;padding:8px 10px">ID</th><th style="text-align:left;padding:8px 10px">Назва</th><th style="text-align:left;padding:8px 10px">Фото</th><th style="text-align:left;padding:8px 10px">Дії</th></tr></thead>
+          <tbody>${rows||'<tr><td colspan="4" style="padding:20px;color:#8a8f84">Немає категорій</td></tr>'}</tbody>
+        </table>
+      </div>`;
+  } catch(e){ mc.innerHTML = '<div class="card"><p style="color:#a7613f">Помилка: '+esc(e.message)+'</p></div>'; }
+}
+
+let _editCatId = null;
+function openNewCategory(){ _editCatId=null; _openCatModal({id:0,name:'',image:''}); }
+async function editCategory(id){
+  const cats = await api('categories');
+  const c = (cats||[]).find(x=>x.id===id);
+  if(c){ _editCatId=id; _openCatModal(c); }
+}
+function _openCatModal(c){
+  const existingModal = document.getElementById('cat-modal');
+  if(existingModal) existingModal.remove();
+  const m = document.createElement('div');
+  m.className='modal-bg';
+  m.id='cat-modal';
+  m.innerHTML=`<div class="modal" onclick="event.stopPropagation()" style="max-width:500px">
+    <h3>${c.id?'Редагувати':'Нова'} категорія</h3>
+    <div class="form-grid" style="grid-template-columns:1fr">
+      <div class="field"><label>Назва *</label><input id="cat-name" value="${esc(c.name)}"/></div>
+      <div class="field"><label>Фото (URL або завантажити)</label>
+        <input id="cat-img-url" value="${esc(c.image)}" placeholder="/uploads/products/..." style="margin-bottom:8px"/>
+        <input type="file" id="cat-img-file" accept="image/*" onchange="uploadCatImg(this)"/>
+        <div id="cat-img-preview" style="margin-top:8px">${c.image?`<img src="${esc(c.image)}" style="max-width:120px;max-height:120px;object-fit:cover;border-radius:4px"/>`:''}</div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline btn-sm" onclick="document.getElementById('cat-modal').remove()">Скасувати</button>
+      <button class="btn btn-sm" onclick="saveCategory()">Зберегти</button>
+    </div>
+  </div>`;
+  m.onclick=e=>{if(e.target===m)m.remove();};
+  document.body.appendChild(m);
+}
+async function uploadCatImg(input){
+  if(!input.files||!input.files[0]) return;
+  const fd = new FormData(); fd.append('file', input.files[0]);
+  const r = await fetch('/api/?action=upload_image',{method:'POST',body:fd});
+  const d = await r.json();
+  if(d.ok){
+    document.getElementById('cat-img-url').value=d.url;
+    document.getElementById('cat-img-preview').innerHTML=`<img src="${esc(d.url)}" style="max-width:120px;max-height:120px;object-fit:cover;border-radius:4px"/>`;
+  } else alert('Помилка завантаження: '+(d.error||''));
+}
+async function saveCategory(){
+  const name = document.getElementById('cat-name').value.trim();
+  if(!name){ alert('Вкажіть назву'); return; }
+  const image = document.getElementById('cat-img-url').value.trim();
+  await apiPost('category_save',{id:_editCatId||0,name,image,sort_order:0});
+  document.getElementById('cat-modal').remove();
+  loadCategories();
+}
+async function deleteCategory(id){
+  if(!confirm('Видалити категорію?')) return;
+  await apiPost('category_delete',{id});
+  loadCategories();
 }
 
 /* ===================== SUBSCRIBERS ===================== */
@@ -701,6 +861,18 @@ function renderSettings(){
       <h3>Перевірка з'єднання Нова Пошта</h3>
       <button onclick="testNpKey()" style="background:#6f7a5e;color:#f1ebe1;padding:12px 20px;font-size:12px;letter-spacing:.14em;text-transform:uppercase;font-weight:600;border:none;cursor:pointer">Перевірити API-ключ</button>
       <div id="np-test-msg" style="margin-top:12px;font-size:13.5px"></div>
+    </div>
+    <div class="card">
+      <h3>✨ AI генерація описів (Claude API)</h3>
+      <p style="font-size:13.5px;color:#6c7166;margin-bottom:16px;line-height:1.6">
+        Для автоматичної генерації описів і порад по догляду потрібен API-ключ Anthropic Claude.<br>
+        Отримати: <a href="https://console.anthropic.com/account/keys" target="_blank" style="color:#a7613f;border-bottom:1px solid #a7613f">console.anthropic.com → API Keys</a>
+      </p>
+      <div style="display:flex;gap:10px;align-items:stretch;max-width:520px">
+        <input id="claude-key-input" type="password" placeholder="sk-ant-..." style="flex:1;border:1px solid #d0c9bc;padding:12px 14px;font-size:14px;font-family:inherit;outline:none;background:#faf8f4"/>
+        <button onclick="saveClaudeKey()" style="background:#28332c;color:#f1ebe1;padding:12px 20px;font-size:12px;letter-spacing:.14em;text-transform:uppercase;font-weight:600;border:none;cursor:pointer;white-space:nowrap">Зберегти</button>
+      </div>
+      <div id="claude-key-msg" style="margin-top:10px;font-size:13px"></div>
     </div>
     ${renderMeestSettings()}`;
 }
@@ -901,6 +1073,16 @@ async function testNpKey(){
     if(d.success){ msg.innerHTML='<span style="color:#6f7a5e;font-weight:600">✓ З\'єднання успішне! Ключ працює.</span>'; }
     else { msg.innerHTML='<span style="color:#a7613f">Помилка: '+esc((d.errors||['невірний ключ'])[0])+'</span>'; }
   } catch(e){ msg.innerHTML='<span style="color:#a7613f">Помилка мережі.</span>'; }
+}
+
+async function saveClaudeKey(){
+  const val = document.getElementById('claude-key-input').value.trim();
+  const msg = document.getElementById('claude-key-msg');
+  try {
+    await apiPost('settings_set', {claude_api_key: val});
+    msg.innerHTML = val ? '<span style="color:#6f7a5e;font-weight:600">✓ Ключ збережено!</span>' : '<span style="color:#a7613f">Ключ видалено</span>';
+    setTimeout(()=>msg.innerHTML='', 4000);
+  } catch(e){ msg.innerHTML='<span style="color:#a7613f">Помилка: '+esc(e.message)+'</span>'; }
 }
 
 /* ===================== UTILS ===================== */
