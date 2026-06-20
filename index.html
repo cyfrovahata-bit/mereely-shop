@@ -422,7 +422,12 @@
         </div>
         <button onClick="{{ addCurrent }}" style="flex:1;background:#28332c;color:#f1ebe1;font-size:12.5px;letter-spacing:.18em;text-transform:uppercase;font-weight:600;border:1px solid #28332c;transition:all .35s" style-hover="background:transparent;color:#28332c">Додати в кошик</button>
       </div>
-      <button onClick="{{ buyNow }}" style="width:100%;margin-top:12px;background:#a7613f;color:#f1ebe1;padding:18px;font-size:12.5px;letter-spacing:.18em;text-transform:uppercase;font-weight:600;border:1px solid #a7613f;transition:opacity .3s" style-hover="opacity:.88">Купити в один клік</button>
+      <div style="display:flex;gap:12px;margin-top:12px">
+        <button onClick="{{ buyNow }}" style="flex:1;background:#a7613f;color:#f1ebe1;padding:18px;font-size:12.5px;letter-spacing:.18em;text-transform:uppercase;font-weight:600;border:1px solid #a7613f;transition:opacity .3s" style-hover="opacity:.88">Купити в один клік</button>
+        <button onClick="{{ pToggleWish }}" aria-label="{{ pWishLabel }}" style="width:56px;height:56px;border:1px solid rgba(30,35,31,.25);display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .3s" style-hover="border-color:#a7613f">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="{{ pWishFill }}" stroke="{{ pWishStroke }}" stroke-width="1.4"><path d="M12 20s-7-4.5-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.5-7 10-7 10z"/></svg>
+        </button>
+      </div>
 
       <!-- DELIVERY -->
       <div style="margin-top:28px;border:1px solid rgba(30,35,31,.16)">
@@ -1084,13 +1089,15 @@ class Component extends DCLogic {
     this._meestCityT = null;
     this._promos = {MEREELY10:10,FIRST15:15,SALE20:20,UKRAINE:5};
 
-    // restore cart from localStorage
+    // restore cart and wishlist from localStorage
     let savedCart = [];
     try { savedCart = JSON.parse(localStorage.getItem('mrl_cart')||'[]'); } catch(e){}
+    let savedWishlist = [];
+    try { savedWishlist = JSON.parse(localStorage.getItem('mrl_wish')||'[]'); } catch(e){}
 
     this.state = {
       page:'home', device:'desktop',
-      cart:savedCart, cartOpen:false, menuOpen:false, wishlist:[], sizeChartOpen:false,
+      cart:savedCart, cartOpen:false, menuOpen:false, wishlist:savedWishlist, sizeChartOpen:false,
       homeTab:'new', hoverId:null,
       newsEmail:'', newsErr:false, newsDone:false,
       filters:{cat:'all', sizes:[], colors:[], priceMax:999999}, sort:'pop', filtersOpen:true,
@@ -1168,6 +1175,9 @@ class Component extends DCLogic {
     if(prevState && prevState.page!==this.state.page){ window.scrollTo(0,0); }
     if(prevState && prevState.cart!==this.state.cart){
       try { localStorage.setItem('mrl_cart', JSON.stringify(this.state.cart)); } catch(e){}
+    }
+    if(prevState && prevState.wishlist!==this.state.wishlist){
+      try { localStorage.setItem('mrl_wish', JSON.stringify(this.state.wishlist)); } catch(e){}
     }
     this._scan();
   }
@@ -1577,6 +1587,9 @@ class Component extends DCLogic {
       pGalleryPos:isMobile?'relative':'sticky', pGalleryTop:isMobile?'0':'90px',
       addCurrent:()=>{ if(this.addToCart(PD,S.pColor,S.pSize,S.pQty)!==false) this.setState({cartOpen:true}); },
       buyNow:()=>{ if(this.addToCart(PD,S.pColor,S.pSize,S.pQty)!==false){ this.toast('Купівля в один клік — менеджер зателефонує'); this.setState({cartOpen:true}); } },
+      pInWish:S.wishlist.includes(PD.id),
+      pToggleWish:()=>{ const inW=S.wishlist.includes(PD.id); this.setState(st=>({wishlist:inW?st.wishlist.filter(x=>x!==PD.id):[...st.wishlist,PD.id]})); this.toast(inW?'Прибрано з обраного':'Додано в обране ♥'); },
+      pWishFill:S.wishlist.includes(PD.id)?'#a7613f':'none', pWishStroke:S.wishlist.includes(PD.id)?'#a7613f':'#28332c', pWishLabel:S.wishlist.includes(PD.id)?'В обраному':'В обране',
       pTabsList, pTab:S.pTab, pTabDesc:S.pTab==='desc', pTabCare:S.pTab==='care', pTabReviews:S.pTab==='reviews',
       careText, pReviews, pRelated,
       pMainTransform:S.zoom?'scale(1.9)':'scale(1)', pMainOrigin:S.zoomXY, pZoomCursor:S.zoom?'zoom-out':'zoom-in',
