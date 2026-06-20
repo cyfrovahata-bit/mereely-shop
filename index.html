@@ -1011,7 +1011,7 @@ class Component extends DCLogic {
       checkoutOpen:false, coDone:false, coOrderNum:'',
       co:{name:'',phone:'',email:'',cityQ:'',cityRef:'',warehouse:'',ukrOblast:'',ukrCity:'',ukrStreet:'',ukrHouse:'',ukrApt:'',ukrZip:'',meestCity:'',meestCityUid:'',meestBranch:''},
       coDeliveryType:'np', coNpType:'branch', coNpWhFilter:'',
-      coErr:{}, coCities:[], coWarehouses:[], coSearching:false, ukrCities:[], ukrStreets:[],
+      coErr:{}, coCities:[], coWarehouses:[], coSearching:false, ukrCities:[], ukrStreets:[], meestCities:[],
       coPromo:'', coPromoApplied:false, coPromoDiscount:0, coPromoErr:false
     };
     this._toastT = null;
@@ -1522,12 +1522,12 @@ class Component extends DCLogic {
       coMeestCity:S.co.meestCity||'', coMeestBranch:S.co.meestBranch||'',
       meestHasData:!!(this._meestData&&this._meestData.cities&&this._meestData.cities.length>0),
       meestNoData:!(this._meestData&&this._meestData.cities&&this._meestData.cities.length>0),
-      meestCitySugg:(()=>{ const md=this._meestData; if(!md||!md.cities) return []; const q=(S.co.meestCity||'').toLowerCase(); if(!q) return []; return md.cities.filter(c=>c.name.toLowerCase().includes(q)).slice(0,8).map(c=>({label:c.name+(c.type?' ('+c.type+')':''),pick:()=>this.setState(s=>({co:{...s.co,meestCity:c.name,meestCityUid:c.uid,meestBranch:''},coErr:{...s.coErr,meestCity:null}}))})); })(),
-      hasMeestCitySugg:(()=>{ const md=this._meestData; if(!md||!md.cities) return false; const q=(S.co.meestCity||'').toLowerCase(); return q.length>0&&md.cities.some(c=>c.name.toLowerCase().includes(q)); })(),
+      meestCitySugg:S.meestCities.map(c=>({label:c.name+(c.type?' ('+c.type+')':''),pick:()=>this.setState(s=>({co:{...s.co,meestCity:c.name,meestCityUid:c.uid,meestBranch:''},meestCities:[],coErr:{...s.coErr,meestCity:null}}))})),
+      hasMeestCitySugg:S.meestCities.length>0,
       meestBranchOpts:(()=>{ const md=this._meestData; if(!md||!md.branches) return []; const uid=S.co.meestCityUid; if(!uid) return []; return md.branches.filter(b=>b.cityUid===uid).map(b=>({val:b.uid,label:[b.name,b.address].filter(Boolean).join(' — ')})); })(),
       hasMeestBranches:(()=>{ const md=this._meestData; if(!md||!md.branches) return false; const uid=S.co.meestCityUid; return !!(uid&&md.branches.some(b=>b.cityUid===uid)); })(),
       meestBranchCount:(()=>{ const md=this._meestData; if(!md||!md.branches) return 0; const uid=S.co.meestCityUid; return uid?md.branches.filter(b=>b.cityUid===uid).length:0; })(),
-      setMeestCity:(e)=>this.setState(s=>({co:{...s.co,meestCity:e.target.value,meestBranch:''},coErr:{...s.coErr,meestCity:null}})),
+      setMeestCity:(e)=>{ const v=e.target.value; const md=this._meestData; if(!md||!md.cities){ this.setState(s=>({co:{...s.co,meestCity:v,meestBranch:''},coErr:{...s.coErr,meestCity:null}})); return; } const q=v.toLowerCase(); const res=!q?[]:md.cities.filter(c=>c.name.toLowerCase().includes(q)).sort((a,b)=>{ const as=a.name.toLowerCase().startsWith(q)?0:1; const bs=b.name.toLowerCase().startsWith(q)?0:1; return as-bs||a.name.localeCompare(b.name,'uk'); }).slice(0,8); this.setState(s=>({co:{...s.co,meestCity:v,meestCityUid:'',meestBranch:''},meestCities:res,coErr:{...s.coErr,meestCity:null}})); },
       setMeestBranch:(e)=>this.setState(s=>({co:{...s.co,meestBranch:e.target.value},coErr:{...s.coErr,meestBranch:null}})),
       npSearching:S.coSearching,
       hasCitySugg:S.coCities.length>0,
