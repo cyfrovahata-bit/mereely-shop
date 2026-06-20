@@ -758,13 +758,14 @@
           <!-- Meest -->
           <sc-if value="{{ coIsMeest }}" hint-placeholder-val="{{ false }}">
             <div style="display:flex;flex-direction:column;gap:10px">
-              <!-- Tabs: відділення / кур'єр -->
+              <!-- Tabs: відділення / поштомат / кур'єр -->
               <div style="display:flex;border:1px solid rgba(30,35,31,.2)">
                 <button onClick="{{ setMeestBranchMode }}" style="flex:1;padding:8px 4px;font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;font-weight:600;background:{{ meestBranchModeBg }};color:{{ meestBranchModeColor }};transition:all .3s">Відділення</button>
+                <button onClick="{{ setMeestLockerMode }}" style="flex:1;padding:8px 4px;font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;font-weight:600;border-left:1px solid rgba(30,35,31,.2);background:{{ meestLockerModeBg }};color:{{ meestLockerModeColor }};transition:all .3s">Поштомат</button>
                 <button onClick="{{ setMeestCourierMode }}" style="flex:1;padding:8px 4px;font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;font-weight:600;border-left:1px solid rgba(30,35,31,.2);background:{{ meestCourierModeBg }};color:{{ meestCourierModeColor }};transition:all .3s">Кур'єр</button>
               </div>
-              <!-- Відділення -->
-              <sc-if value="{{ meestIsBranchMode }}" hint-placeholder-val="{{ true }}">
+              <!-- Відділення або Поштомат -->
+              <sc-if value="{{ meestIsPickupMode }}" hint-placeholder-val="{{ true }}">
                 <sc-if value="{{ meestHasData }}" hint-placeholder-val="{{ false }}">
                   <div style="position:relative">
                     <label style="display:block"><span style="font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:#6c7166;display:block;margin-bottom:4px">Місто</span><input value="{{ coMeestCity }}" onInput="{{ setMeestCity }}" placeholder="Почніть вводити місто..." style="width:100%;background:#fff;border:1px solid {{ coErrMeestCity }};padding:10px 12px;font-size:13px;color:#1e231f;outline:none;font-family:'Manrope',sans-serif"/></label>
@@ -777,15 +778,15 @@
                     </sc-if>
                   </div>
                   <sc-if value="{{ hasMeestBranches }}" hint-placeholder-val="{{ false }}">
-                    <label style="display:block"><span style="font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:#6c7166;display:block;margin-bottom:4px">Відділення <span style="color:#8a8f84;font-size:10px">({{ meestBranchCount }} шт.)</span></span>
+                    <label style="display:block"><span style="font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:#6c7166;display:block;margin-bottom:4px">{{ meestPickupLabel }} <span style="color:#8a8f84;font-size:10px">({{ meestBranchCount }} шт.)</span></span>
                       <select value="{{ coMeestBranch }}" onChange="{{ setMeestBranch }}" style="width:100%;background:#fff;border:1px solid {{ coErrMeestBranch }};padding:10px 12px;font-size:12.5px;color:#1e231f;outline:none;font-family:'Manrope',sans-serif;cursor:pointer">
-                        <option value="">Оберіть відділення...</option>
+                        <option value="">{{ meestPickupPlaceholder }}</option>
                         <sc-for list="{{ meestBranchOpts }}" as="mb" hint-placeholder-count="3"><option value="{{ mb.val }}">{{ mb.label }}</option></sc-for>
                       </select>
                     </label>
                   </sc-if>
                   <sc-if value="{{ meestCityChosenNoBranches }}" hint-placeholder-val="{{ false }}">
-                    <div style="background:#fff8f0;border:1px solid rgba(167,97,63,.25);padding:12px;font-size:12.5px;color:#a7613f;line-height:1.5">В обраному місті немає відділень Meest. Оберіть <b>Кур'єр</b> або інше місто.</div>
+                    <div style="background:#fff8f0;border:1px solid rgba(167,97,63,.25);padding:12px;font-size:12.5px;color:#a7613f;line-height:1.5">В обраному місті немає {{ meestPickupLabelLower }} Meest. Спробуйте інший тип або місто.</div>
                   </sc-if>
                 </sc-if>
                 <sc-if value="{{ meestNoData }}" hint-placeholder-val="{{ false }}">
@@ -1030,7 +1031,7 @@ class Component extends DCLogic {
       toast:'', toastShow:false,
       checkoutOpen:false, coDone:false, coOrderNum:'',
       co:{name:'',phone:'',email:'',cityQ:'',cityRef:'',warehouse:'',ukrOblast:'',ukrCity:'',ukrStreet:'',ukrHouse:'',ukrApt:'',ukrZip:'',meestCity:'',meestCityUid:'',meestBranch:'',meestCourierCity:'',meestCourierStreet:'',meestCourierHouse:'',meestCourierApt:''},
-      coMeestMode:'branch',
+      coMeestMode:'branch', coMeestLockerFilter:'',
       coDeliveryType:'np', coNpType:'branch', coNpWhFilter:'',
       coErr:{}, coCities:[], coWarehouses:[], coSearching:false, ukrCities:[], ukrStreets:[], meestCities:[],
       coPromo:'', coPromoApplied:false, coPromoDiscount:0, coPromoErr:false
@@ -1555,22 +1556,30 @@ class Component extends DCLogic {
       coMeestCity:S.co.meestCity||'', coMeestBranch:S.co.meestBranch||'',
       coMeestCourierCity:S.co.meestCourierCity||'', coMeestCourierStreet:S.co.meestCourierStreet||'',
       coMeestCourierHouse:S.co.meestCourierHouse||'', coMeestCourierApt:S.co.meestCourierApt||'',
-      meestIsBranchMode:S.coMeestMode!=='courier',
+      meestIsPickupMode:S.coMeestMode!=='courier',
+      meestIsBranchMode:S.coMeestMode==='branch',
+      meestIsLockerMode:S.coMeestMode==='locker',
       meestIsCourierMode:S.coMeestMode==='courier',
-      meestBranchModeBg:S.coMeestMode!=='courier'?'#28332c':'#fff',
-      meestBranchModeColor:S.coMeestMode!=='courier'?'#f1ebe1':'#6c7166',
+      meestBranchModeBg:S.coMeestMode==='branch'?'#28332c':'#fff',
+      meestBranchModeColor:S.coMeestMode==='branch'?'#f1ebe1':'#6c7166',
+      meestLockerModeBg:S.coMeestMode==='locker'?'#28332c':'#fff',
+      meestLockerModeColor:S.coMeestMode==='locker'?'#f1ebe1':'#6c7166',
       meestCourierModeBg:S.coMeestMode==='courier'?'#28332c':'#fff',
       meestCourierModeColor:S.coMeestMode==='courier'?'#f1ebe1':'#6c7166',
-      setMeestBranchMode:()=>this.setState({coMeestMode:'branch'}),
+      meestPickupLabel:S.coMeestMode==='locker'?'Поштомат':'Відділення',
+      meestPickupLabelLower:S.coMeestMode==='locker'?'поштоматів':'відділень',
+      meestPickupPlaceholder:S.coMeestMode==='locker'?'Оберіть поштомат...':'Оберіть відділення...',
+      setMeestBranchMode:()=>this.setState(s=>({coMeestMode:'branch',co:{...s.co,meestBranch:''},coErr:{...s.coErr,meestBranch:null}})),
+      setMeestLockerMode:()=>this.setState(s=>({coMeestMode:'locker',co:{...s.co,meestBranch:''},coErr:{...s.coErr,meestBranch:null}})),
       setMeestCourierMode:()=>this.setState({coMeestMode:'courier'}),
       meestHasData:(()=>{ if(!this._meestData){ try{this._meestData=JSON.parse(localStorage.getItem('mrl_meest_data')||'null');}catch(e){} } return !!(this._meestData&&this._meestData.cities&&this._meestData.cities.length>0); })(),
       meestNoData:!(this._meestData&&this._meestData.cities&&this._meestData.cities.length>0),
       meestCitySugg:S.meestCities.map(c=>({label:c.name+(c.type?' ('+c.type+')':''),pick:()=>this.setState(s=>({co:{...s.co,meestCity:c.name,meestCityUid:c.uid,meestBranch:''},meestCities:[],coErr:{...s.coErr,meestCity:null}}))})),
       hasMeestCitySugg:S.meestCities.length>0,
-      meestBranchOpts:(()=>{ const md=this._meestData; if(!md||!md.branches) return []; const uid=S.co.meestCityUid; if(!uid) return []; return md.branches.filter(b=>b.cityUid===uid).map(b=>({val:b.uid,label:[b.name,b.address].filter(Boolean).join(' — ')})); })(),
-      hasMeestBranches:(()=>{ const md=this._meestData; if(!md||!md.branches) return false; const uid=S.co.meestCityUid; return !!(uid&&md.branches.some(b=>b.cityUid===uid)); })(),
-      meestBranchCount:(()=>{ const md=this._meestData; if(!md||!md.branches) return 0; const uid=S.co.meestCityUid; return uid?md.branches.filter(b=>b.cityUid===uid).length:0; })(),
-      meestCityChosenNoBranches:(()=>{ const uid=S.co.meestCityUid; if(!uid) return false; const md=this._meestData; return !!(md&&md.branches&&!md.branches.some(b=>b.cityUid===uid)); })(),
+      meestBranchOpts:(()=>{ const md=this._meestData; if(!md||!md.branches) return []; const uid=S.co.meestCityUid; if(!uid) return []; const isLocker=S.coMeestMode==='locker'; return md.branches.filter(b=>b.cityUid===uid).filter(b=>isLocker?(b.name||'').toLowerCase().includes('поштомат'):!(b.name||'').toLowerCase().includes('поштомат')).map(b=>({val:b.uid,label:[b.name,b.address].filter(Boolean).join(' — ')})); })(),
+      hasMeestBranches:(()=>{ const md=this._meestData; if(!md||!md.branches) return false; const uid=S.co.meestCityUid; if(!uid) return false; const isLocker=S.coMeestMode==='locker'; return md.branches.filter(b=>b.cityUid===uid).some(b=>isLocker?(b.name||'').toLowerCase().includes('поштомат'):!(b.name||'').toLowerCase().includes('поштомат')); })(),
+      meestBranchCount:(()=>{ const md=this._meestData; if(!md||!md.branches) return 0; const uid=S.co.meestCityUid; if(!uid) return 0; const isLocker=S.coMeestMode==='locker'; return md.branches.filter(b=>b.cityUid===uid).filter(b=>isLocker?(b.name||'').toLowerCase().includes('поштомат'):!(b.name||'').toLowerCase().includes('поштомат')).length; })(),
+      meestCityChosenNoBranches:(()=>{ const uid=S.co.meestCityUid; if(!uid) return false; const md=this._meestData; if(!md||!md.branches) return false; const isLocker=S.coMeestMode==='locker'; return !md.branches.filter(b=>b.cityUid===uid).some(b=>isLocker?(b.name||'').toLowerCase().includes('поштомат'):!(b.name||'').toLowerCase().includes('поштомат')); })(),
       setMeestCity:(e)=>{ const v=e.target.value; const md=this._meestData; if(!md||!md.cities){ this.setState(s=>({co:{...s.co,meestCity:v,meestBranch:''},coErr:{...s.coErr,meestCity:null}})); return; } const q=v.toLowerCase(); const res=!q?[]:md.cities.filter(c=>c.name.toLowerCase().includes(q)).sort((a,b)=>{ const as=a.name.toLowerCase().startsWith(q)?0:1; const bs=b.name.toLowerCase().startsWith(q)?0:1; return as-bs||a.name.localeCompare(b.name,'uk'); }).slice(0,8); this.setState(s=>({co:{...s.co,meestCity:v,meestCityUid:'',meestBranch:''},meestCities:res,coErr:{...s.coErr,meestCity:null}})); },
       setMeestBranch:(e)=>this.setState(s=>({co:{...s.co,meestBranch:e.target.value},coErr:{...s.coErr,meestBranch:null}})),
       setMeestCourierCity:(e)=>this.setState(s=>({co:{...s.co,meestCourierCity:e.target.value},coErr:{...s.coErr,meestCourierCity:null}})),
@@ -1627,9 +1636,14 @@ class Component extends DCLogic {
           if(!co.ukrStreet||co.ukrStreet.trim().length<2) err.ukrStreet=true;
           if(!co.ukrHouse||co.ukrHouse.trim().length<1) err.ukrHouse=true;
         } else if(S.coDeliveryType==='meest'){
-          if(!co.meestCity||co.meestCity.trim().length<2) err.meestCity=true;
-          if(this._meestData&&this._meestData.length>0&&(!co.meestBranch||co.meestBranch.trim().length<1)) err.meestBranch=true;
-          if(!this._meestData&&(!co.meestBranch||co.meestBranch.trim().length<1)) err.meestBranch=true;
+          if(S.coMeestMode==='courier'){
+            if(!co.meestCourierCity||co.meestCourierCity.trim().length<2) err.meestCourierCity=true;
+            if(!co.meestCourierStreet||co.meestCourierStreet.trim().length<2) err.meestCourierStreet=true;
+            if(!co.meestCourierHouse||co.meestCourierHouse.trim().length<1) err.meestCourierHouse=true;
+          } else {
+            if(!co.meestCity||co.meestCity.trim().length<2) err.meestCity=true;
+            if(!co.meestBranch||co.meestBranch.trim().length<1) err.meestBranch=true;
+          }
         }
         if(Object.keys(err).length){ this.setState({coErr:err}); return; }
         const orderNum='MRL-'+Date.now().toString(36).toUpperCase().slice(-6);
