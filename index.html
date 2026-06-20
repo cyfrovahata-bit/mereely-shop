@@ -172,7 +172,8 @@
       <sc-for list="{{ catTiles }}" as="cat" hint-placeholder-count="4">
         <div data-reveal style="opacity:0;transform:translateY(26px);transition:transform .9s cubic-bezier(.16,.84,.44,1),opacity .9s">
           <button onClick="{{ cat.go }}" style="position:relative;aspect-ratio:{{ cat.ratio }};overflow:hidden;text-align:left;background:{{ cat.tone }};display:block;width:100%" style-hover="transform:translateY(-6px)">
-            <div style="position:absolute;inset:0;background-image:repeating-linear-gradient(135deg,rgba(0,0,0,.05) 0 2px,transparent 2px 12px)"></div>
+            <sc-if value="{{ cat.hasImg }}" hint-placeholder-val="{{ false }}"><img src="{{ cat.imgSrc }}" alt="{{ cat.name }}" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover"/></sc-if>
+            <sc-if value="{{ cat.hasImg }}" hint-placeholder-val="{{ true }}"><div style="position:absolute;inset:0;background-image:repeating-linear-gradient(135deg,rgba(0,0,0,.05) 0 2px,transparent 2px 12px)"></div></sc-if>
             <div style="position:absolute;inset:0;background:linear-gradient(0deg,rgba(20,26,21,.6),transparent 55%)"></div>
             <span data-cat-name-abs style="position:absolute;left:18px;bottom:16px;color:#f1ebe1"><span style="font-family:'Forum',serif;font-size:clamp(22px,2.4vw,30px);display:block">{{ cat.name }}</span><span style="font-size:11px;letter-spacing:.12em;opacity:.85">{{ cat.count }} моделей →</span></span>
             <span style="position:absolute;top:14px;right:16px;font-family:'Forum',serif;font-size:15px;color:rgba(241,235,225,.8)">{{ cat.idx }}</span>
@@ -407,11 +408,11 @@
       </div>
 
       <div style="margin-top:24px">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px"><span style="font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:#6c7166">Розмір</span><a href="#" onClick="{{ goContacts }}" style="font-size:12px;color:#6c7166;border-bottom:1px solid rgba(30,35,31,.2)">Таблиця розмірів</a></div>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px"><span style="font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:#6c7166">Розмір</span><a href="#" onClick="{{ openSizeChart }}" style="font-size:12px;color:#6c7166;border-bottom:1px solid rgba(30,35,31,.2)">Таблиця розмірів</a></div>
         <div style="display:flex;flex-wrap:wrap;gap:9px"><sc-for list="{{ pSizes }}" as="sz" hint-placeholder-count="4"><button onClick="{{ sz.pick }}" style="min-width:52px;padding:13px 16px;font-size:13px;font-weight:500;background:{{ sz.bg }};color:{{ sz.color }};border:1px solid rgba(30,35,31,.25);transition:all .25s">{{ sz.label }}</button></sc-for></div>
       </div>
 
-      <p style="display:flex;align-items:center;gap:9px;font-size:13px;color:{{ pStockColor }};margin-top:20px;font-weight:600"><span style="width:8px;height:8px;border-radius:50%;background:{{ pStockColor }};display:inline-block;animation:mrlPop .5s ease"></span>{{ pStockText }}</p>
+      <sc-if value="{{ pHasStock }}" hint-placeholder-val="{{ false }}"><p style="display:flex;align-items:center;gap:9px;font-size:13px;color:{{ pStockColor }};margin-top:20px;font-weight:600"><span style="width:8px;height:8px;border-radius:50%;background:{{ pStockColor }};display:inline-block;animation:mrlPop .5s ease"></span>{{ pStockText }}</p></sc-if>
 
       <div style="display:flex;gap:12px;margin-top:22px;align-items:stretch">
         <div style="display:flex;align-items:center;border:1px solid rgba(30,35,31,.25)">
@@ -886,6 +887,36 @@
   </sc-if>
 </aside>
 
+<!-- ====== SIZE CHART MODAL ====== -->
+<sc-if value="{{ sizeChartOpen }}" hint-placeholder-val="{{ false }}">
+<div onClick="{{ closeSizeChart }}" style="position:fixed;inset:0;background:rgba(20,26,21,.65);backdrop-filter:blur(4px);z-index:200;display:flex;align-items:center;justify-content:center;padding:20px">
+  <div onClick="{{ stopProp }}" style="background:#f1ebe1;max-width:600px;width:100%;max-height:80vh;overflow-y:auto;padding:32px;position:relative">
+    <button onClick="{{ closeSizeChart }}" style="position:absolute;top:16px;right:16px;width:34px;height:34px;border:1px solid rgba(30,35,31,.2);border-radius:50%;display:flex;align-items:center;justify-content:center" aria-label="Закрити"><svg width="14" height="14" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+    <h2 style="font-family:'Forum',serif;font-size:26px;margin-bottom:6px">Таблиця розмірів</h2>
+    <p style="font-size:13px;color:#6c7166;margin-bottom:22px">Всі виміри подані в сантиметрах</p>
+    <div style="overflow-x:auto">
+      <table style="width:100%;border-collapse:collapse;font-size:13px">
+        <thead><tr style="background:#28332c;color:#f1ebe1">
+          <th style="padding:10px 12px;text-align:left;font-weight:600;white-space:nowrap">Розмір</th>
+          <th style="padding:10px 12px;text-align:center;font-weight:600">Груди</th>
+          <th style="padding:10px 12px;text-align:center;font-weight:600">Талія</th>
+          <th style="padding:10px 12px;text-align:center;font-weight:600">Стегна</th>
+        </tr></thead>
+        <tbody>
+          <tr style="border-bottom:1px solid rgba(30,35,31,.1)"><td style="padding:10px 12px;font-weight:600">XS / 42</td><td style="padding:10px 12px;text-align:center">80–83</td><td style="padding:10px 12px;text-align:center">60–63</td><td style="padding:10px 12px;text-align:center">86–89</td></tr>
+          <tr style="border-bottom:1px solid rgba(30,35,31,.1);background:rgba(30,35,31,.03)"><td style="padding:10px 12px;font-weight:600">S / 44</td><td style="padding:10px 12px;text-align:center">84–87</td><td style="padding:10px 12px;text-align:center">64–67</td><td style="padding:10px 12px;text-align:center">90–93</td></tr>
+          <tr style="border-bottom:1px solid rgba(30,35,31,.1)"><td style="padding:10px 12px;font-weight:600">M / 46</td><td style="padding:10px 12px;text-align:center">88–91</td><td style="padding:10px 12px;text-align:center">68–71</td><td style="padding:10px 12px;text-align:center">94–97</td></tr>
+          <tr style="border-bottom:1px solid rgba(30,35,31,.1);background:rgba(30,35,31,.03)"><td style="padding:10px 12px;font-weight:600">L / 48</td><td style="padding:10px 12px;text-align:center">92–96</td><td style="padding:10px 12px;text-align:center">72–76</td><td style="padding:10px 12px;text-align:center">98–102</td></tr>
+          <tr style="border-bottom:1px solid rgba(30,35,31,.1)"><td style="padding:10px 12px;font-weight:600">XL / 50</td><td style="padding:10px 12px;text-align:center">97–101</td><td style="padding:10px 12px;text-align:center">77–81</td><td style="padding:10px 12px;text-align:center">103–107</td></tr>
+          <tr style="background:rgba(30,35,31,.03)"><td style="padding:10px 12px;font-weight:600">XXL / 52</td><td style="padding:10px 12px;text-align:center">102–107</td><td style="padding:10px 12px;text-align:center">82–87</td><td style="padding:10px 12px;text-align:center">108–113</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p style="font-size:12px;color:#6c7166;margin-top:18px;line-height:1.6">Якщо ваші виміри між розмірами — рекомендуємо обирати більший. Якщо маєте питання, напишіть нам — допоможемо підібрати.</p>
+  </div>
+</div>
+</sc-if>
+
 <!-- ====== CART OVERLAY + DRAWER ====== -->
 <div onClick="{{ closeCart }}" style="position:fixed;inset:0;background:rgba(20,26,21,.55);backdrop-filter:blur(3px);z-index:120;opacity:{{ cartOverlayOpacity }};pointer-events:{{ cartOverlayPE }};transition:opacity .4s ease"></div>
 <aside aria-label="Кошик" style="position:fixed;top:0;right:0;height:100%;width:min(440px,100vw);background:#f1ebe1;z-index:130;display:flex;flex-direction:column;box-shadow:-20px 0 60px rgba(0,0,0,.18);transform:{{ cartTransform }};transition:transform .5s cubic-bezier(.16,.84,.44,1)">
@@ -1059,7 +1090,7 @@ class Component extends DCLogic {
 
     this.state = {
       page:'home', device:'desktop',
-      cart:savedCart, cartOpen:false, menuOpen:false, wishlist:[],
+      cart:savedCart, cartOpen:false, menuOpen:false, wishlist:[], sizeChartOpen:false,
       homeTab:'new', hoverId:null,
       newsEmail:'', newsErr:false, newsDone:false,
       filters:{cat:'all', sizes:[], colors:[], priceMax:999999}, sort:'pop', filtersOpen:true,
@@ -1122,9 +1153,15 @@ class Component extends DCLogic {
       }));
       const cats=[...new Set(this.products.map(p=>p.cat).filter(Boolean))];
       this.categories = cats;
+      // Завантажуємо фото категорій
+      try {
+        const cr = await fetch('/api/?action=categories');
+        const cd = await cr.json();
+        this._catImages = Object.fromEntries((cd||[]).map(c=>[c.name, c.image||'']));
+      } catch(e){ this._catImages={}; }
       this.allColors=[...new Map(this.products.flatMap(p=>p.colors).map(c=>[c.name,c])).values()];
       this.allSizes=[...new Set(this.products.flatMap(p=>p.sizes))];
-      this.setState({_prodsLoaded:true});
+      this.setState({_prodsLoaded:true}, ()=>{ this._parsePath(); });
     } catch(e){ console.warn('products load error',e); }
   }
   componentDidUpdate(prevProps, prevState){
@@ -1340,8 +1377,10 @@ class Component extends DCLogic {
     const tones=['#7c8568','#9c6248','#b8bca8','#54584f','#c9cdb9','#9a8662'];
     const catTiles = this.categories.map((name,i)=>{
       const cnt=this.products.filter(p=>p.cat===name).length;
+      const img=(this._catImages||{})[name]||'';
+      const isUrl=img&&(img.startsWith('/')||img.startsWith('http'));
       return {name,count:cnt,idx:'0'+(i+1),tone:tones[i%tones.length],
-        ratio:isMobile?'1':'4/5',
+        ratio:isMobile?'1':'4/5', hasImg:isUrl, imgSrc:isUrl?img:'',
         go:()=>{ const cslug=this.catSlugs[name]||''; this._pushRoute('catalog'+(cslug?'/'+cslug:''));document.title=name+' — Каталог | Mereely Shop'; this.setState(s=>({page:'catalog',filters:{...s.filters,cat:name}})); window.scrollTo(0,0); }};
     }).filter(t=>t.count>0);
     const catGridCols = isMobile?'repeat(2,1fr)':(isTablet?'repeat(3,1fr)':'repeat(3,1fr)');
@@ -1479,6 +1518,9 @@ class Component extends DCLogic {
       hasCart:cartCount>0, cartCount, hasWishlist:S.wishlist.length>0, wishlistCount:S.wishlist.length,
       openWishlistInfo:()=>{ this.setState(s=>({page:'catalog'})); this.toast('Ваше обране — у каталозі'); },
       openCart:()=>this.setState({cartOpen:true}), closeCart:()=>this.setState({cartOpen:false}),
+      openSizeChart:(e)=>{e.preventDefault();this.setState({sizeChartOpen:true});}, closeSizeChart:()=>this.setState({sizeChartOpen:false}),
+      stopProp:(e)=>e.stopPropagation(),
+      sizeChartOpen:S.sizeChartOpen,
       toggleMenu:()=>this.setState(s=>({menuOpen:!s.menuOpen})), closeMenu:()=>this.setState({menuOpen:false}),
       noop:(e)=>{e.preventDefault();this.toast('Перейдемо в соцмережі');},
       // home content
@@ -1527,7 +1569,7 @@ class Component extends DCLogic {
       pMaterial:PD.material||'', pManufacturer:PD.manufacturer||'',
       hasMaterial:!!(PD.material&&PD.material.trim()), hasManufacturer:!!(PD.manufacturer&&PD.manufacturer.trim()),
       pMainTone:PD.tone, pMainShot:pHasMainImg?pMainUrl:'', pHasMainImg, pMainLabel:pHasMainImg?'':pMainUrl, pThumbs, pColors, pSizes,
-      pStock:PD.stock||0, pStockText:(PD.stock>0?'Залишилось '+PD.stock+' шт':''), pStockColor:(PD.stock<=4&&PD.stock>0)?'#a7613f':'#6f7a5e',
+      pStock:PD.stock||0, pHasStock:PD.stock>0, pStockText:(PD.stock>0?'Залишилось '+PD.stock+' шт':''), pStockColor:(PD.stock<=4&&PD.stock>0)?'#a7613f':'#6f7a5e',
       pStockLow:PD.stock<=4, pQty:S.pQty,
       pQtyInc:()=>this.setState(s=>({pQty:s.pQty+1})), pQtyDec:()=>this.setState(s=>({pQty:Math.max(1,s.pQty-1)})),
       pCols:isMobile?'1fr':(isTablet?'1fr 1fr':'1.15fr 1fr'),
