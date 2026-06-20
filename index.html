@@ -1096,18 +1096,11 @@ class Component extends DCLogic {
 
   _npWarehouses(ref, cityName){
     const key2 = this._npKey;
-    if(!key2) return;
-    const props = ref ? {SettlementRef:ref,Limit:500,Page:1} : (cityName ? {CityName:cityName,Limit:500,Page:1} : null);
-    if(!props) return;
-    fetch('https://api.novaposhta.ua/v2.0/json/',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({apiKey:key2,modelName:'AddressGeneral',calledMethod:'getWarehouses',methodProperties:props})})
+    if(!key2||!cityName) return;
+    fetch('https://api.novaposhta.ua/v2.0/json/',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({apiKey:key2,modelName:'AddressGeneral',calledMethod:'getWarehouses',methodProperties:{CityName:cityName,Limit:500,Page:1}})})
       .then(r=>r.json()).then(d=>{
-        const wh = (d.data)||[];
-        if(wh.length===0 && ref && cityName){
-          // fallback: retry by city name
-          this._npWarehouses(null, cityName);
-        } else {
-          this.setState({coWarehouses:wh});
-        }
+        const wh = Array.isArray(d.data)?d.data:[];
+        this.setState({coWarehouses:wh});
       }).catch(()=>this.setState({coWarehouses:[]}));
   }
 
