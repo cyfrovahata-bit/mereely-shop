@@ -1123,20 +1123,32 @@ class Component extends DCLogic {
   _ukrCitySearch(q){
     clearTimeout(this._ukrCityT);
     if(!q||q.length<2){ this.setState({ukrCities:[]}); return; }
+    // шукаємо в даних Meest (якщо завантажені)
+    try {
+      if(!this._meestData){ try{ this._meestData=JSON.parse(localStorage.getItem('mrl_meest_data')||'null'); }catch(e){} }
+      const md = this._meestData;
+      if(md && md.cities && md.cities.length){
+        const ql = q.toLowerCase();
+        const seen = new Set();
+        const res = md.cities
+          .filter(c=>{ const n=c.name.toLowerCase(); return n.includes(ql) && !seen.has(c.name) && seen.add(c.name); })
+          .sort((a,b)=>{ const as=a.name.toLowerCase().startsWith(ql)?0:1; const bs=b.name.toLowerCase().startsWith(ql)?0:1; return as-bs||a.name.localeCompare(b.name,'uk'); })
+          .slice(0,8)
+          .map(c=>({label:c.name+(c.type?' ('+c.type+')':''), name:c.name}));
+        this.setState({ukrCities:res});
+        return;
+      }
+    } catch(e){}
+    // fallback — Nominatim
     this._ukrCityT=setTimeout(()=>{
-      fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(q)}+Україна&countrycodes=ua&format=json&limit=12&accept-language=uk&addressdetails=1`,{headers:{'Accept-Language':'uk'}})
+      fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(q)}&countrycodes=ua&format=json&limit=8&accept-language=uk&addressdetails=1`,{headers:{'Accept-Language':'uk'}})
         .then(r=>r.json()).then(d=>{
           const seen=new Set();
-          const cities=d.filter(x=>{
-            const t=x.type||''; const cls=x.class||'';
-            return cls==='place'||['city','town','village','hamlet','suburb','municipality'].includes(t);
-          }).map(x=>{
+          const cities=d.filter(x=>['place'].includes(x.class)).map(x=>{
             const addr=x.address||{};
-            const name=addr.city||addr.town||addr.village||addr.hamlet||addr.suburb||x.name||x.display_name.split(',')[0].trim();
-            const oblast=addr.state||'';
-            const label=name+(oblast?' ('+oblast+')':'');
-            return {label,name};
-          }).filter(x=>{ if(seen.has(x.name)) return false; seen.add(x.name); return true; }).slice(0,8);
+            const name=addr.city||addr.town||addr.village||x.name||x.display_name.split(',')[0].trim();
+            return {label:name, name};
+          }).filter(x=>{ if(!x.name||seen.has(x.name)) return false; seen.add(x.name); return true; }).slice(0,8);
           this.setState({ukrCities:cities});
         }).catch(()=>this.setState({ukrCities:[]}));
     },350);
@@ -1520,7 +1532,7 @@ class Component extends DCLogic {
       ukrOblastOpts:[{val:'',label:'Оберіть область...'},...['Вінницька','Волинська','Дніпропетровська','Донецька','Житомирська','Закарпатська','Запорізька','Івано-Франківська','Київська','Кіровоградська','Луганська','Львівська','Миколаївська','Одеська','Полтавська','Рівненська','Сумська','Тернопільська','Харківська','Херсонська','Хмельницька','Черкаська','Чернівецька','Чернігівська','м. Київ'].map(o=>({val:o,label:o}))],
       // Meest
       coMeestCity:S.co.meestCity||'', coMeestBranch:S.co.meestBranch||'',
-      meestHasData:!!(this._meestData&&this._meestData.cities&&this._meestData.cities.length>0),
+      meestHasData:(()=>{ if(!this._meestData){ try{this._meestData=JSON.parse(localStorage.getItem('mrl_meest_data')||'null');}catch(e){} } return !!(this._meestData&&this._meestData.cities&&this._meestData.cities.length>0); })(),
       meestNoData:!(this._meestData&&this._meestData.cities&&this._meestData.cities.length>0),
       meestCitySugg:S.meestCities.map(c=>({label:c.name+(c.type?' ('+c.type+')':''),pick:()=>this.setState(s=>({co:{...s.co,meestCity:c.name,meestCityUid:c.uid,meestBranch:''},meestCities:[],coErr:{...s.coErr,meestCity:null}}))})),
       hasMeestCitySugg:S.meestCities.length>0,
