@@ -149,6 +149,7 @@ tr:hover td{background:rgba(30,35,31,.025)}
     <span class="nav-item active" onclick="showPage('dashboard',this)">📊 Дашборд</span>
     <span class="nav-item" onclick="showPage('products',this)">👗 Товари</span>
     <span class="nav-item" onclick="showPage('orders',this)">📦 Замовлення</span>
+    <span class="nav-item" onclick="showPage('subscribers',this)">📧 Підписники</span>
     <span class="nav-item" onclick="showPage('settings',this)">⚙️ Налаштування</span>
     <div class="sidebar-footer">
       <a href="index.html" style="display:block;font-size:12px;color:rgba(241,235,225,.5);text-decoration:none;margin-bottom:8px;transition:color .2s" onmouseover="this.style.color='#f1ebe1'" onmouseout="this.style.color='rgba(241,235,225,.5)'">← На сайт</a>
@@ -186,8 +187,11 @@ tr:hover td{background:rgba(30,35,31,.025)}
           <option value="Sale">Sale</option>
         </select>
       </div>
-      <div class="field"><label>Залишок (шт)</label><input id="f-stock" type="number" placeholder="10" min="0"/></div>
       <div class="field"><label>Акцентний колір (hex)</label><input id="f-tone" placeholder="#7c8568"/></div>
+      <div class="field" style="display:flex;align-items:center;gap:10px;padding-top:20px">
+        <input type="checkbox" id="f-active" checked style="width:18px;height:18px;cursor:pointer"/>
+        <label for="f-active" style="font-size:14px;cursor:pointer;letter-spacing:normal;text-transform:none;color:#1e231f">Показувати на сайті</label>
+      </div>
       <div class="field full"><label>Опис</label><textarea id="f-desc" rows="3" style="resize:vertical"></textarea></div>
 
       <!-- Sizes -->
@@ -255,9 +259,9 @@ const PALETTE_COLORS = [
 
 /* ===================== STATE ===================== */
 let editingId = null;
-let selectedSizes = [];    // ['S','M','L']
-let selectedColors = [];   // [{name:'Олива', hex:'#7c8568'}]
-let uploadedImages = [];   // [{dataUrl, name}]
+let selectedSizes = [];
+let selectedColors = [];
+let uploadedImages = [];   // [{url:'...', file:File|null}]
 
 /* ===================== AUTH ===================== */
 function doLogin(){
@@ -284,49 +288,90 @@ function showPage(name, el){
   document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
   if(el) el.classList.add('active');
   const mc = document.getElementById('main-content');
-  if(name==='dashboard') mc.innerHTML = renderDashboard();
-  else if(name==='products') mc.innerHTML = renderProducts();
-  else if(name==='orders') mc.innerHTML = renderOrders();
-  else if(name==='settings') mc.innerHTML = renderSettings();
+  if(name==='dashboard')   { mc.innerHTML = '<div class="page-header"><h2>Дашборд</h2></div><div style="color:#6c7166;padding:20px">Завантаження…</div>'; loadDashboard(); }
+  else if(name==='products')    { mc.innerHTML = '<div class="page-header"><h2>Товари</h2></div><div style="color:#6c7166;padding:20px">Завантаження…</div>'; loadProducts(); }
+  else if(name==='orders')      { mc.innerHTML = '<div class="page-header"><h2>Замовлення</h2></div><div style="color:#6c7166;padding:20px">Завантаження…</div>'; loadOrders(); }
+  else if(name==='subscribers') { mc.innerHTML = '<div class="page-header"><h2>Підписники</h2></div><div style="color:#6c7166;padding:20px">Завантаження…</div>'; loadSubscribers(); }
+  else if(name==='settings')    { mc.innerHTML = renderSettings(); }
 }
 
+/* ===================== API HELPERS ===================== */
+async function api(action, params){
+  const url = '/api/?action='+action+(params?'&'+new URLSearchParams(params):'');
+  const r = await fetch(url);
+  return r.json();
+}
+async function apiPost(action, body){
+  const r = await fetch('/api/?action='+action, {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(body)});
+  return r.json();
+}
+
+/* ===================== DASHBOARD ===================== */
+async function loadDashboard(){
+  const mc = document.getElementById('main-content');
+  try {
+    const [st, orders] = await Promise.all([api('status'), api('orders_list','limit=5')]);
+    const c = st.counts || {};
+    const recentRows = (orders.rows||[]).map(o=>{
+      const d = new Date(o.created_at).toLocaleDateString('uk-UA');
+      const name = esc((o.contact||{}).name||'—');
+      return `<tr>
+        <td style="font-size:12px;color:#6c7166">#${o.id}<br/>${d}</td>
+        <td>${name}</td>
+        <td><strong>${(o.total||0).toLocaleString('uk-UA')} ₴</strong></td>
+        <td><span class="order-status status-${o.status==='new'?'new':(o.status==='shipped'?'sent':'done')}">${statusLabel(o.status)}</span></td>
+      </tr>`;
+    }).join('') || '<tr><td colspan="4" style="padding:24px;color:#6c7166;text-align:center">Замовлень ще немає</td></tr>';
+
+    mc.innerHTML = `
+      <div class="page-header"><h2>Дашборд</h2></div>
+      <div class="stats-row">
+        <div class="stat-card"><div class="num">${c.orders||0}</div><div class="lbl">Замовлень</div></div>
+        <div class="stat-card"><div class="num">${c.products||0}</div><div class="lbl">Товарів</div></div>
+        <div class="stat-card"><div class="num">${c.subscribers||0}</div><div class="lbl">Підписників</div></div>
+        <div class="stat-card"><div class="num">${c.cities||0}</div><div class="lbl">Міст у базі</div></div>
+      </div>
+      <div class="card"><h3>Останні замовлення</h3>
+        <table><thead><tr><th>ID / Дата</th><th>Клієнт</th><th>Сума</th><th>Статус</th></tr></thead>
+        <tbody>${recentRows}</tbody></table>
+      </div>`;
+  } catch(e){ mc.innerHTML = '<div style="color:#a7613f;padding:20px">Помилка завантаження: '+esc(e.message)+'</div>'; }
+}
+
+function statusLabel(s){ return {new:'Нове',confirmed:'Підтверджено',shipped:'Відправлено',delivered:'Доставлено',cancelled:'Скасовано'}[s]||s; }
+
 /* ===================== PRODUCTS ===================== */
-function getProducts(){ try{ return JSON.parse(localStorage.getItem('mrl_products')||'[]'); }catch(e){ return []; } }
-function saveProducts(arr){ localStorage.setItem('mrl_products', JSON.stringify(arr)); }
+async function loadProducts(){
+  const mc = document.getElementById('main-content');
+  try {
+    const prods = await api('admin_products');
+    const rows = Array.isArray(prods) && prods.length ? prods.map(p=>{
+      const thumb = p.images&&p.images[0]
+        ? `<img src="${esc(p.images[0])}" class="prod-thumb" alt="${esc(p.name)}"/>`
+        : `<div class="prod-thumb-placeholder">👗</div>`;
+      const colorDots = (p.colors||[]).slice(0,4).map(c=>`<span title="${esc(c.name||c[0]||'')}" style="display:inline-block;width:12px;height:12px;border-radius:50%;background:${esc(c.hex||c[1]||'#ccc')};border:1px solid rgba(0,0,0,.15);margin-right:2px"></span>`).join('');
+      const active = p.active?'':'<span style="color:#a7613f;font-size:11px"> (прихований)</span>';
+      return `<tr>
+        <td style="width:54px">${thumb}</td>
+        <td><strong>${esc(p.name)}</strong>${active}<br/><span style="font-size:12px;color:#6c7166">${(p.sizes||[]).join(', ')}</span></td>
+        <td>${esc(p.category||'')}</td>
+        <td><strong>${(p.price||0).toLocaleString('uk-UA')} ₴</strong>${p.old_price?` <s style="color:#8a8f84;font-size:11px">${p.old_price} ₴</s>`:''}</td>
+        <td>${colorDots}</td>
+        <td><div class="actions">
+          <button class="btn btn-outline btn-sm" onclick="editProd(${p.id})">Ред.</button>
+          <button class="btn btn-danger btn-sm" onclick="deleteProd(${p.id})">✕</button>
+        </div></td>
+      </tr>`;
+    }).join('') : `<tr><td colspan="6" style="text-align:center;padding:32px;color:#6c7166">Товарів поки немає — додайте перший!</td></tr>`;
 
-function renderProducts(){
-  const prods = getProducts();
-  const rows = prods.length ? prods.map(p=>{
-    const thumb = (p.images&&p.images[0])
-      ? `<img src="${p.images[0]}" class="prod-thumb" alt="${esc(p.name)}"/>`
-      : `<div class="prod-thumb-placeholder">👗</div>`;
-    const colorDots = (p.colors||[]).slice(0,4).map(c=>`<span title="${esc(c[0])}" style="display:inline-block;width:12px;height:12px;border-radius:50%;background:${esc(c[1])};border:1px solid rgba(0,0,0,.15);margin-right:2px"></span>`).join('');
-    return `<tr>
-      <td style="width:54px">${thumb}</td>
-      <td><strong>${esc(p.name)}</strong><br/><span style="font-size:12px;color:#6c7166">${(p.sizes||[]).join(', ')}</span></td>
-      <td>${esc(p.cat)}</td>
-      <td><strong>${p.price} ₴</strong>${p.old?` <s style="color:#8a8f84;font-size:11px">${p.old} ₴</s>`:''}</td>
-      <td>${colorDots}</td>
-      <td>${p.badge?`<span class="badge badge-${p.badge==='Sale'?'sale':(p.badge==='Новинка'?'new':'best')}">${esc(p.badge)}</span>`:''}</td>
-      <td>${p.stock||0}</td>
-      <td><div class="actions">
-        <button class="btn btn-outline btn-sm" onclick="editProd(${p.id})">Ред.</button>
-        <button class="btn btn-danger btn-sm" onclick="deleteProd(${p.id})">✕</button>
-      </div></td>
-    </tr>`;
-  }).join('') : `<tr><td colspan="8" style="text-align:center;padding:32px;color:#6c7166">Товарів поки немає — додайте перший!</td></tr>`;
-
-  return `
-    <div class="page-header">
-      <h2>Товари</h2>
-      <button class="btn btn-sm" onclick="openNewProd()">+ Додати товар</button>
-    </div>
-    <div class="card">
-      <table>
-        <thead><tr><th></th><th>Назва / Розміри</th><th>Категорія</th><th>Ціна</th><th>Кольори</th><th>Значок</th><th>Залишок</th><th>Дії</th></tr></thead>
+    mc.innerHTML = `
+      <div class="page-header"><h2>Товари</h2><button class="btn btn-sm" onclick="openNewProd()">+ Додати товар</button></div>
+      <div class="card"><table>
+        <thead><tr><th></th><th>Назва / Розміри</th><th>Категорія</th><th>Ціна</th><th>Кольори</th><th>Дії</th></tr></thead>
         <tbody>${rows}</tbody>
-      </table>
-    </div>`;
+      </table></div>`;
+    window._adminProds = Array.isArray(prods) ? prods : [];
+  } catch(e){ mc.innerHTML = '<div style="color:#a7613f;padding:20px">Помилка: '+esc(e.message)+'</div>'; }
 }
 
 /* ---------- MODAL OPEN/CLOSE ---------- */
@@ -341,11 +386,11 @@ function openNewProd(){
   document.getElementById('f-name').value = '';
   document.getElementById('f-price').value = '';
   document.getElementById('f-old').value = '';
-  document.getElementById('f-stock').value = '10';
   document.getElementById('f-cat').value = 'Сукні';
   document.getElementById('f-badge').value = '';
   document.getElementById('f-tone').value = '#7c8568';
   document.getElementById('f-desc').value = '';
+  document.getElementById('f-active').checked = true;
   document.getElementById('f-images').value = '';
   renderSizeChips();
   renderColorPalette();
@@ -355,21 +400,21 @@ function openNewProd(){
 }
 
 function editProd(id){
-  const p = getProducts().find(x=>x.id===id);
+  const p = (window._adminProds||[]).find(x=>x.id===id);
   if(!p) return;
   editingId = id;
   selectedSizes = [...(p.sizes||[])];
-  selectedColors = (p.colors||[]).map(c=>({name:c[0], hex:c[1]}));
-  uploadedImages = (p.images||[]).map(url=>({dataUrl:url, name:''}));
+  selectedColors = (p.colors||[]).map(c=>Array.isArray(c)?{name:c[0],hex:c[1]}:c);
+  uploadedImages = (p.images||[]).map(url=>({url, file:null}));
   document.getElementById('modal-title').textContent = 'Редагувати товар';
   document.getElementById('f-name').value = p.name||'';
   document.getElementById('f-price').value = p.price||'';
-  document.getElementById('f-old').value = p.old||'';
-  document.getElementById('f-stock').value = p.stock||10;
-  document.getElementById('f-cat').value = p.cat||'Сукні';
+  document.getElementById('f-old').value = p.old_price||'';
+  document.getElementById('f-cat').value = p.category||'Сукні';
   document.getElementById('f-badge').value = p.badge||'';
   document.getElementById('f-tone').value = p.tone||'#7c8568';
-  document.getElementById('f-desc').value = p.desc||'';
+  document.getElementById('f-desc').value = p.description||'';
+  document.getElementById('f-active').checked = !!p.active;
   document.getElementById('f-images').value = '';
   renderSizeChips();
   renderColorPalette();
@@ -443,22 +488,19 @@ function handleImageFiles(files){
   const MAX = 10;
   Array.from(files).slice(0, MAX - uploadedImages.length).forEach(file=>{
     if(!file.type.startsWith('image/')) return;
-    if(file.size > 5*1024*1024){ alert(file.name+' — перевищує 5 МБ'); return; }
+    if(file.size > 10*1024*1024){ alert(file.name+' — перевищує 10 МБ'); return; }
     const reader = new FileReader();
-    reader.onload = e=>{ uploadedImages.push({dataUrl:e.target.result, name:file.name}); renderImagePreviews(); };
+    reader.onload = e=>{ uploadedImages.push({url:e.target.result, file}); renderImagePreviews(); };
     reader.readAsDataURL(file);
   });
 }
-function removeImage(idx){
-  uploadedImages.splice(idx, 1);
-  renderImagePreviews();
-}
+function removeImage(idx){ uploadedImages.splice(idx,1); renderImagePreviews(); }
 function renderImagePreviews(){
   const el = document.getElementById('img-previews');
   if(!el) return;
   el.innerHTML = uploadedImages.map((img,i)=>`
     <div class="img-preview-item">
-      <img src="${img.dataUrl}" alt="фото ${i+1}"/>
+      <img src="${img.url}" alt="фото ${i+1}"/>
       <div class="rm-img" onclick="removeImage(${i})">×</div>
       <div class="drag-handle">︙</div>
     </div>`).join('');
@@ -474,124 +516,175 @@ document.addEventListener('DOMContentLoaded', ()=>{
 });
 
 /* ---------- SAVE ---------- */
-function saveProd(){
+async function saveProd(){
   const name = document.getElementById('f-name').value.trim();
   const price = parseInt(document.getElementById('f-price').value)||0;
   if(!name){ alert('Вкажіть назву товару'); return; }
   if(!price){ alert('Вкажіть ціну товару'); return; }
-  if(!selectedSizes.length){ if(!confirm('Не вибрано жодного розміру. Продовжити?')) return; }
-  if(!selectedColors.length){ if(!confirm('Не вибрано жодного кольору. Продовжити?')) return; }
 
-  const prods = getProducts();
-  const obj = {
-    id: editingId || Date.now(),
-    name, price,
-    cat: document.getElementById('f-cat').value,
-    badge: document.getElementById('f-badge').value || undefined,
-    stock: parseInt(document.getElementById('f-stock').value)||10,
-    sizes: [...selectedSizes],
-    tone: document.getElementById('f-tone').value || '#7c8568',
-    desc: document.getElementById('f-desc').value.trim(),
-    colors: selectedColors.map(c=>[c.name, c.hex]),
-    images: uploadedImages.map(i=>i.dataUrl),
-  };
-  const oldPrice = parseInt(document.getElementById('f-old').value)||0;
-  if(oldPrice) obj.old = oldPrice;
-  if(!obj.badge) delete obj.badge;
+  const btn = document.querySelector('.modal-footer .btn:last-child');
+  btn.textContent = 'Зберігаю…'; btn.disabled = true;
 
-  if(editingId){
-    const idx = prods.findIndex(x=>x.id===editingId);
-    if(idx>=0) prods[idx] = obj; else prods.unshift(obj);
-  } else {
-    prods.unshift(obj);
+  try {
+    // Спочатку завантажуємо нові фото на сервер
+    const imageUrls = [];
+    for(const img of uploadedImages){
+      if(!img.file){
+        imageUrls.push(img.url); // вже на сервері
+      } else {
+        const fd = new FormData();
+        fd.append('file', img.file);
+        const r = await fetch('/api/?action=upload_image', {method:'POST', body:fd});
+        const d = await r.json();
+        if(!d.ok) throw new Error(d.error||'Помилка завантаження фото');
+        imageUrls.push(d.url);
+      }
+    }
+
+    const obj = {
+      id: editingId||0,
+      name, price,
+      old_price: parseInt(document.getElementById('f-old').value)||0,
+      category: document.getElementById('f-cat').value,
+      badge: document.getElementById('f-badge').value||'',
+      description: document.getElementById('f-desc').value.trim(),
+      sizes: [...selectedSizes],
+      colors: selectedColors,
+      images: imageUrls,
+      active: document.getElementById('f-active').checked ? 1 : 0,
+      sort_order: 0,
+    };
+
+    const res = await apiPost('product_save', obj);
+    if(!res.ok) throw new Error(res.error||'Помилка збереження');
+    closeProdModal();
+    loadProducts();
+  } catch(e){
+    alert('Помилка: '+e.message);
+  } finally {
+    btn.textContent = 'Зберегти товар'; btn.disabled = false;
   }
-  saveProducts(prods);
-  closeProdModal();
-  showPage('products', null);
 }
 
-function deleteProd(id){
+async function deleteProd(id){
   if(!confirm('Видалити товар? Це незворотно.')) return;
-  saveProducts(getProducts().filter(p=>p.id!==id));
-  showPage('products', null);
+  await apiPost('product_delete', {id});
+  loadProducts();
 }
 
 /* ===================== ORDERS ===================== */
-function getOrders(){ try{ return JSON.parse(localStorage.getItem('mrl_orders')||'[]'); }catch(e){ return []; } }
+async function loadOrders(){
+  const mc = document.getElementById('main-content');
+  try {
+    const data = await api('orders_list','limit=100');
+    const rows = (data.rows||[]).length ? (data.rows||[]).map(o=>{
+      const d = new Date(o.created_at).toLocaleDateString('uk-UA',{day:'2-digit',month:'2-digit',year:'numeric'});
+      const c = o.contact||{};
+      const del = o.delivery||{};
+      const itemsStr = (o.items||[]).map(i=>esc(i.name||'')+(i.qty>1?'×'+i.qty:'')).join(', ');
+      const statusCls = {new:'new',confirmed:'new',shipped:'sent',delivered:'done',cancelled:'done'}[o.status]||'new';
+      return `<tr>
+        <td style="font-size:12px;color:#6c7166;white-space:nowrap">#${o.id}<br/>${d}</td>
+        <td><strong>${esc(c.name||'—')}</strong><br/><span style="font-size:12px;color:#6c7166">${esc(c.phone||'')}</span></td>
+        <td style="font-size:12px;max-width:180px">${itemsStr}</td>
+        <td style="white-space:nowrap"><strong>${(o.total||0).toLocaleString('uk-UA')} ₴</strong></td>
+        <td style="font-size:12px">${esc(del.method||'')}${del.city?'<br/>'+esc(del.city):''}</td>
+        <td>
+          <select onchange="updateOrderStatus(${o.id},this.value)" style="font-size:12px;border:1px solid rgba(30,35,31,.2);padding:4px 6px;background:#fff;cursor:pointer">
+            ${['new','confirmed','shipped','delivered','cancelled'].map(s=>`<option value="${s}"${o.status===s?' selected':''}>${statusLabel(s)}</option>`).join('')}
+          </select>
+        </td>
+      </tr>`;
+    }).join('') : `<tr><td colspan="6" style="text-align:center;padding:36px;color:#6c7166">Замовлень ще немає</td></tr>`;
 
-function renderOrders(){
-  const orders = getOrders();
-  const rows = orders.length ? orders.map(o=>{
-    const date = new Date(o.date).toLocaleDateString('uk-UA',{day:'2-digit',month:'2-digit',year:'numeric'});
-    const itemsStr = (o.items||[]).map(i=>esc(i.name)+'×'+i.qty).join(', ');
-    const total = (o.items||[]).reduce((a,c)=>a+c.price*c.qty,0);
-    return `<tr>
-      <td style="font-size:12px;color:#6c7166;white-space:nowrap">#${String(o.id).slice(-6)}<br/>${date}</td>
-      <td><strong>${esc(o.name||'')}</strong><br/><span style="font-size:12px;color:#6c7166">${esc(o.phone||'')}</span></td>
-      <td style="font-size:12px;max-width:200px">${itemsStr}</td>
-      <td style="white-space:nowrap"><strong>${total.toLocaleString('uk-UA')} ₴</strong>${o.discount?`<br/><span style="font-size:11px;color:#6f7a5e">−${o.discount}%</span>`:''}</td>
-      <td style="font-size:12px">${esc(o.city||'')}${o.warehouse?'<br/>'+esc(o.warehouse):''}</td>
-      <td><span class="order-status status-new">Нове</span></td>
-    </tr>`;
-  }).join('') : `<tr><td colspan="6" style="text-align:center;padding:36px;color:#6c7166">Замовлень ще немає</td></tr>`;
-  return `
-    <div class="page-header"><h2>Замовлення</h2></div>
-    <div class="card">
-      <table>
+    mc.innerHTML = `
+      <div class="page-header"><h2>Замовлення <span style="font-size:16px;color:#6c7166;font-family:Inter">(${data.total||0})</span></h2></div>
+      <div class="card"><table>
         <thead><tr><th>ID / Дата</th><th>Клієнт</th><th>Товари</th><th>Сума</th><th>Доставка</th><th>Статус</th></tr></thead>
         <tbody>${rows}</tbody>
-      </table>
-    </div>`;
+      </table></div>`;
+  } catch(e){ mc.innerHTML = '<div style="color:#a7613f;padding:20px">Помилка: '+esc(e.message)+'</div>'; }
 }
 
-/* ===================== DASHBOARD ===================== */
-function renderDashboard(){
-  const orders = getOrders();
-  const prods = getProducts();
-  const revenue = orders.reduce((a,o)=>a+(o.items||[]).reduce((x,c)=>x+c.price*c.qty,0),0);
-  const weekOrders = orders.filter(o=>new Date(o.date)>new Date(Date.now()-86400000*7)).length;
-  return `
-    <div class="page-header"><h2>Дашборд</h2></div>
-    <div class="stats-row">
-      <div class="stat-card"><div class="num">${orders.length}</div><div class="lbl">Замовлень</div></div>
-      <div class="stat-card"><div class="num">${revenue.toLocaleString('uk-UA')} ₴</div><div class="lbl">Загальний дохід</div></div>
-      <div class="stat-card"><div class="num">${prods.length}</div><div class="lbl">Товарів</div></div>
-      <div class="stat-card"><div class="num">${weekOrders}</div><div class="lbl">За тиждень</div></div>
-    </div>
-    <div class="card"><h3>Останні замовлення</h3>
-      ${orders.slice(0,5).length ? `
-        <table><thead><tr><th>Дата</th><th>Клієнт</th><th>Сума</th><th>Статус</th></tr></thead><tbody>
-          ${orders.slice(0,5).map(o=>{
-            const date = new Date(o.date).toLocaleDateString('uk-UA');
-            const total = (o.items||[]).reduce((a,c)=>a+c.price*c.qty,0);
-            return `<tr>
-              <td style="font-size:12px;color:#6c7166">${date}</td>
-              <td>${esc(o.name||'')}</td>
-              <td><strong>${total.toLocaleString('uk-UA')} ₴</strong></td>
-              <td><span class="order-status status-new">Нове</span></td>
-            </tr>`;
-          }).join('')}
-        </tbody></table>`
-      : '<p style="color:#6c7166;font-size:14px">Замовлень поки немає</p>'}
-    </div>
-    <div class="card"><h3>Промокоди</h3>
-      <table>
-        <thead><tr><th>Код</th><th>Знижка</th><th>Опис</th></tr></thead>
-        <tbody>
-          <tr><td><code style="background:#e8e2d8;padding:2px 6px;font-size:12px">MEREELY10</code></td><td>10%</td><td style="font-size:12px;color:#6c7166">Базова знижка</td></tr>
-          <tr><td><code style="background:#e8e2d8;padding:2px 6px;font-size:12px">FIRST15</code></td><td>15%</td><td style="font-size:12px;color:#6c7166">Перше замовлення</td></tr>
-          <tr><td><code style="background:#e8e2d8;padding:2px 6px;font-size:12px">SALE20</code></td><td>20%</td><td style="font-size:12px;color:#6c7166">Сезонний розпродаж</td></tr>
-          <tr><td><code style="background:#e8e2d8;padding:2px 6px;font-size:12px">UKRAINE</code></td><td>5%</td><td style="font-size:12px;color:#6c7166">Для всіх українців</td></tr>
-        </tbody>
-      </table>
-    </div>`;
+async function updateOrderStatus(id, status){
+  await apiPost('order_status', {id, status});
+}
+
+/* ===================== SUBSCRIBERS ===================== */
+async function loadSubscribers(){
+  const mc = document.getElementById('main-content');
+  try {
+    const subs = await api('subscribers_list');
+    const rows = Array.isArray(subs)&&subs.length ? subs.map(s=>{
+      const d = new Date(s.created_at).toLocaleDateString('uk-UA');
+      return `<tr>
+        <td>${esc(s.email)}</td>
+        <td>${esc(s.name||'—')}</td>
+        <td style="font-size:12px;color:#6c7166">${d}</td>
+        <td><span style="color:${s.active?'#6f7a5e':'#a7613f'};font-size:12px">${s.active?'Активний':'Відписаний'}</span></td>
+        <td><button class="btn btn-danger btn-sm" onclick="deleteSubscriber(${s.id})">Відписати</button></td>
+      </tr>`;
+    }).join('') : `<tr><td colspan="5" style="padding:32px;text-align:center;color:#6c7166">Підписників ще немає</td></tr>`;
+
+    const exportBtn = Array.isArray(subs)&&subs.length
+      ? `<button class="btn btn-outline btn-sm" onclick="exportSubscribers()">↓ Експорт CSV</button>` : '';
+
+    mc.innerHTML = `
+      <div class="page-header"><h2>Підписники</h2>${exportBtn}</div>
+      <div class="card"><table>
+        <thead><tr><th>Email</th><th>Ім'я</th><th>Дата</th><th>Статус</th><th>Дії</th></tr></thead>
+        <tbody>${rows}</tbody>
+      </table></div>`;
+    window._subscribers = Array.isArray(subs) ? subs : [];
+  } catch(e){ mc.innerHTML = '<div style="color:#a7613f;padding:20px">Помилка: '+esc(e.message)+'</div>'; }
+}
+
+async function deleteSubscriber(id){
+  if(!confirm('Відписати цей email?')) return;
+  await apiPost('subscriber_delete', {id});
+  loadSubscribers();
+}
+
+function exportSubscribers(){
+  const subs = (window._subscribers||[]).filter(s=>s.active);
+  const csv = 'Email,Ім\'я,Дата\n' + subs.map(s=>`"${s.email}","${s.name||''}","${s.created_at}"`).join('\n');
+  const a = document.createElement('a');
+  a.href = 'data:text/csv;charset=utf-8,﻿'+encodeURIComponent(csv);
+  a.download = 'subscribers_'+new Date().toISOString().slice(0,10)+'.csv';
+  a.click();
 }
 
 /* ===================== SETTINGS ===================== */
 function renderSettings(){
   const npKey = localStorage.getItem('mrl_np_key')||'';
+  // Завантажуємо налаштування з бази
+  setTimeout(async ()=>{
+    try {
+      const s = await api('settings_get');
+      const fields = ['shop_name','shop_phone','shop_email','shop_instagram','shop_telegram','np_api_key'];
+      fields.forEach(k=>{ const el=document.getElementById('s-'+k); if(el) el.value=s[k]||''; });
+      // np_key теж в localStorage для сумісності
+      const npEl = document.getElementById('np-key-input');
+      if(npEl && !npEl.value) npEl.value = s.np_api_key||localStorage.getItem('mrl_np_key')||'';
+    } catch(e){}
+  }, 0);
+
   return `
     <div class="page-header"><h2>Налаштування</h2></div>
+
+    <div class="card">
+      <h3>Магазин</h3>
+      <div class="form-grid" style="max-width:600px">
+        <div class="field"><label>Назва магазину</label><input id="s-shop_name" placeholder="Mereely"/></div>
+        <div class="field"><label>Телефон</label><input id="s-shop_phone" placeholder="+38 (0__)"/></div>
+        <div class="field"><label>Email</label><input id="s-shop_email" type="email" placeholder="hello@mereely.ua"/></div>
+        <div class="field"><label>Instagram</label><input id="s-shop_instagram" placeholder="@mereely"/></div>
+        <div class="field full"><label>Telegram</label><input id="s-shop_telegram" placeholder="@mereely_shop"/></div>
+      </div>
+      <button onclick="saveShopSettings()" class="btn btn-sm" style="margin-top:14px">Зберегти</button>
+      <div id="shop-settings-msg" style="margin-top:8px;font-size:13px"></div>
+    </div>
+
     <div class="card">
       <h3>API-ключ Нової Пошти</h3>
       <p style="font-size:13.5px;color:#6c7166;margin-bottom:16px;line-height:1.6">
@@ -599,23 +692,29 @@ function renderSettings(){
         Отримати безкоштовно: <a href="https://my.novaposhta.ua/settings/index#apikeys" target="_blank" style="color:#a7613f;border-bottom:1px solid #a7613f">my.novaposhta.ua → Налаштування → API</a>
       </p>
       <div style="display:flex;gap:10px;align-items:stretch;max-width:520px">
-        <input id="np-key-input" type="text" value="${esc(npKey)}" placeholder="Ваш API-ключ (32 символи)" style="flex:1;border:1px solid #d0c9bc;padding:12px 14px;font-size:14px;font-family:'Manrope',sans-serif;outline:none;background:#faf8f4"/>
+        <input id="np-key-input" type="text" value="${esc(npKey)}" placeholder="Ваш API-ключ (32 символи)" style="flex:1;border:1px solid #d0c9bc;padding:12px 14px;font-size:14px;font-family:inherit;outline:none;background:#faf8f4"/>
         <button onclick="saveNpKey()" style="background:#28332c;color:#f1ebe1;padding:12px 20px;font-size:12px;letter-spacing:.14em;text-transform:uppercase;font-weight:600;border:none;cursor:pointer;white-space:nowrap">Зберегти</button>
       </div>
       <div id="np-key-msg" style="margin-top:10px;font-size:13px"></div>
-      <div style="margin-top:20px;padding:14px;background:#f4f0e8;border-left:3px solid #a7613f">
-        <p style="font-size:13px;color:#41463f;line-height:1.6"><strong>Як отримати ключ:</strong><br>
-        1. Зайдіть на <strong>my.novaposhta.ua</strong><br>
-        2. Меню → <strong>Налаштування → API</strong><br>
-        3. Натисніть <strong>"Створити ключ"</strong> і скопіюйте його сюди</p>
-      </div>
     </div>
     <div class="card">
-      <h3>Перевірка з'єднання</h3>
+      <h3>Перевірка з'єднання Нова Пошта</h3>
       <button onclick="testNpKey()" style="background:#6f7a5e;color:#f1ebe1;padding:12px 20px;font-size:12px;letter-spacing:.14em;text-transform:uppercase;font-weight:600;border:none;cursor:pointer">Перевірити API-ключ</button>
       <div id="np-test-msg" style="margin-top:12px;font-size:13.5px"></div>
     </div>
     ${renderMeestSettings()}`;
+}
+
+async function saveShopSettings(){
+  const fields = ['shop_name','shop_phone','shop_email','shop_instagram','shop_telegram'];
+  const data = {};
+  fields.forEach(k=>{ data[k] = (document.getElementById('s-'+k)||{}).value||''; });
+  const msg = document.getElementById('shop-settings-msg');
+  try {
+    await apiPost('settings_set', data);
+    msg.innerHTML = '<span style="color:#6f7a5e">✓ Збережено</span>';
+    setTimeout(()=>msg.innerHTML='', 3000);
+  } catch(e){ msg.innerHTML = '<span style="color:#a7613f">Помилка: '+esc(e.message)+'</span>'; }
 }
 
 function renderMeestSettings(){
@@ -783,11 +882,12 @@ async function clearMeestData(){
 
 
 
-function saveNpKey(){
+async function saveNpKey(){
   const val = document.getElementById('np-key-input').value.trim();
   localStorage.setItem('mrl_np_key', val);
   const msg = document.getElementById('np-key-msg');
-  if(val){ msg.innerHTML = '<span style="color:#6f7a5e;font-weight:600">✓ Ключ збережено! Тепер пошук міст і відділень на сайті працюватиме.</span>'; }
+  try { await apiPost('settings_set', {np_api_key: val}); } catch(e){}
+  if(val){ msg.innerHTML = '<span style="color:#6f7a5e;font-weight:600">✓ Ключ збережено!</span>'; }
   else { msg.innerHTML = '<span style="color:#a7613f">Ключ видалено</span>'; }
   setTimeout(()=>{ msg.innerHTML=''; },4000);
 }
