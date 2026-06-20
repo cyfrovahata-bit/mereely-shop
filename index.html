@@ -1094,13 +1094,20 @@ class Component extends DCLogic {
     },400);
   }
 
-  _npWarehouses(ref){
+  _npWarehouses(ref, cityName){
     const key2 = this._npKey;
-    if(!key2||!ref) return;
-    fetch('https://api.novaposhta.ua/v2.0/json/',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({apiKey:key2,modelName:'AddressGeneral',calledMethod:'getWarehouses',methodProperties:{CityRef:ref,Limit:500,Page:1}})})
+    if(!key2) return;
+    const props = ref ? {SettlementRef:ref,Limit:500,Page:1} : (cityName ? {CityName:cityName,Limit:500,Page:1} : null);
+    if(!props) return;
+    fetch('https://api.novaposhta.ua/v2.0/json/',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({apiKey:key2,modelName:'AddressGeneral',calledMethod:'getWarehouses',methodProperties:props})})
       .then(r=>r.json()).then(d=>{
         const wh = (d.data)||[];
-        this.setState({coWarehouses:wh});
+        if(wh.length===0 && ref && cityName){
+          // fallback: retry by city name
+          this._npWarehouses(null, cityName);
+        } else {
+          this.setState({coWarehouses:wh});
+        }
       }).catch(()=>this.setState({coWarehouses:[]}));
   }
 
@@ -1454,7 +1461,7 @@ class Component extends DCLogic {
       setMeestBranch:(e)=>this.setState(s=>({co:{...s.co,meestBranch:e.target.value},coErr:{...s.coErr,meestBranch:null}})),
       npSearching:S.coSearching,
       hasCitySugg:S.coCities.length>0,
-      citySugg:S.coCities.map(c=>({ label:(c.Present||c.Description||''), pick:()=>{ const ref=c.DeliveryCity||c.Ref; if(!ref){ return; } this.setState(s=>({co:{...s.co,cityQ:c.Present||c.Description,cityRef:ref},coCities:[],coNpWhFilter:''})); this._npWarehouses(ref); } })),
+      citySugg:S.coCities.map(c=>({ label:(c.Present||c.Description||''), pick:()=>{ const ref=c.DeliveryCity||c.Ref||''; const cityName=c.MainDescription||c.Description||''; this.setState(s=>({co:{...s.co,cityQ:c.Present||c.Description,cityRef:ref},coCities:[],coNpWhFilter:'',coWarehouses:[]})); this._npWarehouses(ref, cityName); } })),
       hasWarehouses:S.coWarehouses.length>0,
       warehouseOpts:(()=>{
         const isLocker=S.coNpType==='locker';
