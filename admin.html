@@ -613,7 +613,76 @@ function renderSettings(){
       <h3>Перевірка з'єднання</h3>
       <button onclick="testNpKey()" style="background:#6f7a5e;color:#f1ebe1;padding:12px 20px;font-size:12px;letter-spacing:.14em;text-transform:uppercase;font-weight:600;border:none;cursor:pointer">Перевірити API-ключ</button>
       <div id="np-test-msg" style="margin-top:12px;font-size:13.5px"></div>
-    </div>`;
+    </div>
+    ${renderMeestSettings()}`;
+}
+
+function renderMeestSettings(){
+  let info = '';
+  try {
+    const d = JSON.parse(localStorage.getItem('mrl_meest_data')||'null');
+    if(d&&d.length){
+      const cities = [...new Set(d.map(b=>b.city||b.City||'').filter(Boolean))];
+      info = `<div style="margin-top:12px;padding:10px 14px;background:#e8f0e8;border-left:3px solid #6f7a5e;font-size:13px;color:#41463f">✓ Завантажено: <b>${d.length}</b> відділень у <b>${cities.length}</b> містах. Останнє оновлення: ${localStorage.getItem('mrl_meest_date')||'невідомо'}</div>`;
+    } else {
+      info = '<div style="margin-top:12px;font-size:13px;color:#a7613f">Дані не завантажені</div>';
+    }
+  } catch(e){ info = '<div style="margin-top:12px;font-size:13px;color:#a7613f">Помилка читання даних</div>'; }
+  return `<div class="card">
+    <h3>Відділення Meest Express</h3>
+    <p style="font-size:13.5px;color:#6c7166;margin-bottom:16px;line-height:1.6">
+      Завантажте JSON-файл з відділеннями Meest. Файл повинен містити масив об'єктів:<br>
+      <code style="background:#f0ece4;padding:2px 6px;font-size:12px">[{"city":"Київ","branch":"Відділення №1","address":"вул. Хрещатик 1"}]</code><br>
+      Підтримувані поля: <code style="background:#f0ece4;padding:2px 6px;font-size:12px">city / City, branch / name / Name, address / Address</code>
+    </p>
+    ${info}
+    <div style="margin-top:16px;display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+      <input type="file" id="meest-file-input" accept=".json" style="font-size:13px;font-family:'Manrope',sans-serif"/>
+      <button onclick="uploadMeestData()" style="background:#28332c;color:#f1ebe1;padding:12px 20px;font-size:12px;letter-spacing:.14em;text-transform:uppercase;font-weight:600;border:none;cursor:pointer;white-space:nowrap">Завантажити</button>
+      <button onclick="clearMeestData()" style="background:#a7613f;color:#f1ebe1;padding:12px 16px;font-size:12px;letter-spacing:.14em;text-transform:uppercase;font-weight:600;border:none;cursor:pointer;white-space:nowrap">Очистити</button>
+    </div>
+    <div id="meest-upload-msg" style="margin-top:10px;font-size:13px"></div>
+    <div style="margin-top:16px;padding:14px;background:#f4f0e8;border-left:3px solid #a7613f">
+      <p style="font-size:13px;color:#41463f;line-height:1.6"><strong>Формат JSON-файлу:</strong><br>
+      Масив записів, кожен містить поля <b>city</b> (назва міста), <b>branch</b> або <b>name</b> (назва відділення), <b>address</b> (адреса). Приклад:<br>
+      <code style="font-size:11.5px;background:#fff;padding:6px 8px;display:block;margin-top:6px;white-space:pre">[
+  {"city":"Київ","branch":"Відділення №1","address":"вул. Хрещатик, 1"},
+  {"city":"Київ","branch":"Поштомат №101","address":"ТРЦ Ocean Plaza"},
+  {"city":"Львів","branch":"Відділення №5","address":"пр. Свободи, 10"}
+]</code></p>
+    </div>
+  </div>`;
+}
+
+function uploadMeestData(){
+  const input = document.getElementById('meest-file-input');
+  const msg = document.getElementById('meest-upload-msg');
+  if(!input||!input.files||!input.files[0]){ msg.innerHTML='<span style="color:#a7613f">Оберіть файл</span>'; return; }
+  const file = input.files[0];
+  const reader = new FileReader();
+  reader.onload = function(e){
+    try {
+      const data = JSON.parse(e.target.result);
+      if(!Array.isArray(data)) throw new Error('Очікується масив (array)');
+      if(data.length===0) throw new Error('Масив порожній');
+      const first = data[0];
+      if(!(first.city||first.City)) throw new Error('Відсутнє поле city');
+      localStorage.setItem('mrl_meest_data', JSON.stringify(data));
+      localStorage.setItem('mrl_meest_date', new Date().toLocaleString('uk-UA'));
+      const cities = [...new Set(data.map(b=>b.city||b.City||'').filter(Boolean))];
+      msg.innerHTML = `<span style="color:#6f7a5e;font-weight:600">✓ Завантажено ${data.length} відділень у ${cities.length} містах!</span>`;
+      setTimeout(()=>showPage('settings',document.querySelector('[data-page="settings"]')),1500);
+    } catch(err){
+      msg.innerHTML = '<span style="color:#a7613f">Помилка: '+esc(err.message)+'</span>';
+    }
+  };
+  reader.readAsText(file);
+}
+
+function clearMeestData(){
+  localStorage.removeItem('mrl_meest_data');
+  localStorage.removeItem('mrl_meest_date');
+  showPage('settings',document.querySelector('[data-page="settings"]'));
 }
 
 function saveNpKey(){
