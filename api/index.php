@@ -19,20 +19,21 @@ $action = $_GET['action'] ?? '';
 try {
     $db = new PDO('sqlite:' . $db_path);
     $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+    $db->sqliteCreateFunction('mb_lower', function($s){ return mb_strtolower((string)$s, 'UTF-8'); }, 1);
 } catch (Exception $e) {
     err('DB not available', 500);
 }
 
 // --- Пошук міст (для Meest і Укрпошти) ---
 if ($action === 'cities') {
-    $q = trim($_GET['q'] ?? '');
-    if (strlen($q) < 2) json_out([]);
+    $q = mb_strtolower(trim($_GET['q'] ?? ''), 'UTF-8');
+    if (mb_strlen($q) < 2) json_out([]);
     $limit = min((int)($_GET['limit'] ?? 10), 50);
 
     $stmt = $db->prepare("
         SELECT uid, name, type FROM cities
-        WHERE name LIKE :q ESCAPE '\\'
-        ORDER BY CASE WHEN name LIKE :qs ESCAPE '\\' THEN 0 ELSE 1 END, name
+        WHERE mb_lower(name) LIKE :q ESCAPE '\\'
+        ORDER BY CASE WHEN mb_lower(name) LIKE :qs ESCAPE '\\' THEN 0 ELSE 1 END, name
         LIMIT :limit
     ");
     $like = '%' . str_replace(['%','_'], ['\\%','\\_'], $q) . '%';
@@ -64,22 +65,22 @@ if ($action === 'branches') {
 // --- Вулиці для міста ---
 if ($action === 'streets') {
     $city_uid = trim($_GET['city_uid'] ?? '');
-    $q = trim($_GET['q'] ?? '');
-    if (strlen($q) < 2) json_out([]);
+    $q = mb_strtolower(trim($_GET['q'] ?? ''), 'UTF-8');
+    if (mb_strlen($q) < 2) json_out([]);
 
     if ($city_uid) {
         $stmt = $db->prepare("
             SELECT name FROM streets
-            WHERE city_uid = :city_uid AND name LIKE :q ESCAPE '\\'
-            ORDER BY CASE WHEN name LIKE :qs ESCAPE '\\' THEN 0 ELSE 1 END, name
+            WHERE city_uid = :city_uid AND mb_lower(name) LIKE :q ESCAPE '\\'
+            ORDER BY CASE WHEN mb_lower(name) LIKE :qs ESCAPE '\\' THEN 0 ELSE 1 END, name
             LIMIT 10
         ");
         $stmt->bindValue(':city_uid', $city_uid);
     } else {
         $stmt = $db->prepare("
             SELECT DISTINCT name FROM streets
-            WHERE name LIKE :q ESCAPE '\\'
-            ORDER BY CASE WHEN name LIKE :qs ESCAPE '\\' THEN 0 ELSE 1 END, name
+            WHERE mb_lower(name) LIKE :q ESCAPE '\\'
+            ORDER BY CASE WHEN mb_lower(name) LIKE :qs ESCAPE '\\' THEN 0 ELSE 1 END, name
             LIMIT 10
         ");
     }
