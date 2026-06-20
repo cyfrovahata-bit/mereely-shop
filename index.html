@@ -1124,12 +1124,22 @@ class Component extends DCLogic {
     clearTimeout(this._ukrCityT);
     if(!q||q.length<2){ this.setState({ukrCities:[]}); return; }
     this._ukrCityT=setTimeout(()=>{
-      fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(q)}&countrycodes=ua&featuretype=city&format=json&limit=8&accept-language=uk`,{headers:{'Accept-Language':'uk'}})
+      fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(q)}+Україна&countrycodes=ua&format=json&limit=12&accept-language=uk&addressdetails=1`,{headers:{'Accept-Language':'uk'}})
         .then(r=>r.json()).then(d=>{
-          const cities=d.filter(x=>['city','town','village','municipality'].includes(x.type)||['city','town','village'].includes(x.addresstype)).map(x=>({label:x.display_name.split(',').slice(0,3).join(',').trim(),name:x.name||x.display_name.split(',')[0].trim()}));
+          const seen=new Set();
+          const cities=d.filter(x=>{
+            const t=x.type||''; const cls=x.class||'';
+            return cls==='place'||['city','town','village','hamlet','suburb','municipality'].includes(t);
+          }).map(x=>{
+            const addr=x.address||{};
+            const name=addr.city||addr.town||addr.village||addr.hamlet||addr.suburb||x.name||x.display_name.split(',')[0].trim();
+            const oblast=addr.state||'';
+            const label=name+(oblast?' ('+oblast+')':'');
+            return {label,name};
+          }).filter(x=>{ if(seen.has(x.name)) return false; seen.add(x.name); return true; }).slice(0,8);
           this.setState({ukrCities:cities});
         }).catch(()=>this.setState({ukrCities:[]}));
-    },400);
+    },350);
   }
   _ukrStreetSearch(q, city){
     clearTimeout(this._ukrStreetT);
