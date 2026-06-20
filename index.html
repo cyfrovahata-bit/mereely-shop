@@ -780,7 +780,7 @@
               </sc-if>
               <sc-if value="{{ meestNoData }}" hint-placeholder-val="{{ false }}">
                 <div style="background:#f4eee5;border:1px solid rgba(30,35,31,.15);padding:14px;font-size:12.5px;color:#6c7166;line-height:1.6">
-                  Дані відділень Meest не завантажені.<br>Завантажте JSON-файл в <b>Адмінці → Налаштування → Meest</b>.
+                  Дані відділень Meest не завантажені.<br>Завантажте ZIP-архів в <b>Адмінці → Налаштування → Meest</b>.
                 </div>
               </sc-if>
             </div>
@@ -1009,7 +1009,7 @@ class Component extends DCLogic {
       faqOpen:0,
       toast:'', toastShow:false,
       checkoutOpen:false, coDone:false, coOrderNum:'',
-      co:{name:'',phone:'',email:'',cityQ:'',cityRef:'',warehouse:'',ukrOblast:'',ukrCity:'',ukrStreet:'',ukrHouse:'',ukrApt:'',ukrZip:'',meestCity:'',meestBranch:''},
+      co:{name:'',phone:'',email:'',cityQ:'',cityRef:'',warehouse:'',ukrOblast:'',ukrCity:'',ukrStreet:'',ukrHouse:'',ukrApt:'',ukrZip:'',meestCity:'',meestCityUid:'',meestBranch:''},
       coDeliveryType:'np', coNpType:'branch', coNpWhFilter:'',
       coErr:{}, coCities:[], coWarehouses:[], coSearching:false, ukrCities:[], ukrStreets:[],
       coPromo:'', coPromoApplied:false, coPromoDiscount:0, coPromoErr:false
@@ -1491,13 +1491,13 @@ class Component extends DCLogic {
       ukrOblastOpts:[{val:'',label:'Оберіть область...'},...['Вінницька','Волинська','Дніпропетровська','Донецька','Житомирська','Закарпатська','Запорізька','Івано-Франківська','Київська','Кіровоградська','Луганська','Львівська','Миколаївська','Одеська','Полтавська','Рівненська','Сумська','Тернопільська','Харківська','Херсонська','Хмельницька','Черкаська','Чернівецька','Чернігівська','м. Київ'].map(o=>({val:o,label:o}))],
       // Meest
       coMeestCity:S.co.meestCity||'', coMeestBranch:S.co.meestBranch||'',
-      meestHasData:!!(this._meestData&&this._meestData.length>0),
-      meestNoData:!(this._meestData&&this._meestData.length>0),
-      meestCitySugg:(()=>{ const md=this._meestData; if(!md) return []; const q=(S.co.meestCity||'').toLowerCase(); if(!q) return []; const seen=new Set(); const res=[]; for(const b of md){ const c=(b.city||b.City||''); if(c.toLowerCase().includes(q)&&!seen.has(c)){ seen.add(c); res.push({label:c,pick:()=>this.setState(s=>({co:{...s.co,meestCity:c,meestBranch:''},coErr:{...s.coErr,meestCity:null}}))}); if(res.length>=8) break; } } return res; })(),
-      hasMeestCitySugg:(()=>{ const md=this._meestData; if(!md) return false; const q=(S.co.meestCity||'').toLowerCase(); return q.length>0&&md.some(b=>(b.city||b.City||'').toLowerCase().includes(q)); })(),
-      meestBranchOpts:(()=>{ const md=this._meestData; if(!md) return []; const city=S.co.meestCity; if(!city) return []; return md.filter(b=>(b.city||b.City||'')=== city).map(b=>({val:b.branch||b.name||b.Name||'',label:[b.branch||b.name||b.Name||'',b.address||b.Address||''].filter(Boolean).join(' — ')})); })(),
-      hasMeestBranches:(()=>{ const md=this._meestData; if(!md) return false; const city=S.co.meestCity; return city&&md.some(b=>(b.city||b.City||'')===city); })(),
-      meestBranchCount:(()=>{ const md=this._meestData; if(!md) return 0; const city=S.co.meestCity; return city?md.filter(b=>(b.city||b.City||'')===city).length:0; })(),
+      meestHasData:!!(this._meestData&&this._meestData.cities&&this._meestData.cities.length>0),
+      meestNoData:!(this._meestData&&this._meestData.cities&&this._meestData.cities.length>0),
+      meestCitySugg:(()=>{ const md=this._meestData; if(!md||!md.cities) return []; const q=(S.co.meestCity||'').toLowerCase(); if(!q) return []; return md.cities.filter(c=>c.name.toLowerCase().includes(q)).slice(0,8).map(c=>({label:c.name+(c.type?' ('+c.type+')':''),pick:()=>this.setState(s=>({co:{...s.co,meestCity:c.name,meestCityUid:c.uid,meestBranch:''},coErr:{...s.coErr,meestCity:null}}))})); })(),
+      hasMeestCitySugg:(()=>{ const md=this._meestData; if(!md||!md.cities) return false; const q=(S.co.meestCity||'').toLowerCase(); return q.length>0&&md.cities.some(c=>c.name.toLowerCase().includes(q)); })(),
+      meestBranchOpts:(()=>{ const md=this._meestData; if(!md||!md.branches) return []; const uid=S.co.meestCityUid; if(!uid) return []; return md.branches.filter(b=>b.cityUid===uid).map(b=>({val:b.uid,label:[b.name,b.address].filter(Boolean).join(' — ')})); })(),
+      hasMeestBranches:(()=>{ const md=this._meestData; if(!md||!md.branches) return false; const uid=S.co.meestCityUid; return !!(uid&&md.branches.some(b=>b.cityUid===uid)); })(),
+      meestBranchCount:(()=>{ const md=this._meestData; if(!md||!md.branches) return 0; const uid=S.co.meestCityUid; return uid?md.branches.filter(b=>b.cityUid===uid).length:0; })(),
       setMeestCity:(e)=>this.setState(s=>({co:{...s.co,meestCity:e.target.value,meestBranch:''},coErr:{...s.coErr,meestCity:null}})),
       setMeestBranch:(e)=>this.setState(s=>({co:{...s.co,meestBranch:e.target.value},coErr:{...s.coErr,meestBranch:null}})),
       npSearching:S.coSearching,
