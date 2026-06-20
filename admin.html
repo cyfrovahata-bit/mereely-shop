@@ -693,7 +693,11 @@ async function uploadMeestData(){
       const lastIsUid = isUid(p[p.length-1]);
       const hasManyUids = p.filter(x=>isUid(x)).length >= 3;
       if(cols >= 8 && hasManyUids){ cityFile = {key, text}; }         // Города: 9+ колонок, 3+ UUID
-      else if(cols === 4 && lastIsUid){ branchFile = {key, text}; }   // Підрозділи: 4 колонки, UUID в кінці
+      else if(cols === 4 && lastIsUid){
+        // Відрізняємо Підрозділи від Районів: адреси відділень містять цифри (буд. номер)
+        const hasAddressWithDigit = dataLines.slice(0,30).some(l=>{ const pp=parseLine(l); return pp.length>=4&&/\d/.test(pp[2]||''); });
+        if(hasAddressWithDigit) branchFile = {key, text};
+      }   // Підрозділи: 4 колонки, UUID в кінці, є числа в адресі
       else if(cols >= 10 && !hasManyUids){ streetFile = {key, text}; } // Вулиці: 10+ колонок, 1 UUID
     }
 
