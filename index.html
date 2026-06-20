@@ -728,9 +728,25 @@
                   <sc-for list="{{ ukrOblastOpts }}" as="ob" hint-placeholder-count="2"><option value="{{ ob.val }}">{{ ob.label }}</option></sc-for>
                 </select>
               </label>
-              <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
-                <label style="display:block"><span style="font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:#6c7166;display:block;margin-bottom:4px">Місто / село</span><input value="{{ coUkrCity }}" onInput="{{ setUkrCity }}" placeholder="Наприклад, Харків" style="width:100%;background:#fff;border:1px solid {{ coErrUkrCity }};padding:10px 12px;font-size:13px;color:#1e231f;outline:none;font-family:'Manrope',sans-serif"/></label>
-                <label style="display:block"><span style="font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:#6c7166;display:block;margin-bottom:4px">Вулиця</span><input value="{{ coUkrStreet }}" onInput="{{ setUkrStreet }}" placeholder="Наприклад, вул. Шевченка" style="width:100%;background:#fff;border:1px solid {{ coErrUkrStreet }};padding:10px 12px;font-size:13px;color:#1e231f;outline:none;font-family:'Manrope',sans-serif"/></label>
+              <div style="position:relative">
+                <label style="display:block"><span style="font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:#6c7166;display:block;margin-bottom:4px">Місто / село</span><input value="{{ coUkrCity }}" onInput="{{ setUkrCity }}" placeholder="Почніть вводити..." style="width:100%;background:#fff;border:1px solid {{ coErrUkrCity }};padding:10px 12px;font-size:13px;color:#1e231f;outline:none;font-family:'Manrope',sans-serif"/></label>
+                <sc-if value="{{ hasUkrCitySugg }}" hint-placeholder-val="{{ false }}">
+                  <div style="position:absolute;top:100%;left:0;right:0;background:#fff;border:1px solid rgba(30,35,31,.2);border-top:none;z-index:10;max-height:200px;overflow-y:auto;box-shadow:0 8px 24px rgba(0,0,0,.12)">
+                    <sc-for list="{{ ukrCitySugg }}" as="uc" hint-placeholder-count="3">
+                      <button onClick="{{ uc.pick }}" style="width:100%;text-align:left;padding:10px 12px;font-size:13px;border-bottom:1px solid rgba(30,35,31,.08);transition:background .2s" style-hover="background:#f4eee5">{{ uc.label }}</button>
+                    </sc-for>
+                  </div>
+                </sc-if>
+              </div>
+              <div style="position:relative">
+                <label style="display:block"><span style="font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:#6c7166;display:block;margin-bottom:4px">Вулиця</span><input value="{{ coUkrStreet }}" onInput="{{ setUkrStreet }}" placeholder="Почніть вводити..." style="width:100%;background:#fff;border:1px solid {{ coErrUkrStreet }};padding:10px 12px;font-size:13px;color:#1e231f;outline:none;font-family:'Manrope',sans-serif"/></label>
+                <sc-if value="{{ hasUkrStreetSugg }}" hint-placeholder-val="{{ false }}">
+                  <div style="position:absolute;top:100%;left:0;right:0;background:#fff;border:1px solid rgba(30,35,31,.2);border-top:none;z-index:10;max-height:200px;overflow-y:auto;box-shadow:0 8px 24px rgba(0,0,0,.12)">
+                    <sc-for list="{{ ukrStreetSugg }}" as="us" hint-placeholder-count="3">
+                      <button onClick="{{ us.pick }}" style="width:100%;text-align:left;padding:10px 12px;font-size:13px;border-bottom:1px solid rgba(30,35,31,.08);transition:background .2s" style-hover="background:#f4eee5">{{ us.label }}</button>
+                    </sc-for>
+                  </div>
+                </sc-if>
               </div>
               <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px">
                 <label style="display:block"><span style="font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:#6c7166;display:block;margin-bottom:4px">Будинок</span><input value="{{ coUkrHouse }}" onInput="{{ setUkrHouse }}" placeholder="12" style="width:100%;background:#fff;border:1px solid {{ coErrUkrHouse }};padding:10px 12px;font-size:13px;color:#1e231f;outline:none;font-family:'Manrope',sans-serif"/></label>
@@ -995,7 +1011,7 @@ class Component extends DCLogic {
       checkoutOpen:false, coDone:false, coOrderNum:'',
       co:{name:'',phone:'',email:'',cityQ:'',cityRef:'',warehouse:'',ukrOblast:'',ukrCity:'',ukrStreet:'',ukrHouse:'',ukrApt:'',ukrZip:'',meestCity:'',meestBranch:''},
       coDeliveryType:'np', coNpType:'branch', coNpWhFilter:'',
-      coErr:{}, coCities:[], coWarehouses:[], coSearching:false,
+      coErr:{}, coCities:[], coWarehouses:[], coSearching:false, ukrCities:[], ukrStreets:[],
       coPromo:'', coPromoApplied:false, coPromoDiscount:0, coPromoErr:false
     };
     this._toastT = null;
@@ -1102,6 +1118,34 @@ class Component extends DCLogic {
         const wh = Array.isArray(d.data)?d.data:[];
         this.setState({coWarehouses:wh});
       }).catch(()=>this.setState({coWarehouses:[]}));
+  }
+
+  _ukrCitySearch(q){
+    clearTimeout(this._ukrCityT);
+    if(!q||q.length<2){ this.setState({ukrCities:[]}); return; }
+    this._ukrCityT=setTimeout(()=>{
+      fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(q)}&countrycodes=ua&featuretype=city&format=json&limit=8&accept-language=uk`,{headers:{'Accept-Language':'uk'}})
+        .then(r=>r.json()).then(d=>{
+          const cities=d.filter(x=>['city','town','village','municipality'].includes(x.type)||['city','town','village'].includes(x.addresstype)).map(x=>({label:x.display_name.split(',').slice(0,3).join(',').trim(),name:x.name||x.display_name.split(',')[0].trim()}));
+          this.setState({ukrCities:cities});
+        }).catch(()=>this.setState({ukrCities:[]}));
+    },400);
+  }
+  _ukrStreetSearch(q, city){
+    clearTimeout(this._ukrStreetT);
+    if(!q||q.length<2){ this.setState({ukrStreets:[]}); return; }
+    this._ukrStreetT=setTimeout(()=>{
+      const qs=city?`${q}, ${city}, \u0423\u043a\u0440\u0430\u0457\u043d\u0430`:q+', \u0423\u043a\u0440\u0430\u0457\u043d\u0430';
+      fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(qs)}&countrycodes=ua&featuretype=street&format=json&limit=8&accept-language=uk`,{headers:{'Accept-Language':'uk'}})
+        .then(r=>r.json()).then(d=>{
+          const seen=new Set();
+          const streets=d.filter(x=>x.type==='road'||x.class==='highway'||x.addresstype==='road').map(x=>{
+            const name=(x.address&&(x.address.road||x.address.pedestrian))||x.name||x.display_name.split(',')[0].trim();
+            return {label:name,name};
+          }).filter(x=>{ if(seen.has(x.name)) return false; seen.add(x.name); return true; });
+          this.setState({ukrStreets:streets});
+        }).catch(()=>this.setState({ukrStreets:[]}));
+    },400);
   }
 
   fmt(n){ return String(n).replace(/\B(?=(\d{3})+(?!\d))/g,'\u202f')+' \u20b4'; }
@@ -1435,8 +1479,12 @@ class Component extends DCLogic {
       coUkrOblast:S.co.ukrOblast||'', coUkrCity:S.co.ukrCity||'', coUkrStreet:S.co.ukrStreet||'',
       coUkrHouse:S.co.ukrHouse||'', coUkrApt:S.co.ukrApt||'', coUkrZip:S.co.ukrZip||'',
       setUkrOblast:(e)=>this.setState(s=>({co:{...s.co,ukrOblast:e.target.value},coErr:{...s.coErr,ukrOblast:null}})),
-      setUkrCity:(e)=>this.setState(s=>({co:{...s.co,ukrCity:e.target.value},coErr:{...s.coErr,ukrCity:null}})),
-      setUkrStreet:(e)=>this.setState(s=>({co:{...s.co,ukrStreet:e.target.value},coErr:{...s.coErr,ukrStreet:null}})),
+      setUkrCity:(e)=>{ const v=e.target.value; this.setState(s=>({co:{...s.co,ukrCity:v,ukrStreet:''},ukrCities:v?s.ukrCities:[],ukrStreets:[],coErr:{...s.coErr,ukrCity:null}})); this._ukrCitySearch(v); },
+      setUkrStreet:(e)=>{ const v=e.target.value; this.setState(s=>({co:{...s.co,ukrStreet:v},ukrStreets:v?s.ukrStreets:[],coErr:{...s.coErr,ukrStreet:null}})); this._ukrStreetSearch(v, S.co.ukrCity); },
+      hasUkrCitySugg:S.ukrCities.length>0,
+      ukrCitySugg:S.ukrCities.map(c=>({label:c.label,pick:()=>this.setState(s=>({co:{...s.co,ukrCity:c.name,ukrStreet:''},ukrCities:[],ukrStreets:[],coErr:{...s.coErr,ukrCity:null}}))})),
+      hasUkrStreetSugg:S.ukrStreets.length>0,
+      ukrStreetSugg:S.ukrStreets.map(st=>({label:st.label,pick:()=>this.setState(s=>({co:{...s.co,ukrStreet:st.name},ukrStreets:[],coErr:{...s.coErr,ukrStreet:null}}))})),
       setUkrHouse:(e)=>this.setState(s=>({co:{...s.co,ukrHouse:e.target.value},coErr:{...s.coErr,ukrHouse:null}})),
       setUkrApt:(e)=>this.setState(s=>({co:{...s.co,ukrApt:e.target.value}})),
       setUkrZip:(e)=>this.setState(s=>({co:{...s.co,ukrZip:e.target.value}})),
