@@ -668,172 +668,217 @@
     </div>
   </sc-if>
   <sc-if value="{{ coOpen }}" hint-placeholder-val="{{ true }}">
-    <div style="flex:1;display:grid;grid-template-columns:{{ coBodyCols }};min-height:0">
-      <!-- LEFT: form -->
-      <div style="overflow-y:auto;padding:20px 24px;display:flex;flex-direction:column;gap:16px">
-        <!-- contacts -->
-        <div style="display:flex;flex-direction:column;gap:10px">
-          <p style="font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:#8a8f84">Контактні дані</p>
-          <label style="display:block"><span style="font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:#6c7166;display:block;margin-bottom:4px">Ім'я та прізвище</span><input value="{{ coName }}" onInput="{{ setCoName }}" placeholder="Наприклад, Олена Мерілі" style="width:100%;background:#fff;border:1px solid {{ coErrName }};padding:10px 12px;font-size:13px;color:#1e231f;outline:none;font-family:'Manrope',sans-serif"/></label>
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
-            <label style="display:block"><span style="font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:#6c7166;display:block;margin-bottom:4px">Телефон</span><input value="{{ coPhone }}" onInput="{{ setCoPhone }}" placeholder="+38 (0__) ___ __ __" style="width:100%;background:#fff;border:1px solid {{ coErrPhone }};padding:10px 12px;font-size:13px;color:#1e231f;outline:none;font-family:'Manrope',sans-serif"/></label>
-            <label style="display:block"><span style="font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:#6c7166;display:block;margin-bottom:4px">Email</span><input type="email" value="{{ coEmail }}" onInput="{{ setCoEmail }}" placeholder="email@приклад.com" style="width:100%;background:#fff;border:1px solid {{ coErrEmail }};padding:10px 12px;font-size:13px;color:#1e231f;outline:none;font-family:'Manrope',sans-serif"/></label>
+    <div style="flex:1;display:flex;flex-direction:column;min-height:0">
+      <!-- scrollable body -->
+      <div style="flex:1;overflow-y:auto;padding:20px 20px {{ coFormPadBottom }}">
+        <div style="display:grid;grid-template-columns:{{ coBodyCols }};gap:0;min-height:100%">
+        <!-- LEFT: form -->
+        <div style="display:flex;flex-direction:column;gap:16px;{{ coLeftPadding }}">
+          <!-- contacts -->
+          <div style="display:flex;flex-direction:column;gap:10px">
+            <p style="font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:#8a8f84">Контактні дані</p>
+            <label style="display:block"><span style="font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:#6c7166;display:block;margin-bottom:4px">Ім'я та прізвище</span><input value="{{ coName }}" onInput="{{ setCoName }}" placeholder="Наприклад, Олена Мерілі" style="width:100%;background:#fff;border:1px solid {{ coErrName }};padding:10px 12px;font-size:13px;color:#1e231f;outline:none;font-family:'Manrope',sans-serif"/></label>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+              <label style="display:block"><span style="font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:#6c7166;display:block;margin-bottom:4px">Телефон</span><input value="{{ coPhone }}" onInput="{{ setCoPhone }}" placeholder="+38 (0__) ___ __ __" style="width:100%;background:#fff;border:1px solid {{ coErrPhone }};padding:10px 12px;font-size:13px;color:#1e231f;outline:none;font-family:'Manrope',sans-serif"/></label>
+              <label style="display:block"><span style="font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:#6c7166;display:block;margin-bottom:4px">Email</span><input type="email" value="{{ coEmail }}" onInput="{{ setCoEmail }}" placeholder="email@приклад.com" style="width:100%;background:#fff;border:1px solid {{ coErrEmail }};padding:10px 12px;font-size:13px;color:#1e231f;outline:none;font-family:'Manrope',sans-serif"/></label>
+            </div>
           </div>
-        </div>
-        <!-- delivery -->
-        <div style="display:flex;flex-direction:column;gap:10px">
-          <p style="font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:#8a8f84">Спосіб доставки</p>
-          <!-- carrier tabs -->
-          <div style="display:flex;border:1px solid rgba(30,35,31,.2)">
-            <button onClick="{{ setDeliveryNp }}" style="flex:1;padding:10px 4px;font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;font-weight:600;background:{{ coNpTabBg }};color:{{ coNpTabColor }};transition:all .3s">Нова Пошта</button>
-            <button onClick="{{ setDeliveryUkr }}" style="flex:1;padding:10px 4px;font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;font-weight:600;background:{{ coUkrTabBg }};color:{{ coUkrTabColor }};border-left:1px solid rgba(30,35,31,.2);transition:all .3s">Укрпошта</button>
-            <button onClick="{{ setDeliveryMeest }}" style="flex:1;padding:10px 4px;font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;font-weight:600;background:{{ coMeestTabBg }};color:{{ coMeestTabColor }};border-left:1px solid rgba(30,35,31,.2);transition:all .3s">Meest</button>
-          </div>
-          <!-- NP -->
-          <sc-if value="{{ coIsNp }}" hint-placeholder-val="{{ true }}">
-            <div style="display:flex;flex-direction:column;gap:10px">
-              <div style="position:relative">
-                <label style="display:block"><span style="font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:#6c7166;display:block;margin-bottom:4px">Місто / населений пункт</span><input value="{{ coCityQ }}" onInput="{{ setCityQ }}" placeholder="Почніть вводити назву..." style="width:100%;background:#fff;border:1px solid {{ coErrCity }};padding:10px 12px;font-size:13px;color:#1e231f;outline:none;font-family:'Manrope',sans-serif"/></label>
-                <sc-if value="{{ hasCitySugg }}" hint-placeholder-val="{{ false }}">
-                  <div style="position:absolute;top:100%;left:0;right:0;background:#fff;border:1px solid rgba(30,35,31,.2);border-top:none;z-index:10;max-height:200px;overflow-y:auto;box-shadow:0 8px 24px rgba(0,0,0,.12)">
-                    <sc-for list="{{ citySugg }}" as="cs" hint-placeholder-count="3">
-                      <button onClick="{{ cs.pick }}" style="width:100%;text-align:left;padding:10px 12px;font-size:13px;border-bottom:1px solid rgba(30,35,31,.08);transition:background .2s" style-hover="background:#f4eee5">{{ cs.label }}</button>
-                    </sc-for>
+          <!-- delivery -->
+          <div style="display:flex;flex-direction:column;gap:10px">
+            <p style="font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:#8a8f84">Спосіб доставки</p>
+            <!-- carrier tabs -->
+            <div style="display:flex;border:1px solid rgba(30,35,31,.2)">
+              <button onClick="{{ setDeliveryNp }}" style="flex:1;padding:10px 4px;font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;font-weight:600;background:{{ coNpTabBg }};color:{{ coNpTabColor }};transition:all .3s">Нова Пошта</button>
+              <button onClick="{{ setDeliveryUkr }}" style="flex:1;padding:10px 4px;font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;font-weight:600;background:{{ coUkrTabBg }};color:{{ coUkrTabColor }};border-left:1px solid rgba(30,35,31,.2);transition:all .3s">Укрпошта</button>
+              <button onClick="{{ setDeliveryMeest }}" style="flex:1;padding:10px 4px;font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;font-weight:600;background:{{ coMeestTabBg }};color:{{ coMeestTabColor }};border-left:1px solid rgba(30,35,31,.2);transition:all .3s">Meest</button>
+            </div>
+            <!-- NP -->
+            <sc-if value="{{ coIsNp }}" hint-placeholder-val="{{ true }}">
+              <div style="display:flex;flex-direction:column;gap:10px">
+                <div style="position:relative">
+                  <label style="display:block"><span style="font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:#6c7166;display:block;margin-bottom:4px">Місто / населений пункт</span><input value="{{ coCityQ }}" onInput="{{ setCityQ }}" placeholder="Почніть вводити назву..." style="width:100%;background:#fff;border:1px solid {{ coErrCity }};padding:10px 12px;font-size:13px;color:#1e231f;outline:none;font-family:'Manrope',sans-serif"/></label>
+                  <sc-if value="{{ hasCitySugg }}" hint-placeholder-val="{{ false }}">
+                    <div style="position:absolute;top:100%;left:0;right:0;background:#fff;border:1px solid rgba(30,35,31,.2);border-top:none;z-index:10;max-height:200px;overflow-y:auto;box-shadow:0 8px 24px rgba(0,0,0,.12)">
+                      <sc-for list="{{ citySugg }}" as="cs" hint-placeholder-count="3">
+                        <button onClick="{{ cs.pick }}" style="width:100%;text-align:left;padding:10px 12px;font-size:13px;border-bottom:1px solid rgba(30,35,31,.08);transition:background .2s" style-hover="background:#f4eee5">{{ cs.label }}</button>
+                      </sc-for>
+                    </div>
+                  </sc-if>
+                  <sc-if value="{{ npSearching }}" hint-placeholder-val="{{ false }}">
+                    <span style="position:absolute;right:10px;top:34px;font-size:11px;color:#8a8f84">Пошук…</span>
+                  </sc-if>
+                </div>
+                <sc-if value="{{ hasWarehouses }}" hint-placeholder-val="{{ false }}">
+                  <div style="display:flex;gap:6px">
+                    <button onClick="{{ setNpBranch }}" style="flex:1;padding:8px 4px;font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;font-weight:600;border:1px solid {{ npBranchBorder }};background:{{ npBranchBg }};color:{{ npBranchColor }};transition:all .3s">Відділення</button>
+                    <button onClick="{{ setNpLocker }}" style="flex:1;padding:8px 4px;font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;font-weight:600;border:1px solid {{ npLockerBorder }};background:{{ npLockerBg }};color:{{ npLockerColor }};transition:all .3s">Поштомат</button>
+                  </div>
+                  <label style="display:block"><span style="font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:#6c7166;display:block;margin-bottom:4px">Пошук {{ npSelectLabel2 }}</span><input value="{{ coNpWhFilter }}" onInput="{{ setNpWhFilter }}" placeholder="Введіть номер або адресу..." style="width:100%;background:#fff;border:1px solid rgba(30,35,31,.2);padding:10px 12px;font-size:13px;color:#1e231f;outline:none;font-family:'Manrope',sans-serif"/></label>
+                  <div>
+                    <span style="font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:#6c7166;display:block;margin-bottom:4px">{{ npSelectLabel }} <span style="color:#8a8f84;font-size:10px">({{ npWhCount }} шт.)</span></span>
+                    <div style="border:1px solid {{ coErrWarehouse }};max-height:200px;overflow-y:auto;background:#fff">
+                      <sc-for list="{{ warehouseOpts }}" as="wo" hint-placeholder-count="4">
+                        <button onClick="{{ wo.pick }}" style="width:100%;text-align:left;padding:11px 12px;font-size:12.5px;border-bottom:1px solid rgba(30,35,31,.07);background:{{ wo.bg }};color:{{ wo.color }};display:flex;align-items:center;gap:10px;transition:background .15s" style-hover="background:#f4eee5">
+                          <span style="width:16px;height:16px;border-radius:50%;border:2px solid {{ wo.radioColor }};flex:none;display:flex;align-items:center;justify-content:center"><span style="width:8px;height:8px;border-radius:50%;background:{{ wo.radioDot }}"></span></span>
+                          <span>{{ wo.label }}</span>
+                        </button>
+                      </sc-for>
+                    </div>
                   </div>
                 </sc-if>
-                <sc-if value="{{ npSearching }}" hint-placeholder-val="{{ false }}">
-                  <span style="position:absolute;right:10px;top:34px;font-size:11px;color:#8a8f84">Пошук…</span>
-                </sc-if>
               </div>
-              <sc-if value="{{ hasWarehouses }}" hint-placeholder-val="{{ false }}">
-                <div style="display:flex;gap:6px">
-                  <button onClick="{{ setNpBranch }}" style="flex:1;padding:8px 4px;font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;font-weight:600;border:1px solid {{ npBranchBorder }};background:{{ npBranchBg }};color:{{ npBranchColor }};transition:all .3s">Відділення</button>
-                  <button onClick="{{ setNpLocker }}" style="flex:1;padding:8px 4px;font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;font-weight:600;border:1px solid {{ npLockerBorder }};background:{{ npLockerBg }};color:{{ npLockerColor }};transition:all .3s">Поштомат</button>
-                </div>
-                <label style="display:block"><span style="font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:#6c7166;display:block;margin-bottom:4px">Пошук {{ npSelectLabel2 }}</span><input value="{{ coNpWhFilter }}" onInput="{{ setNpWhFilter }}" placeholder="Введіть номер або адресу..." style="width:100%;background:#fff;border:1px solid rgba(30,35,31,.2);padding:10px 12px;font-size:13px;color:#1e231f;outline:none;font-family:'Manrope',sans-serif"/></label>
-                <label style="display:block"><span style="font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:#6c7166;display:block;margin-bottom:4px">{{ npSelectLabel }} <span style="color:#8a8f84;font-size:10px">({{ npWhCount }} шт.)</span></span>
-                  <select value="{{ coWarehouse }}" onChange="{{ setWarehouse }}" style="width:100%;background:#fff;border:1px solid {{ coErrWarehouse }};padding:10px 12px;font-size:12.5px;color:#1e231f;outline:none;font-family:'Manrope',sans-serif;cursor:pointer;max-height:160px">
-                    <option value="">{{ npSelectPlaceholder }}</option>
-                    <sc-for list="{{ warehouseOpts }}" as="wo" hint-placeholder-count="3"><option value="{{ wo.ref }}">{{ wo.label }}</option></sc-for>
+            </sc-if>
+            <!-- Ukrposhta -->
+            <sc-if value="{{ coIsUkr }}" hint-placeholder-val="{{ false }}">
+              <div style="display:flex;flex-direction:column;gap:10px">
+                <label style="display:block"><span style="font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:#6c7166;display:block;margin-bottom:4px">Область</span>
+                  <select value="{{ coUkrOblast }}" onChange="{{ setUkrOblast }}" style="width:100%;background:#fff;border:1px solid {{ coErrUkrOblast }};padding:10px 12px;font-size:13px;color:#1e231f;outline:none;font-family:'Manrope',sans-serif;cursor:pointer">
+                    <sc-for list="{{ ukrOblastOpts }}" as="ob" hint-placeholder-count="2"><option value="{{ ob.val }}">{{ ob.label }}</option></sc-for>
                   </select>
                 </label>
-              </sc-if>
-            </div>
-          </sc-if>
-          <!-- Ukrposhta -->
-          <sc-if value="{{ coIsUkr }}" hint-placeholder-val="{{ false }}">
-            <div style="display:flex;flex-direction:column;gap:10px">
-              <label style="display:block"><span style="font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:#6c7166;display:block;margin-bottom:4px">Область</span>
-                <select value="{{ coUkrOblast }}" onChange="{{ setUkrOblast }}" style="width:100%;background:#fff;border:1px solid {{ coErrUkrOblast }};padding:10px 12px;font-size:13px;color:#1e231f;outline:none;font-family:'Manrope',sans-serif;cursor:pointer">
-                  <sc-for list="{{ ukrOblastOpts }}" as="ob" hint-placeholder-count="2"><option value="{{ ob.val }}">{{ ob.label }}</option></sc-for>
-                </select>
-              </label>
-              <div style="position:relative">
-                <label style="display:block"><span style="font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:#6c7166;display:block;margin-bottom:4px">Місто / село</span><input value="{{ coUkrCity }}" onInput="{{ setUkrCity }}" placeholder="Почніть вводити..." style="width:100%;background:#fff;border:1px solid {{ coErrUkrCity }};padding:10px 12px;font-size:13px;color:#1e231f;outline:none;font-family:'Manrope',sans-serif"/></label>
-                <sc-if value="{{ hasUkrCitySugg }}" hint-placeholder-val="{{ false }}">
-                  <div style="position:absolute;top:100%;left:0;right:0;background:#fff;border:1px solid rgba(30,35,31,.2);border-top:none;z-index:10;max-height:200px;overflow-y:auto;box-shadow:0 8px 24px rgba(0,0,0,.12)">
-                    <sc-for list="{{ ukrCitySugg }}" as="uc" hint-placeholder-count="3">
-                      <button onClick="{{ uc.pick }}" style="width:100%;text-align:left;padding:10px 12px;font-size:13px;border-bottom:1px solid rgba(30,35,31,.08);transition:background .2s" style-hover="background:#f4eee5">{{ uc.label }}</button>
-                    </sc-for>
-                  </div>
-                </sc-if>
+                <div style="position:relative">
+                  <label style="display:block"><span style="font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:#6c7166;display:block;margin-bottom:4px">Місто / село</span><input value="{{ coUkrCity }}" onInput="{{ setUkrCity }}" placeholder="Почніть вводити..." style="width:100%;background:#fff;border:1px solid {{ coErrUkrCity }};padding:10px 12px;font-size:13px;color:#1e231f;outline:none;font-family:'Manrope',sans-serif"/></label>
+                  <sc-if value="{{ hasUkrCitySugg }}" hint-placeholder-val="{{ false }}">
+                    <div style="position:absolute;top:100%;left:0;right:0;background:#fff;border:1px solid rgba(30,35,31,.2);border-top:none;z-index:10;max-height:200px;overflow-y:auto;box-shadow:0 8px 24px rgba(0,0,0,.12)">
+                      <sc-for list="{{ ukrCitySugg }}" as="uc" hint-placeholder-count="3">
+                        <button onClick="{{ uc.pick }}" style="width:100%;text-align:left;padding:10px 12px;font-size:13px;border-bottom:1px solid rgba(30,35,31,.08);transition:background .2s" style-hover="background:#f4eee5">{{ uc.label }}</button>
+                      </sc-for>
+                    </div>
+                  </sc-if>
+                </div>
+                <div style="position:relative">
+                  <label style="display:block"><span style="font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:#6c7166;display:block;margin-bottom:4px">Вулиця</span><input value="{{ coUkrStreet }}" onInput="{{ setUkrStreet }}" placeholder="Почніть вводити..." style="width:100%;background:#fff;border:1px solid {{ coErrUkrStreet }};padding:10px 12px;font-size:13px;color:#1e231f;outline:none;font-family:'Manrope',sans-serif"/></label>
+                  <sc-if value="{{ hasUkrStreetSugg }}" hint-placeholder-val="{{ false }}">
+                    <div style="position:absolute;top:100%;left:0;right:0;background:#fff;border:1px solid rgba(30,35,31,.2);border-top:none;z-index:10;max-height:200px;overflow-y:auto;box-shadow:0 8px 24px rgba(0,0,0,.12)">
+                      <sc-for list="{{ ukrStreetSugg }}" as="us" hint-placeholder-count="3">
+                        <button onClick="{{ us.pick }}" style="width:100%;text-align:left;padding:10px 12px;font-size:13px;border-bottom:1px solid rgba(30,35,31,.08);transition:background .2s" style-hover="background:#f4eee5">{{ us.label }}</button>
+                      </sc-for>
+                    </div>
+                  </sc-if>
+                </div>
+                <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px">
+                  <label style="display:block"><span style="font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:#6c7166;display:block;margin-bottom:4px">Будинок</span><input value="{{ coUkrHouse }}" onInput="{{ setUkrHouse }}" placeholder="12" style="width:100%;background:#fff;border:1px solid {{ coErrUkrHouse }};padding:10px 12px;font-size:13px;color:#1e231f;outline:none;font-family:'Manrope',sans-serif"/></label>
+                  <label style="display:block"><span style="font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:#6c7166;display:block;margin-bottom:4px">Квартира</span><input value="{{ coUkrApt }}" onInput="{{ setUkrApt }}" placeholder="5" style="width:100%;background:#fff;border:1px solid rgba(30,35,31,.2);padding:10px 12px;font-size:13px;color:#1e231f;outline:none;font-family:'Manrope',sans-serif"/></label>
+                  <label style="display:block"><span style="font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:#6c7166;display:block;margin-bottom:4px">Індекс</span><input value="{{ coUkrZip }}" onInput="{{ setUkrZip }}" placeholder="61000" style="width:100%;background:#fff;border:1px solid rgba(30,35,31,.2);padding:10px 12px;font-size:13px;color:#1e231f;outline:none;font-family:'Manrope',sans-serif"/></label>
+                </div>
               </div>
-              <div style="position:relative">
-                <label style="display:block"><span style="font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:#6c7166;display:block;margin-bottom:4px">Вулиця</span><input value="{{ coUkrStreet }}" onInput="{{ setUkrStreet }}" placeholder="Почніть вводити..." style="width:100%;background:#fff;border:1px solid {{ coErrUkrStreet }};padding:10px 12px;font-size:13px;color:#1e231f;outline:none;font-family:'Manrope',sans-serif"/></label>
-                <sc-if value="{{ hasUkrStreetSugg }}" hint-placeholder-val="{{ false }}">
-                  <div style="position:absolute;top:100%;left:0;right:0;background:#fff;border:1px solid rgba(30,35,31,.2);border-top:none;z-index:10;max-height:200px;overflow-y:auto;box-shadow:0 8px 24px rgba(0,0,0,.12)">
-                    <sc-for list="{{ ukrStreetSugg }}" as="us" hint-placeholder-count="3">
-                      <button onClick="{{ us.pick }}" style="width:100%;text-align:left;padding:10px 12px;font-size:13px;border-bottom:1px solid rgba(30,35,31,.08);transition:background .2s" style-hover="background:#f4eee5">{{ us.label }}</button>
-                    </sc-for>
-                  </div>
-                </sc-if>
-              </div>
-              <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px">
-                <label style="display:block"><span style="font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:#6c7166;display:block;margin-bottom:4px">Будинок</span><input value="{{ coUkrHouse }}" onInput="{{ setUkrHouse }}" placeholder="12" style="width:100%;background:#fff;border:1px solid {{ coErrUkrHouse }};padding:10px 12px;font-size:13px;color:#1e231f;outline:none;font-family:'Manrope',sans-serif"/></label>
-                <label style="display:block"><span style="font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:#6c7166;display:block;margin-bottom:4px">Квартира</span><input value="{{ coUkrApt }}" onInput="{{ setUkrApt }}" placeholder="5" style="width:100%;background:#fff;border:1px solid rgba(30,35,31,.2);padding:10px 12px;font-size:13px;color:#1e231f;outline:none;font-family:'Manrope',sans-serif"/></label>
-                <label style="display:block"><span style="font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:#6c7166;display:block;margin-bottom:4px">Індекс</span><input value="{{ coUkrZip }}" onInput="{{ setUkrZip }}" placeholder="61000" style="width:100%;background:#fff;border:1px solid rgba(30,35,31,.2);padding:10px 12px;font-size:13px;color:#1e231f;outline:none;font-family:'Manrope',sans-serif"/></label>
-              </div>
-            </div>
-          </sc-if>
-          <!-- Meest -->
-          <sc-if value="{{ coIsMeest }}" hint-placeholder-val="{{ false }}">
-            <div style="display:flex;flex-direction:column;gap:10px">
-              <!-- Tabs: відділення / поштомат -->
-              <div style="display:flex;border:1px solid rgba(30,35,31,.2)">
-                <button onClick="{{ setMeestBranchMode }}" style="flex:1;padding:8px 4px;font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;font-weight:600;background:{{ meestBranchModeBg }};color:{{ meestBranchModeColor }};transition:all .3s">Відділення</button>
-                <button onClick="{{ setMeestLockerMode }}" style="flex:1;padding:8px 4px;font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;font-weight:600;border-left:1px solid rgba(30,35,31,.2);background:{{ meestLockerModeBg }};color:{{ meestLockerModeColor }};transition:all .3s">Поштомат</button>
-              </div>
-              <!-- Відділення або Поштомат -->
-              <sc-if value="{{ meestIsPickupMode }}" hint-placeholder-val="{{ true }}">
-                <sc-if value="{{ meestHasData }}" hint-placeholder-val="{{ false }}">
-                  <div style="position:relative">
-                    <label style="display:block"><span style="font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:#6c7166;display:block;margin-bottom:4px">Місто</span><input value="{{ coMeestCity }}" onInput="{{ setMeestCity }}" placeholder="Почніть вводити місто..." style="width:100%;background:#fff;border:1px solid {{ coErrMeestCity }};padding:10px 12px;font-size:13px;color:#1e231f;outline:none;font-family:'Manrope',sans-serif"/></label>
-                    <sc-if value="{{ hasMeestCitySugg }}" hint-placeholder-val="{{ false }}">
-                      <div style="position:absolute;top:100%;left:0;right:0;background:#fff;border:1px solid rgba(30,35,31,.2);border-top:none;z-index:10;max-height:180px;overflow-y:auto;box-shadow:0 8px 24px rgba(0,0,0,.12)">
-                        <sc-for list="{{ meestCitySugg }}" as="mc" hint-placeholder-count="3">
-                          <button onClick="{{ mc.pick }}" style="width:100%;text-align:left;padding:10px 12px;font-size:13px;border-bottom:1px solid rgba(30,35,31,.08);transition:background .2s" style-hover="background:#f4eee5">{{ mc.label }}</button>
-                        </sc-for>
+            </sc-if>
+            <!-- Meest -->
+            <sc-if value="{{ coIsMeest }}" hint-placeholder-val="{{ false }}">
+              <div style="display:flex;flex-direction:column;gap:10px">
+                <div style="display:flex;border:1px solid rgba(30,35,31,.2)">
+                  <button onClick="{{ setMeestBranchMode }}" style="flex:1;padding:8px 4px;font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;font-weight:600;background:{{ meestBranchModeBg }};color:{{ meestBranchModeColor }};transition:all .3s">Відділення</button>
+                  <button onClick="{{ setMeestLockerMode }}" style="flex:1;padding:8px 4px;font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;font-weight:600;border-left:1px solid rgba(30,35,31,.2);background:{{ meestLockerModeBg }};color:{{ meestLockerModeColor }};transition:all .3s">Поштомат</button>
+                </div>
+                <sc-if value="{{ meestIsPickupMode }}" hint-placeholder-val="{{ true }}">
+                  <sc-if value="{{ meestHasData }}" hint-placeholder-val="{{ false }}">
+                    <div style="position:relative">
+                      <label style="display:block"><span style="font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:#6c7166;display:block;margin-bottom:4px">Місто</span><input value="{{ coMeestCity }}" onInput="{{ setMeestCity }}" placeholder="Почніть вводити місто..." style="width:100%;background:#fff;border:1px solid {{ coErrMeestCity }};padding:10px 12px;font-size:13px;color:#1e231f;outline:none;font-family:'Manrope',sans-serif"/></label>
+                      <sc-if value="{{ hasMeestCitySugg }}" hint-placeholder-val="{{ false }}">
+                        <div style="position:absolute;top:100%;left:0;right:0;background:#fff;border:1px solid rgba(30,35,31,.2);border-top:none;z-index:10;max-height:180px;overflow-y:auto;box-shadow:0 8px 24px rgba(0,0,0,.12)">
+                          <sc-for list="{{ meestCitySugg }}" as="mc" hint-placeholder-count="3">
+                            <button onClick="{{ mc.pick }}" style="width:100%;text-align:left;padding:10px 12px;font-size:13px;border-bottom:1px solid rgba(30,35,31,.08);transition:background .2s" style-hover="background:#f4eee5">{{ mc.label }}</button>
+                          </sc-for>
+                        </div>
+                      </sc-if>
+                    </div>
+                    <sc-if value="{{ hasMeestBranches }}" hint-placeholder-val="{{ false }}">
+                      <div>
+                        <span style="font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:#6c7166;display:block;margin-bottom:4px">{{ meestPickupLabel }} <span style="color:#8a8f84;font-size:10px">({{ meestBranchCount }} шт.)</span></span>
+                        <div style="border:1px solid {{ coErrMeestBranch }};max-height:200px;overflow-y:auto;background:#fff">
+                          <sc-for list="{{ meestBranchOpts }}" as="mb" hint-placeholder-count="3">
+                            <button onClick="{{ mb.pick }}" style="width:100%;text-align:left;padding:11px 12px;font-size:12.5px;border-bottom:1px solid rgba(30,35,31,.07);background:{{ mb.bg }};color:{{ mb.color }};display:flex;align-items:center;gap:10px;transition:background .15s" style-hover="background:#f4eee5">
+                              <span style="width:16px;height:16px;border-radius:50%;border:2px solid {{ mb.radioColor }};flex:none;display:flex;align-items:center;justify-content:center;flex-shrink:0"><span style="width:8px;height:8px;border-radius:50%;background:{{ mb.radioDot }}"></span></span>
+                              <span>{{ mb.label }}</span>
+                            </button>
+                          </sc-for>
+                        </div>
                       </div>
                     </sc-if>
-                  </div>
-                  <sc-if value="{{ hasMeestBranches }}" hint-placeholder-val="{{ false }}">
-                    <label style="display:block"><span style="font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:#6c7166;display:block;margin-bottom:4px">{{ meestPickupLabel }} <span style="color:#8a8f84;font-size:10px">({{ meestBranchCount }} шт.)</span></span>
-                      <select value="{{ coMeestBranch }}" onChange="{{ setMeestBranch }}" style="width:100%;background:#fff;border:1px solid {{ coErrMeestBranch }};padding:10px 12px;font-size:12.5px;color:#1e231f;outline:none;font-family:'Manrope',sans-serif;cursor:pointer">
-                        <option value="">{{ meestPickupPlaceholder }}</option>
-                        <sc-for list="{{ meestBranchOpts }}" as="mb" hint-placeholder-count="3"><option value="{{ mb.val }}">{{ mb.label }}</option></sc-for>
-                      </select>
-                    </label>
+                    <sc-if value="{{ meestCityChosenNoBranches }}" hint-placeholder-val="{{ false }}">
+                      <div style="background:#fff8f0;border:1px solid rgba(167,97,63,.25);padding:12px;font-size:12.5px;color:#a7613f;line-height:1.5">В обраному місті немає {{ meestPickupLabelLower }} Meest. Спробуйте інший тип або місто.</div>
+                    </sc-if>
                   </sc-if>
-                  <sc-if value="{{ meestCityChosenNoBranches }}" hint-placeholder-val="{{ false }}">
-                    <div style="background:#fff8f0;border:1px solid rgba(167,97,63,.25);padding:12px;font-size:12.5px;color:#a7613f;line-height:1.5">В обраному місті немає {{ meestPickupLabelLower }} Meest. Спробуйте інший тип або місто.</div>
+                  <sc-if value="{{ meestNoData }}" hint-placeholder-val="{{ false }}">
+                    <div style="background:#f4eee5;border:1px solid rgba(30,35,31,.15);padding:14px;font-size:12.5px;color:#6c7166;line-height:1.6">
+                      Дані відділень Meest не завантажені.<br>Завантажте ZIP-архів в <b>Адмінці → Налаштування → Meest</b>.
+                    </div>
                   </sc-if>
                 </sc-if>
-                <sc-if value="{{ meestNoData }}" hint-placeholder-val="{{ false }}">
-                  <div style="background:#f4eee5;border:1px solid rgba(30,35,31,.15);padding:14px;font-size:12.5px;color:#6c7166;line-height:1.6">
-                    Дані відділень Meest не завантажені.<br>Завантажте ZIP-архів в <b>Адмінці → Налаштування → Meest</b>.
-                  </div>
-                </sc-if>
+              </div>
+            </sc-if>
+          </div>
+          <!-- промокод + підсумок (тільки мобільний — вбудований у форму) -->
+          <sc-if value="{{ coMobileSummary }}" hint-placeholder-val="{{ false }}">
+            <div style="border-top:1px solid rgba(30,35,31,.12);padding-top:16px;display:flex;flex-direction:column;gap:12px">
+              <p style="font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:#8a8f84">Ваше замовлення</p>
+              <sc-for list="{{ coCartItems }}" as="ci" hint-placeholder-count="2">
+                <div style="display:flex;justify-content:space-between;align-items:center;font-size:13px;padding:5px 0;border-bottom:1px solid rgba(30,35,31,.08)"><span style="color:#41463f">{{ ci.name }} <span style="color:#8a8f84;font-size:11px">×{{ ci.qty }}</span></span><span style="font-weight:600;white-space:nowrap;padding-left:8px">{{ ci.lineFmt }}</span></div>
+              </sc-for>
+              <div style="border:1px solid rgba(30,35,31,.2)">
+                <input value="{{ coPromo }}" onInput="{{ setCoPromo }}" placeholder="Промокод" style="width:100%;background:#fff;border:none;border-bottom:1px solid rgba(30,35,31,.15);padding:10px 12px;font-size:13px;color:#1e231f;outline:none;font-family:'Manrope',sans-serif;box-sizing:border-box"/>
+                <button onClick="{{ applyPromo }}" style="width:100%;background:#28332c;color:#f1ebe1;padding:9px;font-size:10px;letter-spacing:.14em;text-transform:uppercase;font-weight:600;transition:background .3s;display:block" style-hover="background:#a7613f">Застосувати</button>
+              </div>
+              <sc-if value="{{ promoApplied }}" hint-placeholder-val="{{ false }}">
+                <p style="font-size:12px;color:#6f7a5e;font-weight:600">Знижка {{ promoDiscountPct }}% застосована</p>
               </sc-if>
-
+              <sc-if value="{{ promoErr }}" hint-placeholder-val="{{ false }}">
+                <p style="font-size:11px;color:#a7613f">Невірний промокод</p>
+              </sc-if>
             </div>
           </sc-if>
         </div>
-      </div>
-      <!-- RIGHT: order + promo + totals -->
-      <div style="overflow-y:auto;padding:20px 24px 32px;display:flex;flex-direction:column;gap:14px;background:#f4eee5;border-left:1px solid rgba(30,35,31,.1);min-height:100%">
-        <!-- order items -->
-        <div>
-          <p style="font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:#8a8f84;margin-bottom:10px">Ваше замовлення</p>
-          <sc-for list="{{ coCartItems }}" as="ci" hint-placeholder-count="2">
-            <div style="display:flex;justify-content:space-between;align-items:center;font-size:13px;padding:5px 0;border-bottom:1px solid rgba(30,35,31,.08)"><span style="color:#41463f">{{ ci.name }} <span style="color:#8a8f84;font-size:11px">×{{ ci.qty }}</span></span><span style="font-weight:600;white-space:nowrap;padding-left:8px">{{ ci.lineFmt }}</span></div>
-          </sc-for>
-        </div>
-        <!-- promo -->
-        <div>
-          <p style="font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:#8a8f84;margin-bottom:8px">Промокод</p>
-          <div style="border:1px solid rgba(30,35,31,.2)">
-            <input value="{{ coPromo }}" onInput="{{ setCoPromo }}" placeholder="Введіть промокод" style="width:100%;background:#fff;border:none;border-bottom:1px solid rgba(30,35,31,.15);padding:10px 12px;font-size:13px;color:#1e231f;outline:none;font-family:'Manrope',sans-serif;box-sizing:border-box"/>
-            <button onClick="{{ applyPromo }}" style="width:100%;background:#28332c;color:#f1ebe1;padding:9px;font-size:10px;letter-spacing:.14em;text-transform:uppercase;font-weight:600;transition:background .3s;display:block" style-hover="background:#a7613f">Застосувати</button>
+        <!-- RIGHT: order + promo + totals (тільки десктоп) -->
+        <sc-if value="{{ coDesktopSidebar }}" hint-placeholder-val="{{ false }}">
+          <div style="overflow-y:auto;padding:0 0 32px 20px;display:flex;flex-direction:column;gap:14px">
+            <div>
+              <p style="font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:#8a8f84;margin-bottom:10px">Ваше замовлення</p>
+              <sc-for list="{{ coCartItems }}" as="ci" hint-placeholder-count="2">
+                <div style="display:flex;justify-content:space-between;align-items:center;font-size:13px;padding:5px 0;border-bottom:1px solid rgba(30,35,31,.08)"><span style="color:#41463f">{{ ci.name }} <span style="color:#8a8f84;font-size:11px">×{{ ci.qty }}</span></span><span style="font-weight:600;white-space:nowrap;padding-left:8px">{{ ci.lineFmt }}</span></div>
+              </sc-for>
+            </div>
+            <div>
+              <p style="font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:#8a8f84;margin-bottom:8px">Промокод</p>
+              <div style="border:1px solid rgba(30,35,31,.2)">
+                <input value="{{ coPromo }}" onInput="{{ setCoPromo }}" placeholder="Введіть промокод" style="width:100%;background:#fff;border:none;border-bottom:1px solid rgba(30,35,31,.15);padding:10px 12px;font-size:13px;color:#1e231f;outline:none;font-family:'Manrope',sans-serif;box-sizing:border-box"/>
+                <button onClick="{{ applyPromo }}" style="width:100%;background:#28332c;color:#f1ebe1;padding:9px;font-size:10px;letter-spacing:.14em;text-transform:uppercase;font-weight:600;transition:background .3s;display:block" style-hover="background:#a7613f">Застосувати</button>
+              </div>
+              <sc-if value="{{ promoApplied }}" hint-placeholder-val="{{ false }}">
+                <p style="font-size:12px;color:#6f7a5e;margin-top:6px;font-weight:600">Знижка {{ promoDiscountPct }}% застосована</p>
+              </sc-if>
+              <sc-if value="{{ promoErr }}" hint-placeholder-val="{{ false }}">
+                <p style="font-size:11px;color:#a7613f;margin-top:6px">Невірний промокод</p>
+              </sc-if>
+            </div>
+            <div style="border-top:1px solid rgba(30,35,31,.14);padding-top:14px;margin-top:auto">
+              <div style="display:flex;justify-content:space-between;font-size:13px;color:#6c7166;margin-bottom:5px"><span>Сума товарів</span><span>{{ coSubFmt }}</span></div>
+              <sc-if value="{{ promoApplied }}" hint-placeholder-val="{{ false }}">
+                <div style="display:flex;justify-content:space-between;font-size:13px;color:#6f7a5e;margin-bottom:5px"><span>Знижка {{ promoDiscountPct }}%</span><span>−{{ promoSaveFmt }}</span></div>
+              </sc-if>
+              <div style="display:flex;justify-content:space-between;font-size:13px;color:#6c7166;margin-bottom:14px"><span>Доставка ({{ coDeliveryName }})</span><span>{{ coShipFmt }}</span></div>
+              <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:16px"><span style="font-size:15px;font-weight:700">Разом</span><span style="font-family:'Forum',serif;font-size:26px">{{ coTotalFmt }}</span></div>
+              <button onClick="{{ submitOrder }}" style="width:100%;background:#28332c;color:#f1ebe1;padding:16px;font-size:11.5px;letter-spacing:.2em;text-transform:uppercase;font-weight:600;border:1px solid #28332c;transition:all .35s" style-hover="background:#a7613f;border-color:#a7613f">Підтвердити замовлення</button>
+              <p style="font-size:11px;color:#8a8f84;margin-top:8px;text-align:center">Оплата при отриманні · Перевіряйте перед оплатою</p>
+            </div>
           </div>
-          <sc-if value="{{ promoApplied }}" hint-placeholder-val="{{ false }}">
-            <p style="font-size:12px;color:#6f7a5e;margin-top:6px;font-weight:600">Знижка {{ promoDiscountPct }}% застосована</p>
-          </sc-if>
-          <sc-if value="{{ promoErr }}" hint-placeholder-val="{{ false }}">
-            <p style="font-size:11px;color:#a7613f;margin-top:6px">Невірний промокод</p>
-          </sc-if>
-        </div>
-        <!-- totals -->
-        <div style="border-top:1px solid rgba(30,35,31,.14);padding-top:14px;margin-top:auto">
-          <div style="display:flex;justify-content:space-between;font-size:13px;color:#6c7166;margin-bottom:5px"><span>Сума товарів</span><span>{{ coSubFmt }}</span></div>
-          <sc-if value="{{ promoApplied }}" hint-placeholder-val="{{ false }}">
-            <div style="display:flex;justify-content:space-between;font-size:13px;color:#6f7a5e;margin-bottom:5px"><span>Знижка {{ promoDiscountPct }}%</span><span>−{{ promoSaveFmt }}</span></div>
-          </sc-if>
-          <div style="display:flex;justify-content:space-between;font-size:13px;color:#6c7166;margin-bottom:14px"><span>Доставка ({{ coDeliveryName }})</span><span>{{ coShipFmt }}</span></div>
-          <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:16px"><span style="font-size:15px;font-weight:700">Разом</span><span style="font-family:'Forum',serif;font-size:26px">{{ coTotalFmt }}</span></div>
-          <button onClick="{{ submitOrder }}" style="width:100%;background:#28332c;color:#f1ebe1;padding:16px;font-size:11.5px;letter-spacing:.2em;text-transform:uppercase;font-weight:600;border:1px solid #28332c;transition:all .35s" style-hover="background:#a7613f;border-color:#a7613f">Підтвердити замовлення</button>
-          <p style="font-size:11px;color:#8a8f84;margin-top:8px;text-align:center">Оплата при отриманні · Перевіряйте перед оплатою</p>
+        </sc-if>
         </div>
       </div>
+      <!-- МОБІЛЬНИЙ sticky footer: сума + кнопка -->
+      <sc-if value="{{ coMobileFooter }}" hint-placeholder-val="{{ false }}">
+        <div style="flex:none;background:#f4eee5;border-top:1px solid rgba(30,35,31,.14);padding:14px 20px 20px">
+          <div style="display:flex;justify-content:space-between;font-size:12px;color:#6c7166;margin-bottom:3px"><span>{{ coDeliveryName }}</span><span>{{ coShipFmt }}</span></div>
+          <sc-if value="{{ promoApplied }}" hint-placeholder-val="{{ false }}">
+            <div style="display:flex;justify-content:space-between;font-size:12px;color:#6f7a5e;margin-bottom:3px"><span>Знижка {{ promoDiscountPct }}%</span><span>−{{ promoSaveFmt }}</span></div>
+          </sc-if>
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+            <span style="font-size:14px;font-weight:700">Разом</span>
+            <span style="font-family:'Forum',serif;font-size:24px">{{ coTotalFmt }}</span>
+          </div>
+          <button onClick="{{ submitOrder }}" style="width:100%;background:#28332c;color:#f1ebe1;padding:16px;font-size:11.5px;letter-spacing:.2em;text-transform:uppercase;font-weight:600;transition:background .35s" style-hover="background:#a7613f">Підтвердити замовлення</button>
+          <p style="font-size:11px;color:#8a8f84;margin-top:6px;text-align:center">Оплата при отриманні · Перевіряйте перед оплатою</p>
+        </div>
+      </sc-if>
     </div>
   </sc-if>
 </aside>
@@ -1475,6 +1520,11 @@ class Component extends DCLogic {
       coErrMeestBranch:S.coErr.meestBranch?'#a7613f':'rgba(30,35,31,.2)',
       // layout
       coBodyCols:isMobile?'1fr':'1fr 300px',
+      coMobileFooter:isMobile,
+      coMobileSummary:isMobile,
+      coDesktopSidebar:!isMobile,
+      coFormPadBottom:isMobile?'90px':'32px',
+      coLeftPadding:isMobile?'':'padding-right:20px',
       // delivery type tabs
       coIsNp:S.coDeliveryType==='np', coIsUkr:S.coDeliveryType==='ukr', coIsMeest:S.coDeliveryType==='meest',
       coNpTabBg:S.coDeliveryType==='np'?'#28332c':'transparent',
@@ -1539,7 +1589,13 @@ class Component extends DCLogic {
       meestNoData:false,
       meestCitySugg:S.meestCities.map(c=>({label:c.name+(c.type?' ('+c.type+')':''),pick:()=>{ this.setState(s=>({co:{...s.co,meestCity:c.name,meestCityUid:c.uid,meestBranch:''},meestCities:[],meestBranches:[],coErr:{...s.coErr,meestCity:null}})); this._loadMeestBranches(c.uid, S.coMeestMode); }})),
       hasMeestCitySugg:S.meestCities.length>0,
-      meestBranchOpts:S.meestBranches.map(b=>({val:b.uid,label:[b.name,b.address].filter(Boolean).join(' — ')})),
+      meestBranchOpts:S.meestBranches.map(b=>{
+        const sel=S.co.meestBranch===b.uid;
+        return {val:b.uid,label:[b.name,b.address].filter(Boolean).join(' — '),
+          pick:()=>this.setState(s=>({co:{...s.co,meestBranch:b.uid},coErr:{...s.coErr,meestBranch:null}})),
+          bg:sel?'#28332c':'transparent',color:sel?'#f1ebe1':'#1e231f',
+          radioColor:sel?'#f1ebe1':'rgba(30,35,31,.3)',radioDot:sel?'#f1ebe1':'transparent'};
+      }),
       hasMeestBranches:S.meestBranches.length>0,
       meestBranchCount:S.meestBranches.length,
       meestCityChosenNoBranches:!!(S.co.meestCityUid && !S.meestBranches.length && S.meestBranchesLoaded),
@@ -1559,7 +1615,13 @@ class Component extends DCLogic {
         return S.coWarehouses
           .filter(w=>isLocker?(w.Description||'').toLowerCase().includes('поштомат'):!(w.Description||'').toLowerCase().includes('поштомат'))
           .filter(w=>!q||(w.Description||'').toLowerCase().includes(q))
-          .slice(0,200).map(w=>({ref:w.Ref||'',label:w.Description||''}));
+          .slice(0,200).map(w=>{
+            const sel=S.co.warehouse===w.Ref;
+            return {ref:w.Ref||'',label:w.Description||'',
+              pick:()=>this.setState(s=>({co:{...s.co,warehouse:w.Ref||''},coErr:{...s.coErr,warehouse:null}})),
+              bg:sel?'#28332c':'transparent',color:sel?'#f1ebe1':'#1e231f',
+              radioColor:sel?'#f1ebe1':'rgba(30,35,31,.3)',radioDot:sel?'#f1ebe1':'transparent'};
+          });
       })(),
       npWhCount:(()=>{
         const isLocker=S.coNpType==='locker';
