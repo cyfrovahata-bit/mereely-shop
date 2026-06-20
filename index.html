@@ -758,11 +758,10 @@
           <!-- Meest -->
           <sc-if value="{{ coIsMeest }}" hint-placeholder-val="{{ false }}">
             <div style="display:flex;flex-direction:column;gap:10px">
-              <!-- Tabs: відділення / поштомат / кур'єр -->
+              <!-- Tabs: відділення / поштомат -->
               <div style="display:flex;border:1px solid rgba(30,35,31,.2)">
                 <button onClick="{{ setMeestBranchMode }}" style="flex:1;padding:8px 4px;font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;font-weight:600;background:{{ meestBranchModeBg }};color:{{ meestBranchModeColor }};transition:all .3s">Відділення</button>
                 <button onClick="{{ setMeestLockerMode }}" style="flex:1;padding:8px 4px;font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;font-weight:600;border-left:1px solid rgba(30,35,31,.2);background:{{ meestLockerModeBg }};color:{{ meestLockerModeColor }};transition:all .3s">Поштомат</button>
-                <button onClick="{{ setMeestCourierMode }}" style="flex:1;padding:8px 4px;font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;font-weight:600;border-left:1px solid rgba(30,35,31,.2);background:{{ meestCourierModeBg }};color:{{ meestCourierModeColor }};transition:all .3s">Кур'єр</button>
               </div>
               <!-- Відділення або Поштомат -->
               <sc-if value="{{ meestIsPickupMode }}" hint-placeholder-val="{{ true }}">
@@ -795,15 +794,7 @@
                   </div>
                 </sc-if>
               </sc-if>
-              <!-- Кур'єр -->
-              <sc-if value="{{ meestIsCourierMode }}" hint-placeholder-val="{{ false }}">
-                <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
-                  <label style="display:block;grid-column:1/-1"><span style="font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:#6c7166;display:block;margin-bottom:4px">Місто</span><input value="{{ coMeestCourierCity }}" onInput="{{ setMeestCourierCity }}" placeholder="Назва міста" style="width:100%;background:#fff;border:1px solid {{ coErrMeestCourierCity }};padding:10px 12px;font-size:13px;color:#1e231f;outline:none;font-family:'Manrope',sans-serif"/></label>
-                  <label style="display:block;grid-column:1/-1"><span style="font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:#6c7166;display:block;margin-bottom:4px">Вулиця</span><input value="{{ coMeestCourierStreet }}" onInput="{{ setMeestCourierStreet }}" placeholder="вул. Шевченка" style="width:100%;background:#fff;border:1px solid {{ coErrMeestCourierStreet }};padding:10px 12px;font-size:13px;color:#1e231f;outline:none;font-family:'Manrope',sans-serif"/></label>
-                  <label style="display:block"><span style="font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:#6c7166;display:block;margin-bottom:4px">Будинок</span><input value="{{ coMeestCourierHouse }}" onInput="{{ setMeestCourierHouse }}" placeholder="12" style="width:100%;background:#fff;border:1px solid {{ coErrMeestCourierHouse }};padding:10px 12px;font-size:13px;color:#1e231f;outline:none;font-family:'Manrope',sans-serif"/></label>
-                  <label style="display:block"><span style="font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:#6c7166;display:block;margin-bottom:4px">Квартира</span><input value="{{ coMeestCourierApt }}" onInput="{{ setMeestCourierApt }}" placeholder="5" style="width:100%;background:#fff;border:1px solid rgba(30,35,31,.2);padding:10px 12px;font-size:13px;color:#1e231f;outline:none;font-family:'Manrope',sans-serif"/></label>
-                </div>
-              </sc-if>
+
             </div>
           </sc-if>
         </div>
@@ -1030,7 +1021,7 @@ class Component extends DCLogic {
       faqOpen:0,
       toast:'', toastShow:false,
       checkoutOpen:false, coDone:false, coOrderNum:'',
-      co:{name:'',phone:'',email:'',cityQ:'',cityRef:'',warehouse:'',ukrOblast:'',ukrCity:'',ukrStreet:'',ukrHouse:'',ukrApt:'',ukrZip:'',meestCity:'',meestCityUid:'',meestBranch:'',meestCourierCity:'',meestCourierStreet:'',meestCourierHouse:'',meestCourierApt:''},
+      co:{name:'',phone:'',email:'',cityQ:'',cityRef:'',warehouse:'',ukrOblast:'',ukrCity:'',ukrCityUid:'',ukrStreet:'',ukrHouse:'',ukrApt:'',ukrZip:'',meestCity:'',meestCityUid:'',meestBranch:'',meestCourierCity:'',meestCourierStreet:'',meestCourierHouse:'',meestCourierApt:''},
       coMeestMode:'branch', coMeestLockerFilter:'',
       coDeliveryType:'np', coNpType:'branch', coNpWhFilter:'',
       coErr:{}, coCities:[], coWarehouses:[], coSearching:false, ukrCities:[], ukrStreets:[], meestCities:[],
@@ -1145,7 +1136,6 @@ class Component extends DCLogic {
   _ukrCitySearch(q){
     clearTimeout(this._ukrCityT);
     if(!q||q.length<2){ this.setState({ukrCities:[]}); return; }
-    // шукаємо в даних Meest (якщо завантажені)
     try {
       if(!this._meestData){ try{ this._meestData=JSON.parse(localStorage.getItem('mrl_meest_data')||'null'); }catch(e){} }
       const md = this._meestData;
@@ -1156,48 +1146,51 @@ class Component extends DCLogic {
           .filter(c=>{ const n=c.name.toLowerCase(); return n.includes(ql) && !seen.has(c.name) && seen.add(c.name); })
           .sort((a,b)=>{ const as=a.name.toLowerCase().startsWith(ql)?0:1; const bs=b.name.toLowerCase().startsWith(ql)?0:1; return as-bs||a.name.localeCompare(b.name,'uk'); })
           .slice(0,8)
-          .map(c=>({label:c.name+(c.type?' ('+c.type+')':''), name:c.name}));
+          .map(c=>({label:c.name+(c.type?' ('+c.type+')':''), name:c.name, uid:c.uid}));
         this.setState({ukrCities:res});
         return;
       }
     } catch(e){}
-    // fallback — Nominatim
     this._ukrCityT=setTimeout(()=>{
       fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(q)}&countrycodes=ua&format=json&limit=8&accept-language=uk&addressdetails=1`,{headers:{'Accept-Language':'uk'}})
         .then(r=>r.json()).then(d=>{
           const seen=new Set();
-          const cities=d.filter(x=>['place'].includes(x.class)).map(x=>{
+          const cities=d.filter(x=>x.class==='place').map(x=>{
             const addr=x.address||{};
             const name=addr.city||addr.town||addr.village||x.name||x.display_name.split(',')[0].trim();
-            return {label:name, name};
+            return {label:name, name, uid:''};
           }).filter(x=>{ if(!x.name||seen.has(x.name)) return false; seen.add(x.name); return true; }).slice(0,8);
           this.setState({ukrCities:cities});
         }).catch(()=>this.setState({ukrCities:[]}));
     },350);
   }
-  _ukrStreetSearch(q, city){
+  _ukrStreetSearch(q, cityUid, cityName){
     clearTimeout(this._ukrStreetT);
     if(!q||q.length<2){ this.setState({ukrStreets:[]}); return; }
-    // \u0441\u043f\u043e\u0447\u0430\u0442\u043a\u0443 \u0448\u0443\u043a\u0430\u0454\u043c\u043e \u0432 \u043b\u043e\u043a\u0430\u043b\u044c\u043d\u0438\u0445 \u0434\u0430\u043d\u0438\u0445 \u0437 \u0430\u0440\u0445\u0456\u0432\u0443 Meest
     try {
-      const raw = localStorage.getItem('mrl_ukr_streets');
-      if(raw){
-        const all = JSON.parse(raw);
-        const ql = q.toLowerCase(); const cl = (city||'').toLowerCase();
+      if(!this._meestData){ try{ this._meestData=JSON.parse(localStorage.getItem('mrl_meest_data')||'null'); }catch(e){} }
+      const md = this._meestData;
+      if(md && md.branches && cityUid){
+        const ql = q.toLowerCase();
         const seen = new Set();
-        const res = all.filter(s=>{
-          const nl = s.name.toLowerCase();
-          if(!nl.includes(ql)) return false;
-          if(cl && s.cityName && !s.cityName.toLowerCase().includes(cl)) return false;
-          if(seen.has(s.name)) return false;
-          seen.add(s.name); return true;
-        }).slice(0,10).map(s=>({label:s.name+(s.cityName?' ('+s.cityName+')':''),name:s.name}));
+        const res = md.branches
+          .filter(b=>b.cityUid===cityUid && b.address)
+          .map(b=>{
+            let addr = b.address.trim();
+            if(cityName && addr.toLowerCase().startsWith(cityName.toLowerCase())) addr = addr.slice(cityName.length).trim();
+            const lc = addr.lastIndexOf(',');
+            if(lc > 0) addr = addr.slice(0, lc).trim();
+            return addr;
+          })
+          .filter(s=>{ if(!s||!s.toLowerCase().includes(ql)||seen.has(s)) return false; seen.add(s); return true; })
+          .sort((a,b)=>{ const al=a.toLowerCase().startsWith(ql)?0:1, bl=b.toLowerCase().startsWith(ql)?0:1; return al-bl||a.localeCompare(b,'uk'); })
+          .slice(0,8)
+          .map(s=>({label:s, name:s}));
         if(res.length){ this.setState({ukrStreets:res}); return; }
       }
     } catch(e){}
-    // fallback \u2014 Nominatim
     this._ukrStreetT=setTimeout(()=>{
-      const qs=city?`${q}, ${city}, \u0423\u043a\u0440\u0430\u0457\u043d\u0430`:q+', \u0423\u043a\u0440\u0430\u0457\u043d\u0430';
+      const qs=cityName?`${q}, ${cityName}, \u0423\u043a\u0440\u0430\u0457\u043d\u0430`:q+', \u0423\u043a\u0440\u0430\u0457\u043d\u0430';
       fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(qs)}&countrycodes=ua&featuretype=street&format=json&limit=8&accept-language=uk`,{headers:{'Accept-Language':'uk'}})
         .then(r=>r.json()).then(d=>{
           const seen=new Set();
@@ -1542,10 +1535,10 @@ class Component extends DCLogic {
       coUkrOblast:S.co.ukrOblast||'', coUkrCity:S.co.ukrCity||'', coUkrStreet:S.co.ukrStreet||'',
       coUkrHouse:S.co.ukrHouse||'', coUkrApt:S.co.ukrApt||'', coUkrZip:S.co.ukrZip||'',
       setUkrOblast:(e)=>this.setState(s=>({co:{...s.co,ukrOblast:e.target.value},coErr:{...s.coErr,ukrOblast:null}})),
-      setUkrCity:(e)=>{ const v=e.target.value; this.setState(s=>({co:{...s.co,ukrCity:v,ukrStreet:''},ukrCities:v?s.ukrCities:[],ukrStreets:[],coErr:{...s.coErr,ukrCity:null}})); this._ukrCitySearch(v); },
-      setUkrStreet:(e)=>{ const v=e.target.value; this.setState(s=>({co:{...s.co,ukrStreet:v},ukrStreets:v?s.ukrStreets:[],coErr:{...s.coErr,ukrStreet:null}})); this._ukrStreetSearch(v, S.co.ukrCity); },
+      setUkrCity:(e)=>{ const v=e.target.value; this.setState(s=>({co:{...s.co,ukrCity:v,ukrCityUid:'',ukrStreet:''},ukrCities:v?s.ukrCities:[],ukrStreets:[],coErr:{...s.coErr,ukrCity:null}})); this._ukrCitySearch(v); },
+      setUkrStreet:(e)=>{ const v=e.target.value; this.setState(s=>({co:{...s.co,ukrStreet:v},ukrStreets:v?s.ukrStreets:[],coErr:{...s.coErr,ukrStreet:null}})); this._ukrStreetSearch(v, S.co.ukrCityUid, S.co.ukrCity); },
       hasUkrCitySugg:S.ukrCities.length>0,
-      ukrCitySugg:S.ukrCities.map(c=>({label:c.label,pick:()=>this.setState(s=>({co:{...s.co,ukrCity:c.name,ukrStreet:''},ukrCities:[],ukrStreets:[],coErr:{...s.coErr,ukrCity:null}}))})),
+      ukrCitySugg:S.ukrCities.map(c=>({label:c.label,pick:()=>this.setState(s=>({co:{...s.co,ukrCity:c.name,ukrCityUid:c.uid||'',ukrStreet:''},ukrCities:[],ukrStreets:[],coErr:{...s.coErr,ukrCity:null}}))})),
       hasUkrStreetSugg:S.ukrStreets.length>0,
       ukrStreetSugg:S.ukrStreets.map(st=>({label:st.label,pick:()=>this.setState(s=>({co:{...s.co,ukrStreet:st.name},ukrStreets:[],coErr:{...s.coErr,ukrStreet:null}}))})),
       setUkrHouse:(e)=>this.setState(s=>({co:{...s.co,ukrHouse:e.target.value},coErr:{...s.coErr,ukrHouse:null}})),
@@ -1556,22 +1549,18 @@ class Component extends DCLogic {
       coMeestCity:S.co.meestCity||'', coMeestBranch:S.co.meestBranch||'',
       coMeestCourierCity:S.co.meestCourierCity||'', coMeestCourierStreet:S.co.meestCourierStreet||'',
       coMeestCourierHouse:S.co.meestCourierHouse||'', coMeestCourierApt:S.co.meestCourierApt||'',
-      meestIsPickupMode:S.coMeestMode!=='courier',
+      meestIsPickupMode:true,
       meestIsBranchMode:S.coMeestMode==='branch',
       meestIsLockerMode:S.coMeestMode==='locker',
-      meestIsCourierMode:S.coMeestMode==='courier',
       meestBranchModeBg:S.coMeestMode==='branch'?'#28332c':'#fff',
       meestBranchModeColor:S.coMeestMode==='branch'?'#f1ebe1':'#6c7166',
       meestLockerModeBg:S.coMeestMode==='locker'?'#28332c':'#fff',
       meestLockerModeColor:S.coMeestMode==='locker'?'#f1ebe1':'#6c7166',
-      meestCourierModeBg:S.coMeestMode==='courier'?'#28332c':'#fff',
-      meestCourierModeColor:S.coMeestMode==='courier'?'#f1ebe1':'#6c7166',
       meestPickupLabel:S.coMeestMode==='locker'?'Поштомат':'Відділення',
       meestPickupLabelLower:S.coMeestMode==='locker'?'поштоматів':'відділень',
       meestPickupPlaceholder:S.coMeestMode==='locker'?'Оберіть поштомат...':'Оберіть відділення...',
       setMeestBranchMode:()=>this.setState(s=>({coMeestMode:'branch',co:{...s.co,meestBranch:''},coErr:{...s.coErr,meestBranch:null}})),
       setMeestLockerMode:()=>this.setState(s=>({coMeestMode:'locker',co:{...s.co,meestBranch:''},coErr:{...s.coErr,meestBranch:null}})),
-      setMeestCourierMode:()=>this.setState({coMeestMode:'courier'}),
       meestHasData:(()=>{ if(!this._meestData){ try{this._meestData=JSON.parse(localStorage.getItem('mrl_meest_data')||'null');}catch(e){} } return !!(this._meestData&&this._meestData.cities&&this._meestData.cities.length>0); })(),
       meestNoData:!(this._meestData&&this._meestData.cities&&this._meestData.cities.length>0),
       meestCitySugg:S.meestCities.map(c=>({label:c.name+(c.type?' ('+c.type+')':''),pick:()=>this.setState(s=>({co:{...s.co,meestCity:c.name,meestCityUid:c.uid,meestBranch:''},meestCities:[],coErr:{...s.coErr,meestCity:null}}))})),
@@ -1636,14 +1625,8 @@ class Component extends DCLogic {
           if(!co.ukrStreet||co.ukrStreet.trim().length<2) err.ukrStreet=true;
           if(!co.ukrHouse||co.ukrHouse.trim().length<1) err.ukrHouse=true;
         } else if(S.coDeliveryType==='meest'){
-          if(S.coMeestMode==='courier'){
-            if(!co.meestCourierCity||co.meestCourierCity.trim().length<2) err.meestCourierCity=true;
-            if(!co.meestCourierStreet||co.meestCourierStreet.trim().length<2) err.meestCourierStreet=true;
-            if(!co.meestCourierHouse||co.meestCourierHouse.trim().length<1) err.meestCourierHouse=true;
-          } else {
-            if(!co.meestCity||co.meestCity.trim().length<2) err.meestCity=true;
-            if(!co.meestBranch||co.meestBranch.trim().length<1) err.meestBranch=true;
-          }
+          if(!co.meestCity||co.meestCity.trim().length<2) err.meestCity=true;
+          if(!co.meestBranch||co.meestBranch.trim().length<1) err.meestBranch=true;
         }
         if(Object.keys(err).length){ this.setState({coErr:err}); return; }
         const orderNum='MRL-'+Date.now().toString(36).toUpperCase().slice(-6);
