@@ -185,7 +185,7 @@
         <article class="mrl-prod-card" data-reveal style="opacity:0;transform:translateY(26px);transition:all .9s cubic-bezier(.16,.84,.44,1)">
           <div onClick="{{ p.open }}" style="position:relative;aspect-ratio:4/5;overflow:hidden;cursor:pointer;background:{{ p.tone }}" onMouseEnter="{{ p.hoverOn }}" onMouseLeave="{{ p.hoverOff }}">
             <sc-if value="{{ p.hasImg }}" hint-placeholder-val="{{ false }}"><img src="{{ p.imgSrc }}" alt="{{ p.name }}" loading="lazy" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:transform 1.1s cubic-bezier(.16,.84,.44,1);transform:{{ p.imgScale }}"/></sc-if>
-            <sc-if value="{{ p.hasImg }}" hint-placeholder-val="{{ true }}"><div style="position:absolute;inset:0;transition:transform 1.1s cubic-bezier(.16,.84,.44,1);transform:{{ p.imgScale }}"></div></sc-if>
+            <sc-if value="{{ p.hasImg }}" hint-placeholder-val="{{ false }}"><div style="position:absolute;inset:0;transition:transform 1.1s cubic-bezier(.16,.84,.44,1);transform:{{ p.imgScale }}"></div></sc-if>
             <sc-if value="{{ p.hasBadge }}" hint-placeholder-val="{{ false }}"><span style="position:absolute;top:12px;left:12px;background:{{ p.badgeBg }};color:#f1ebe1;font-size:10px;letter-spacing:.14em;text-transform:uppercase;font-weight:700;padding:5px 11px">{{ p.badge }}</span></sc-if>
             <button onClick="{{ p.toggleWish }}" aria-label="В обране" style="position:absolute;top:10px;right:10px;width:34px;height:34px;border-radius:50%;background:rgba(241,235,225,.85);display:flex;align-items:center;justify-content:center;transition:transform .3s" style-hover="transform:scale(1.12)">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="{{ p.wishFill }}" stroke="#28332c" stroke-width="1.4"><path d="M12 20s-7-4.5-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.5-7 10-7 10z"/></svg>
@@ -338,38 +338,65 @@
     <aside aria-label="Фільтри" style="position:{{ catSidebarSticky }};top:90px">
       <button onClick="{{ toggleFilters }}" style="display:{{ showFilterToggle }};width:100%;justify-content:space-between;align-items:center;border:1px solid #28332c;padding:14px 16px;font-size:12px;letter-spacing:.16em;text-transform:uppercase;font-weight:600;margin-bottom:14px">
         <span style="display:flex;gap:8px"><span>Фільтри</span><sc-if value="{{ hasActiveFilters }}" hint-placeholder-val="{{ false }}"><span style="background:#a7613f;color:#f1ebe1;border-radius:9px;padding:0 7px">{{ activeFilterCount }}</span></sc-if></span>
-        <span>⚲</span>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="4" y1="6" x2="20" y2="6"/><line x1="7" y1="12" x2="17" y2="12"/><line x1="10" y1="18" x2="14" y2="18"/></svg>
       </button>
       <div style="display:{{ filterPanelDisplay }}">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:0 0 12px;border-bottom:1px solid rgba(30,35,31,.16)">
           <span style="font-size:11px;letter-spacing:.24em;text-transform:uppercase;color:#1e231f;font-weight:700">Фільтри</span>
           <sc-if value="{{ hasActiveFilters }}" hint-placeholder-val="{{ false }}"><button onClick="{{ clearFilters }}" style="font-size:11.5px;color:#a7613f;letter-spacing:.04em;border-bottom:1px solid #a7613f">Скинути ({{ activeFilterCount }})</button></sc-if>
         </div>
 
-        <div style="border-top:1px solid rgba(30,35,31,.16);padding:18px 0">
-          <p style="font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:#6c7166;margin-bottom:13px">Категорія</p>
-          <div style="display:flex;flex-direction:column;gap:7px">
-            <sc-for list="{{ catChips }}" as="ch" hint-placeholder-count="7"><button onClick="{{ ch.sel }}" style="text-align:left;font-size:13.5px;padding:9px 13px;background:{{ ch.bg }};color:{{ ch.color }};border:1px solid rgba(30,35,31,.16);transition:all .25s" style-hover="border-color:#28332c">{{ ch.label }}</button></sc-for>
+        <!-- Категорія -->
+        <div style="border-bottom:1px solid rgba(30,35,31,.16)">
+          <button onClick="{{ toggleFsCat }}" style="width:100%;display:flex;justify-content:space-between;align-items:center;padding:14px 0;background:transparent;font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:#1e231f;font-weight:600">
+            <span>Категорія</span>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#6c7166" stroke-width="2.5" style="transition:transform .3s;transform:{{ fsCatRot }}"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
+          <div style="overflow:hidden;max-height:{{ fsCatH }};transition:max-height .35s cubic-bezier(.16,.84,.44,1)">
+            <div style="display:flex;flex-direction:column;gap:6px;padding-bottom:14px">
+              <sc-for list="{{ catChips }}" as="ch" hint-placeholder-count="7"><button onClick="{{ ch.sel }}" style="text-align:left;font-size:13px;padding:8px 12px;background:{{ ch.bg }};color:{{ ch.color }};border:1px solid rgba(30,35,31,.16);transition:all .25s" style-hover="border-color:#28332c">{{ ch.label }}</button></sc-for>
+            </div>
           </div>
         </div>
 
-        <div style="border-top:1px solid rgba(30,35,31,.16);padding:18px 0">
-          <p style="font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:#6c7166;margin-bottom:13px">Розмір</p>
-          <div style="display:flex;flex-wrap:wrap;gap:8px">
-            <sc-for list="{{ sizeChips }}" as="sz" hint-placeholder-count="6"><button onClick="{{ sz.toggle }}" style="min-width:44px;padding:9px 12px;font-size:12.5px;font-weight:500;background:{{ sz.bg }};color:{{ sz.color }};border:1px solid rgba(30,35,31,.2);transition:all .25s">{{ sz.label }}</button></sc-for>
+        <!-- Розмір -->
+        <div style="border-bottom:1px solid rgba(30,35,31,.16)">
+          <button onClick="{{ toggleFsSize }}" style="width:100%;display:flex;justify-content:space-between;align-items:center;padding:14px 0;background:transparent;font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:#1e231f;font-weight:600">
+            <span>Розмір</span>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#6c7166" stroke-width="2.5" style="transition:transform .3s;transform:{{ fsSizeRot }}"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
+          <div style="overflow:hidden;max-height:{{ fsSizeH }};transition:max-height .35s cubic-bezier(.16,.84,.44,1)">
+            <div style="display:flex;flex-wrap:wrap;gap:7px;padding-bottom:14px">
+              <sc-for list="{{ sizeChips }}" as="sz" hint-placeholder-count="6"><button onClick="{{ sz.toggle }}" style="min-width:44px;padding:8px 12px;font-size:12px;font-weight:500;background:{{ sz.bg }};color:{{ sz.color }};border:1px solid rgba(30,35,31,.2);transition:all .25s">{{ sz.label }}</button></sc-for>
+            </div>
           </div>
         </div>
 
-        <div style="border-top:1px solid rgba(30,35,31,.16);padding:18px 0">
-          <p style="font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:#6c7166;margin-bottom:13px">Колір</p>
-          <div style="display:flex;flex-wrap:wrap;gap:12px">
-            <sc-for list="{{ colorChips }}" as="cc" hint-placeholder-count="8"><button onClick="{{ cc.toggle }}" title="{{ cc.name }}" aria-label="{{ cc.name }}" style="width:30px;height:30px;border-radius:50%;background:{{ cc.hex }};border:none;outline:{{ cc.outline }};outline-offset:{{ cc.outlineOffset }};box-shadow:{{ cc.shadow }};transition:all .2s"></button></sc-for>
+        <!-- Колір -->
+        <div style="border-bottom:1px solid rgba(30,35,31,.16)">
+          <button onClick="{{ toggleFsColor }}" style="width:100%;display:flex;justify-content:space-between;align-items:center;padding:14px 0;background:transparent;font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:#1e231f;font-weight:600">
+            <span>Колір</span>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#6c7166" stroke-width="2.5" style="transition:transform .3s;transform:{{ fsColorRot }}"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
+          <div style="overflow:hidden;max-height:{{ fsColorH }};transition:max-height .35s cubic-bezier(.16,.84,.44,1)">
+            <div style="display:flex;flex-wrap:wrap;gap:10px;padding-bottom:14px">
+              <sc-for list="{{ colorChips }}" as="cc" hint-placeholder-count="8"><button onClick="{{ cc.toggle }}" title="{{ cc.name }}" aria-label="{{ cc.name }}" style="width:28px;height:28px;border-radius:50%;background:{{ cc.hex }};border:none;outline:{{ cc.outline }};outline-offset:{{ cc.outlineOffset }};box-shadow:{{ cc.shadow }};transition:all .2s"></button></sc-for>
+            </div>
           </div>
         </div>
 
-        <div style="border-top:1px solid rgba(30,35,31,.16);padding:18px 0">
-          <div style="display:flex;justify-content:space-between;margin-bottom:14px"><span style="font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:#6c7166">Ціна до</span><span style="font-size:13px;font-weight:600">{{ priceMaxFmt }}</span></div>
-          <input type="range" min="0" max="{{ priceMaxLimit }}" step="100" value="{{ priceMax }}" onInput="{{ setPrice }}" aria-label="Максимальна ціна" style="width:100%;accent-color:#28332c;cursor:pointer"/>
+        <!-- Ціна -->
+        <div style="border-bottom:1px solid rgba(30,35,31,.16)">
+          <button onClick="{{ toggleFsPrice }}" style="width:100%;display:flex;justify-content:space-between;align-items:center;padding:14px 0;background:transparent;font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:#1e231f;font-weight:600">
+            <span>Ціна до</span>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#6c7166" stroke-width="2.5" style="transition:transform .3s;transform:{{ fsPriceRot }}"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
+          <div style="overflow:hidden;max-height:{{ fsPriceH }};transition:max-height .35s cubic-bezier(.16,.84,.44,1)">
+            <div style="padding-bottom:18px">
+              <div style="display:flex;justify-content:space-between;margin-bottom:12px"><span style="font-size:12.5px;color:#6c7166">до</span><span style="font-size:13px;font-weight:600">{{ priceMaxFmt }}</span></div>
+              <input type="range" min="0" max="{{ priceMaxLimit }}" step="1" value="{{ priceMax }}" onInput="{{ setPrice }}" aria-label="Максимальна ціна" style="width:100%;accent-color:#28332c;cursor:pointer"/>
+            </div>
+          </div>
         </div>
       </div>
     </aside>
@@ -388,7 +415,7 @@
           <article class="mrl-prod-card" style="opacity:1">
             <div onClick="{{ p.open }}" style="position:relative;aspect-ratio:4/5;overflow:hidden;cursor:pointer;background:{{ p.tone }}" onMouseEnter="{{ p.hoverOn }}" onMouseLeave="{{ p.hoverOff }}">
               <sc-if value="{{ p.hasImg }}" hint-placeholder-val="{{ false }}"><img src="{{ p.imgSrc }}" alt="{{ p.name }}" loading="lazy" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:transform 1.1s cubic-bezier(.16,.84,.44,1);transform:{{ p.imgScale }}"/></sc-if>
-              <sc-if value="{{ p.hasImg }}" hint-placeholder-val="{{ true }}"><div style="position:absolute;inset:0;transition:transform 1.1s cubic-bezier(.16,.84,.44,1);transform:{{ p.imgScale }}"></div></sc-if>
+              <sc-if value="{{ p.hasImg }}" hint-placeholder-val="{{ false }}"><div style="position:absolute;inset:0;transition:transform 1.1s cubic-bezier(.16,.84,.44,1);transform:{{ p.imgScale }}"></div></sc-if>
               <sc-if value="{{ p.hasBadge }}" hint-placeholder-val="{{ false }}"><span style="position:absolute;top:12px;left:12px;background:{{ p.badgeBg }};color:#f1ebe1;font-size:10px;letter-spacing:.14em;text-transform:uppercase;font-weight:700;padding:5px 11px">{{ p.badge }}</span></sc-if>
               <button onClick="{{ p.toggleWish }}" aria-label="В обране" style="position:absolute;top:10px;right:10px;width:34px;height:34px;border-radius:50%;background:rgba(241,235,225,.85);display:flex;align-items:center;justify-content:center;transition:transform .3s" style-hover="transform:scale(1.12)"><svg width="16" height="16" viewBox="0 0 24 24" fill="{{ p.wishFill }}" stroke="#28332c" stroke-width="1.4"><path d="M12 20s-7-4.5-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.5-7 10-7 10z"/></svg></button>
               <button onClick="{{ p.quick }}" style="position:absolute;left:0;right:0;bottom:0;background:rgba(40,51,44,.94);color:#f1ebe1;padding:14px;font-size:11px;letter-spacing:.2em;text-transform:uppercase;font-weight:600;transform:{{ p.quickShift }};opacity:{{ p.quickOpacity }};transition:all .4s cubic-bezier(.16,.84,.44,1)">Швидкий перегляд</button>
@@ -1142,7 +1169,7 @@ class Component extends DCLogic {
       cart:savedCart, cartOpen:false, menuOpen:false, wishlist:savedWishlist, sizeChartOpen:false,
       homeTab:'new', hoverId:null,
       newsEmail:'', newsErr:false, newsDone:false,
-      filters:{cat:'all', sizes:[], colors:[], priceMax:999999}, sort:'pop', filtersOpen:true,
+      filters:{cat:'all', sizes:[], colors:[], priceMax:999999}, sort:'pop', filtersOpen:false, filterSec:{cat:false,size:false,color:false,price:false},
       quick:null, quickColor:0,
       pid:1, pImg:0, pColor:0, pSize:null, pQty:1, pTab:'desc', zoom:false, zoomXY:'50% 50%',
       delivery:'np',
@@ -1630,10 +1657,17 @@ class Component extends DCLogic {
       clearFilters:()=>this.setState({filters:{cat:'all',sizes:[],colors:[],priceMax:maxPrice}}),
       catalogCols: isMobile?'1fr':'250px 1fr',
       catalogGridCols: isMobile?'repeat(2,1fr)':(isTablet?'repeat(2,1fr)':'repeat(3,1fr)'),
-      showFilterToggle:isMobile, filtersOpen:S.filtersOpen,
+      showFilterToggle:isMobile?'flex':'none', filtersOpen:S.filtersOpen,
       filterPanelDisplay:(isMobile&&!S.filtersOpen)?'none':'block',
       toggleFilters:()=>this.setState(s=>({filtersOpen:!s.filtersOpen})),
       catSidebarSticky:isMobile?'static':'sticky',
+      fsCat:S.filterSec.cat, fsSize:S.filterSec.size, fsColor:S.filterSec.color, fsPrice:S.filterSec.price,
+      fsCatH:S.filterSec.cat?'400px':'0', fsSizeH:S.filterSec.size?'200px':'0', fsColorH:S.filterSec.color?'120px':'0', fsPriceH:S.filterSec.price?'100px':'0',
+      fsCatRot:S.filterSec.cat?'rotate(180deg)':'rotate(0deg)', fsSizeRot:S.filterSec.size?'rotate(180deg)':'rotate(0deg)', fsColorRot:S.filterSec.color?'rotate(180deg)':'rotate(0deg)', fsPriceRot:S.filterSec.price?'rotate(180deg)':'rotate(0deg)',
+      toggleFsCat:()=>this.setState(s=>({filterSec:{...s.filterSec,cat:!s.filterSec.cat}})),
+      toggleFsSize:()=>this.setState(s=>({filterSec:{...s.filterSec,size:!s.filterSec.size}})),
+      toggleFsColor:()=>this.setState(s=>({filterSec:{...s.filterSec,color:!s.filterSec.color}})),
+      toggleFsPrice:()=>this.setState(s=>({filterSec:{...s.filterSec,price:!s.filterSec.price}})),
       // product
       P:PD, pName:PD.name, pCat:PD.cat, pPriceFmt:fmt(PD.price), pOldFmt:PD.old?fmt(PD.old):'', pHasOld:!!PD.old,
       pPriceColor:PD.old?'#a7613f':'#1e231f', pDesc:PD.desc,
