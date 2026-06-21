@@ -32,17 +32,21 @@
 
   /* Category tile hover */
   .mrl-cat-btn{transition:transform .7s cubic-bezier(.16,.84,.44,1),box-shadow .7s ease;will-change:transform}
-  .mrl-cat-btn:hover{transform:translateY(-10px)!important;box-shadow:0 28px 56px rgba(20,26,21,.22)}
   .mrl-cat-btn .mrl-cat-img{transition:transform 1.2s cubic-bezier(.16,.84,.44,1);transform:scale(1.01)}
-  .mrl-cat-btn:hover .mrl-cat-img{transform:scale(1.07)}
   .mrl-cat-btn .mrl-cat-grad{transition:opacity .6s ease;opacity:1}
-  .mrl-cat-btn:hover .mrl-cat-grad{opacity:1.3}
+  @media(hover:hover){
+    .mrl-cat-btn:hover{transform:translateY(-10px)!important;box-shadow:0 28px 56px rgba(20,26,21,.22)}
+    .mrl-cat-btn:hover .mrl-cat-img{transform:scale(1.07)}
+    .mrl-cat-btn:hover .mrl-cat-grad{opacity:1.3}
+  }
 
   /* Product card image zoom */
   .mrl-prod-img{transition:transform 1.1s cubic-bezier(.16,.84,.44,1)!important;transform:scale(1)!important}
-  .mrl-prod-card:hover .mrl-prod-img{transform:scale(1.05)!important}
-  .mrl-prod-card{transition:box-shadow .5s ease}
-  .mrl-prod-card:hover{box-shadow:0 20px 48px rgba(20,26,21,.12)}
+  .mrl-prod-card{transition:box-shadow .5s ease;overflow:visible}
+  @media(hover:hover){
+    .mrl-prod-card:hover .mrl-prod-img{transform:scale(1.05)!important}
+    .mrl-prod-card:hover{box-shadow:0 20px 48px rgba(20,26,21,.12)}
+  }
 
   /* Smooth nav underline */
   .mrl-nav-link{position:relative}
@@ -142,8 +146,8 @@
         </div>
       </div>
       <div style="position:relative;z-index:1;grid-row:{{ heroImgRow }};align-self:stretch;min-height:clamp(260px,52vw,620px)">
-        <div style="position:absolute;inset:0;overflow:hidden;background:#3a4339">
-          <img src="/uploads/images/hero-editorial.webp" alt="Mereely Shop" style="position:absolute;inset:0;width:100%;height:100%;object-fit:contain;object-position:center"/>
+        <div style="position:absolute;inset:0;overflow:hidden;background:#f1ebe1">
+          <img src="/uploads/images/hero-editorial.webp" alt="Mereely Shop" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:top center"/>
         </div>
         <!-- thin framing lines (signature) -->
         <span style="position:absolute;left:-14px;top:-14px;width:62px;height:62px;border-left:1px solid #28332c;border-top:1px solid #28332c;z-index:2"></span>
@@ -216,9 +220,9 @@
             <span data-cat-name-abs style="position:absolute;left:18px;bottom:16px;color:#f1ebe1"><span style="font-family:'Forum',serif;font-size:clamp(22px,2.4vw,30px);display:block">{{ cat.name }}</span><span style="font-size:11px;letter-spacing:.12em;opacity:.85">{{ cat.count }} моделей →</span></span>
             <span style="position:absolute;top:14px;right:16px;font-family:'Forum',serif;font-size:15px;color:rgba(241,235,225,.8)">{{ cat.idx }}</span>
           </button>
-          <div data-cat-name-below onClick="{{ cat.go }}" style="display:none;padding:10px 4px 2px;cursor:pointer">
-            <span style="font-family:'Forum',serif;font-size:20px;display:block">{{ cat.name }}</span>
-            <span style="font-size:11px;letter-spacing:.12em;color:#6c7166">{{ cat.count }} моделей →</span>
+          <div data-cat-name-below onClick="{{ cat.go }}" style="display:none;padding:10px 2px 4px;cursor:pointer">
+            <span style="font-family:'Forum',serif;font-size:17px;display:block;color:#1e231f;line-height:1.15">{{ cat.name }}</span>
+            <span style="font-size:10.5px;letter-spacing:.1em;color:#8a8f84;margin-top:2px;display:block">{{ cat.count }} моделей →</span>
           </div>
         </div>
       </sc-for>
@@ -1437,7 +1441,7 @@ class Component extends DCLogic {
       const img=(this._catImages||{})[name]||'';
       const isUrl=img&&(img.startsWith('/')||img.startsWith('http'));
       return {name,count:cnt,idx:'0'+(i+1),tone:tones[i%tones.length],
-        ratio:isMobile?'1':'4/5', hasImg:isUrl, imgSrc:isUrl?img:'',
+        ratio:isMobile?'3/4':'4/5', hasImg:isUrl, imgSrc:isUrl?img:'',
         go:()=>{ const cslug=this.catSlugs[name]||''; this._pushRoute('catalog'+(cslug?'/'+cslug:''));document.title=name+' — Каталог | Mereely Shop'; this.setState(s=>({page:'catalog',filters:{...s.filters,cat:name}})); window.scrollTo(0,0); }};
     }).filter(t=>t.count>0);
     const catGridCols = isMobile?'repeat(2,1fr)':(isTablet?'repeat(3,1fr)':'repeat(3,1fr)');
