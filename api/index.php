@@ -59,6 +59,7 @@ try {
     if (!in_array('care',         $cols)) $db->exec("ALTER TABLE products ADD COLUMN care TEXT NOT NULL DEFAULT ''");
     if (!in_array('material',     $cols)) $db->exec("ALTER TABLE products ADD COLUMN material TEXT NOT NULL DEFAULT ''");
     if (!in_array('manufacturer', $cols)) $db->exec("ALTER TABLE products ADD COLUMN manufacturer TEXT NOT NULL DEFAULT ''");
+    if (!in_array('badge',        $cols)) $db->exec("ALTER TABLE products ADD COLUMN badge TEXT NOT NULL DEFAULT ''");
 
     // Таблиця категорій
     $db->exec("CREATE TABLE IF NOT EXISTS categories (
@@ -78,7 +79,7 @@ try {
 
 // --- Товари (публічний) ---
 if ($action === 'products') {
-    $stmt = $db->query("SELECT id, name, description, care, material, manufacturer, price, old_price, images, sizes, colors, category, active FROM products WHERE active=1 ORDER BY sort_order, id");
+    $stmt = $db->query("SELECT id, name, description, care, material, manufacturer, price, old_price, images, sizes, colors, category, badge, active FROM products WHERE active=1 ORDER BY sort_order, id");
     $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
     foreach ($rows as &$r) {
         $r['images'] = decode_json_col($r['images']);
@@ -229,15 +230,16 @@ if ($action === 'product_save') {
         json_encode($input['sizes']  ?? [], JSON_UNESCAPED_UNICODE),
         json_encode($input['colors'] ?? [], JSON_UNESCAPED_UNICODE),
         $input['category']    ?? '',
+        $input['badge']       ?? '',
         (int)($input['active']     ?? 1),
         (int)($input['sort_order'] ?? 0),
     ];
     if ($id) {
-        $s = $db->prepare("UPDATE products SET name=?, description=?, care=?, material=?, manufacturer=?, price=?, old_price=?, images=?, sizes=?, colors=?, category=?, active=?, sort_order=? WHERE id=?");
+        $s = $db->prepare("UPDATE products SET name=?, description=?, care=?, material=?, manufacturer=?, price=?, old_price=?, images=?, sizes=?, colors=?, category=?, badge=?, active=?, sort_order=? WHERE id=?");
         $s->execute([...$data, $id]);
         json_out(['ok' => true, 'id' => $id]);
     } else {
-        $s = $db->prepare("INSERT INTO products (name, description, care, material, manufacturer, price, old_price, images, sizes, colors, category, active, sort_order) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)");
+        $s = $db->prepare("INSERT INTO products (name, description, care, material, manufacturer, price, old_price, images, sizes, colors, category, badge, active, sort_order) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)");
         $s->execute($data);
         json_out(['ok' => true, 'id' => (int)$db->lastInsertId()]);
     }

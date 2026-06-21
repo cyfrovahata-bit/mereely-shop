@@ -1155,7 +1155,7 @@ class Component extends DCLogic {
         imgs: Array.isArray(p.images)&&p.images.length ? p.images : [],
         tone: this.C.olive,
         slug: 'item-'+p.id,
-        badge: null,
+        badge: p.badge||null,
         stock: 0,
       }));
       const cats=[...new Set(this.products.map(p=>p.cat).filter(Boolean))];
@@ -1330,13 +1330,22 @@ class Component extends DCLogic {
     window.scrollTo(0,0); 
   }
 
+  _saveCart(cart){ try{ localStorage.setItem('mrl_cart', JSON.stringify(cart)); }catch(e){} }
+  _saveWish(wishlist){ try{ localStorage.setItem('mrl_wish', JSON.stringify(wishlist)); }catch(e){} }
+
   addToCart(prod,color,size,qty){
     size = size || (prod.sizes.length===1?prod.sizes[0]:null);
     if(!size){ this.toast('Оберіть, будь ласка, розмір'); return false; }
     const _c=prod.colors[color]||prod.colors[0]||{name:'',hex:''};
     const colorName=_c.name||_c[0]||'';
     const key = prod.id+'-'+colorName+'-'+size;
-    this.setState(s=>{ const cart=[...s.cart]; const ex=cart.find(c=>c.key===key); if(ex){ ex.qty+=qty; } else { cart.push({key,id:prod.id,name:prod.name,price:prod.price,tone:prod.tone,color:colorName,size,qty}); } return {cart}; });
+    this.setState(s=>{
+      const cart=[...s.cart];
+      const ex=cart.find(c=>c.key===key);
+      if(ex){ ex.qty+=qty; } else { cart.push({key,id:prod.id,name:prod.name,price:prod.price,tone:prod.tone,color:colorName,size,qty}); }
+      this._saveCart(cart);
+      return {cart};
+    });
     this.toast(prod.name+' — додано в кошик');
     return true;
   }
@@ -1374,7 +1383,7 @@ class Component extends DCLogic {
         quickShift:hov?'translateY(0)':'translateY(100%)', quickOpacity:hov?'1':'0',
         open:()=>this.openProduct(p.id),
         quick:(e)=>{e.stopPropagation();this.setState({quick:p.id,quickColor:0});},
-        toggleWish:(e)=>{e.stopPropagation();this.setState(st=>({wishlist:inWish?st.wishlist.filter(x=>x!==p.id):[...st.wishlist,p.id]}));this.toast(inWish?'Прибрано з обраного':'Додано в обране ♥');},
+        toggleWish:(e)=>{e.stopPropagation();this.setState(st=>{ const wishlist=inWish?st.wishlist.filter(x=>x!==p.id):[...st.wishlist,p.id]; this._saveWish(wishlist); return {wishlist}; });this.toast(inWish?'Прибрано з обраного':'Додано в обране ♥');},
         hoverOn:()=>this.setState({hoverId:p.id}), hoverOff:()=>this.setState({hoverId:null})
       };
     };
@@ -1429,9 +1438,9 @@ class Component extends DCLogic {
     // CART drawer view models
     const cartItems=S.cart.map(c=>({
       ...c, tone:c.tone, variant:c.color+' · розмір '+c.size, lineFmt:fmt(c.price*c.qty),
-      remove:()=>this.setState(s=>({cart:s.cart.filter(x=>x.key!==c.key)})),
-      inc:()=>this.setState(s=>({cart:s.cart.map(x=>x.key===c.key?{...x,qty:x.qty+1}:x)})),
-      dec:()=>this.setState(s=>({cart:s.cart.map(x=>x.key===c.key?{...x,qty:Math.max(1,x.qty-1)}:x)}))
+      remove:()=>this.setState(s=>{ const cart=s.cart.filter(x=>x.key!==c.key); this._saveCart(cart); return {cart}; }),
+      inc:()=>this.setState(s=>{ const cart=s.cart.map(x=>x.key===c.key?{...x,qty:x.qty+1}:x); this._saveCart(cart); return {cart}; }),
+      dec:()=>this.setState(s=>{ const cart=s.cart.map(x=>x.key===c.key?{...x,qty:Math.max(1,x.qty-1)}:x); this._saveCart(cart); return {cart}; })
     }));
     const deliveryOpts=Object.keys(shipMap).map(k=>{
       const sel=S.delivery===k; const free=cartSub>=2500;
@@ -1588,7 +1597,7 @@ class Component extends DCLogic {
       addCurrent:()=>{ if(this.addToCart(PD,S.pColor,S.pSize,S.pQty)!==false) this.setState({cartOpen:true}); },
       buyNow:()=>{ if(this.addToCart(PD,S.pColor,S.pSize,S.pQty)!==false){ this.toast('Купівля в один клік — менеджер зателефонує'); this.setState({cartOpen:true}); } },
       pInWish:S.wishlist.includes(PD.id),
-      pToggleWish:()=>{ const inW=S.wishlist.includes(PD.id); this.setState(st=>({wishlist:inW?st.wishlist.filter(x=>x!==PD.id):[...st.wishlist,PD.id]})); this.toast(inW?'Прибрано з обраного':'Додано в обране ♥'); },
+      pToggleWish:()=>{ const inW=S.wishlist.includes(PD.id); this.setState(st=>{ const wishlist=inW?st.wishlist.filter(x=>x!==PD.id):[...st.wishlist,PD.id]; this._saveWish(wishlist); return {wishlist}; }); this.toast(inW?'Прибрано з обраного':'Додано в обране ♥'); },
       pWishFill:S.wishlist.includes(PD.id)?'#a7613f':'none', pWishStroke:S.wishlist.includes(PD.id)?'#a7613f':'#28332c', pWishLabel:S.wishlist.includes(PD.id)?'В обраному':'В обране',
       pTabsList, pTab:S.pTab, pTabDesc:S.pTab==='desc', pTabCare:S.pTab==='care', pTabReviews:S.pTab==='reviews',
       careText, pReviews, pRelated,
