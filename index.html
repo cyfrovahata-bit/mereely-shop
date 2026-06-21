@@ -36,6 +36,10 @@
   @keyframes mrlFadeUp{from{opacity:0;transform:translateY(26px)}to{opacity:1;transform:translateY(0)}}
   @keyframes mrlMarquee{from{transform:translateX(0)}to{transform:translateX(-50%)}}
   @keyframes mrlKen{from{transform:scale(1.08)}to{transform:scale(1.18)}}
+  @keyframes mrlKenBurns{0%{transform:scale(1.08) translate(0,0)}50%{transform:scale(1.14) translate(-1%,-0.5%)}100%{transform:scale(1.08) translate(0,0)}}
+  .mrl-swipe-gallery{scroll-snap-type:x mandatory;overflow-x:auto;display:flex;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+  .mrl-swipe-gallery::-webkit-scrollbar{display:none}
+  .mrl-swipe-gallery-item{scroll-snap-align:start;flex:none;width:100%}
   @keyframes mrlSpin{from{transform:rotate(0)}to{transform:rotate(360deg)}}
   @keyframes mrlPop{0%{transform:scale(.6);opacity:0}60%{transform:scale(1.15)}100%{transform:scale(1);opacity:1}}
   @keyframes mrlSheen{from{background-position:-180% 0}to{background-position:280% 0}}
@@ -89,7 +93,7 @@
 </style>
 </helmet>
 
-<div style="font-family:'Manrope',sans-serif;color:#1e231f;background:#f1ebe1;min-height:100vh;overflow-x:hidden;position:relative">
+<div style="font-family:'Manrope',sans-serif;color:#1e231f;background:#f1ebe1;min-height:100vh;overflow-x:hidden;position:relative;padding-bottom:{{ contentPaddingBottom }}">
 
 <a href="#mrl-main" style="position:absolute;left:-999px;top:0;background:#28332c;color:#f1ebe1;padding:10px 18px;z-index:200">Перейти до вмісту</a>
 
@@ -160,7 +164,7 @@
       </div>
       <div style="position:relative;z-index:1;grid-row:{{ heroImgRow }};align-self:stretch;min-height:clamp(260px,52vw,620px)">
         <div style="position:absolute;inset:0;overflow:hidden;background:#f1ebe1">
-          <img src="/uploads/images/hero-editorial.webp" alt="Mereely Shop" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:top center"/>
+          <img src="/uploads/images/hero-editorial.webp" alt="Mereely Shop" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:top center;animation:mrlKenBurns 18s ease-in-out infinite"/>
         </div>
         <!-- thin framing lines (signature) -->
         <span style="position:absolute;left:-14px;top:-14px;width:62px;height:62px;border-left:1px solid #28332c;border-top:1px solid #28332c;z-index:2"></span>
@@ -447,6 +451,26 @@
       </div>
     </div>
   </div>
+
+  <!-- RECENTLY VIEWED (catalog page) -->
+  <sc-if value="{{ hasRecent }}" hint-placeholder-val="{{ false }}">
+  <section style="margin-top:clamp(40px,6vw,80px);border-top:1px solid rgba(30,35,31,.1);padding-top:clamp(28px,4vw,48px)">
+    <h2 style="font-family:'Forum',serif;font-weight:400;font-size:clamp(22px,3vw,34px);margin-bottom:clamp(16px,2vw,28px)">Нещодавно переглянуті</h2>
+    <div style="display:grid;grid-template-columns:{{ productGridCols }};gap:clamp(14px,2vw,26px)">
+      <sc-for list="{{ recentProds }}" as="p" hint-placeholder-count="4">
+        <article class="mrl-prod-card">
+          <div onClick="{{ p.open }}" style="position:relative;aspect-ratio:4/5;overflow:hidden;cursor:pointer;background:{{ p.tone }}" onMouseEnter="{{ p.hoverOn }}" onMouseLeave="{{ p.hoverOff }}">
+            <sc-if value="{{ p.hasImg }}" hint-placeholder-val="{{ false }}"><img src="{{ p.imgSrc }}" alt="{{ p.name }}" loading="lazy" class="mrl-prod-img" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover"/></sc-if>
+            <sc-if value="{{ p.hasBadge }}" hint-placeholder-val="{{ false }}"><span style="position:absolute;top:12px;left:12px;background:{{ p.badgeBg }};color:#f1ebe1;font-size:10px;letter-spacing:.14em;text-transform:uppercase;font-weight:700;padding:5px 11px">{{ p.badge }}</span></sc-if>
+          </div>
+          <div class="mrl-prod-info">
+            <div style="display:flex;justify-content:space-between;gap:10px;align-items:flex-start"><h3 onClick="{{ p.open }}" style="font-family:'Forum',serif;font-size:18px;font-weight:400;cursor:pointer;line-height:1.1">{{ p.name }}</h3><span style="font-size:14px;font-weight:600;white-space:nowrap">{{ p.priceFmt }}</span></div>
+          </div>
+        </article>
+      </sc-for>
+    </div>
+  </section>
+  </sc-if>
 </div>
 </sc-if>
 
@@ -472,6 +496,13 @@
         <sc-if value="{{ pHasMainImg }}" hint-placeholder-val="{{ false }}"><span style="position:absolute;top:14px;right:14px;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,.65)">наведіть · клік для zoom</span></sc-if>
         <span style="position:absolute;left:-12px;top:-12px;width:54px;height:54px;border-left:1px solid #28332c;border-top:1px solid #28332c"></span>
       </div>
+      <sc-if value="{{ pHasMultiImg }}" hint-placeholder-val="{{ false }}">
+        <div style="display:{{ pDotsDisplay }};justify-content:center;gap:6px;margin-top:10px">
+          <sc-for list="{{ pImgDots }}" as="dot" hint-placeholder-count="3">
+            <span style="width:6px;height:6px;border-radius:50%;background:{{ dot.bg }};display:inline-block;transition:background .3s"></span>
+          </sc-for>
+        </div>
+      </sc-if>
     </div>
 
     <!-- INFO -->
@@ -486,6 +517,11 @@
 
       <p style="font-size:15px;line-height:1.7;color:#41463f;margin-top:22px;max-width:480px">{{ pDesc }}</p>
 
+      <div style="display:flex;align-items:center;gap:8px;margin-top:14px;padding:10px 14px;background:rgba(30,35,31,.04);border-left:2px solid #a7613f">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#a7613f" stroke-width="1.5"><circle cx="12" cy="7" r="4"/><path d="M4 21c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+        <span style="font-size:12.5px;color:#6c7166">{{ pModelInfo }}</span>
+      </div>
+
       <div style="margin-top:26px">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px"><span style="font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:#6c7166">Колір</span></div>
         <div style="display:flex;gap:14px;align-items:center"><sc-for list="{{ pColors }}" as="c" hint-placeholder-count="2"><button onClick="{{ c.pick }}" aria-label="{{ c.name }}" title="{{ c.name }}" style="width:36px;height:36px;border-radius:50%;background:{{ c.hex }};border:none;outline:{{ c.outline }};outline-offset:{{ c.outlineOffset }};box-shadow:{{ c.shadow }};transition:all .2s" style-hover="box-shadow:0 0 0 6px rgba(30,35,31,.12)"></button></sc-for></div>
@@ -499,7 +535,20 @@
         </sc-for></div>
       </div>
 
-      <sc-if value="{{ pHasStock }}" hint-placeholder-val="{{ false }}"><p style="display:flex;align-items:center;gap:9px;font-size:13px;color:{{ pStockColor }};margin-top:20px;font-weight:600"><span style="width:8px;height:8px;border-radius:50%;background:{{ pStockColor }};display:inline-block;animation:mrlPop .5s ease"></span>{{ pStockText }}</p></sc-if>
+      <sc-if value="{{ pStockLow }}" hint-placeholder-val="{{ false }}">
+        <div style="margin-top:18px;padding:10px 14px;background:rgba(167,97,63,.08);border:1px solid rgba(167,97,63,.25);display:flex;align-items:center;gap:10px">
+          <span style="width:8px;height:8px;border-radius:50%;background:#a7613f;flex:none;animation:mrlPop .5s ease infinite alternate"></span>
+          <span style="font-size:13px;font-weight:600;color:#a7613f">{{ pStockText }} — купуйте зараз</span>
+        </div>
+      </sc-if>
+      <sc-if value="{{ pHasStock }}" hint-placeholder-val="{{ false }}">
+        <sc-if value="{{ !pStockLow }}" hint-placeholder-val="{{ false }}">
+          <p style="display:flex;align-items:center;gap:9px;font-size:13px;color:#6f7a5e;margin-top:16px;font-weight:500">
+            <span style="width:7px;height:7px;border-radius:50%;background:#6f7a5e;display:inline-block"></span>В наявності
+          </p>
+        </sc-if>
+      </sc-if>
+      <p style="font-size:12px;color:#8a8f84;margin-top:6px">👁 {{ pViewers }} людей дивляться зараз</p>
 
       <div style="display:flex;gap:12px;margin-top:22px;align-items:stretch">
         <div style="display:flex;align-items:center;border:1px solid rgba(30,35,31,.25)">
@@ -527,6 +576,30 @@
         <div style="padding:15px 18px;display:flex;justify-content:space-between;align-items:center;background:#28332c;color:#f1ebe1"><span style="font-size:13.5px;font-weight:600">Передплата</span><span style="font-size:11.5px;opacity:.7">картка, Apple Pay, Google Pay</span></div>
       </div>
       <p style="font-size:12px;color:#8a8f84;margin-top:10px;line-height:1.6">Безкоштовна доставка від 2500 ₴. Картою онлайн, Apple Pay і Google Pay — додаємо найближчим часом.</p>
+
+      <!-- COMPLEMENT LOOK -->
+      <sc-if value="{{ hasComplement }}" hint-placeholder-val="{{ false }}">
+      <div style="margin-top:28px;border:1px solid rgba(30,35,31,.14);padding:18px">
+        <p style="font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:#8a8f84;margin-bottom:14px">Доповніть образ</p>
+        <div style="display:flex;flex-direction:column;gap:10px">
+          <sc-for list="{{ complementProds }}" as="cp" hint-placeholder-count="2">
+            <div style="display:flex;gap:12px;align-items:center">
+              <div onClick="{{ cp.open }}" style="width:56px;height:70px;background:{{ cp.tone }};position:relative;overflow:hidden;cursor:pointer;flex:none">
+                <sc-if value="{{ cp.hasImg }}" hint-placeholder-val="{{ false }}"><img src="{{ cp.imgSrc }}" alt="{{ cp.name }}" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover"/></sc-if>
+              </div>
+              <div style="flex:1;min-width:0">
+                <p style="font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:#8a8f84">{{ cp.category }}</p>
+                <h4 onClick="{{ cp.open }}" style="font-family:'Forum',serif;font-size:16px;font-weight:400;cursor:pointer;line-height:1.1;margin-top:2px">{{ cp.name }}</h4>
+                <span style="font-size:13px;font-weight:600;margin-top:3px;display:block">{{ cp.priceFmt }}</span>
+              </div>
+              <button onClick="{{ cp.quick }}" style="flex:none;width:36px;height:36px;border:1px solid rgba(30,35,31,.25);display:flex;align-items:center;justify-content:center;transition:all .3s" title="Швидкий перегляд">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+              </button>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+      </sc-if>
     </div>
   </div>
 
@@ -575,6 +648,26 @@
       </sc-for>
     </div>
   </section>
+
+  <!-- RECENTLY VIEWED (product page) -->
+  <sc-if value="{{ hasRecent }}" hint-placeholder-val="{{ false }}">
+  <section style="margin-top:clamp(40px,6vw,80px);border-top:1px solid rgba(30,35,31,.1);padding-top:clamp(28px,4vw,48px)">
+    <h2 style="font-family:'Forum',serif;font-weight:400;font-size:clamp(22px,3vw,34px);margin-bottom:clamp(16px,2vw,28px)">Нещодавно переглянуті</h2>
+    <div style="display:grid;grid-template-columns:{{ productGridCols }};gap:clamp(14px,2vw,26px)">
+      <sc-for list="{{ recentProds }}" as="p" hint-placeholder-count="4">
+        <article class="mrl-prod-card">
+          <div onClick="{{ p.open }}" style="position:relative;aspect-ratio:4/5;overflow:hidden;cursor:pointer;background:{{ p.tone }}" onMouseEnter="{{ p.hoverOn }}" onMouseLeave="{{ p.hoverOff }}">
+            <sc-if value="{{ p.hasImg }}" hint-placeholder-val="{{ false }}"><img src="{{ p.imgSrc }}" alt="{{ p.name }}" loading="lazy" class="mrl-prod-img" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover"/></sc-if>
+            <sc-if value="{{ p.hasBadge }}" hint-placeholder-val="{{ false }}"><span style="position:absolute;top:12px;left:12px;background:{{ p.badgeBg }};color:#f1ebe1;font-size:10px;letter-spacing:.14em;text-transform:uppercase;font-weight:700;padding:5px 11px">{{ p.badge }}</span></sc-if>
+          </div>
+          <div class="mrl-prod-info">
+            <div style="display:flex;justify-content:space-between;gap:10px;align-items:flex-start"><h3 onClick="{{ p.open }}" style="font-family:'Forum',serif;font-size:18px;font-weight:400;cursor:pointer;line-height:1.1">{{ p.name }}</h3><span style="font-size:14px;font-weight:600;white-space:nowrap">{{ p.priceFmt }}</span></div>
+          </div>
+        </article>
+      </sc-for>
+    </div>
+  </section>
+  </sc-if>
 </div>
 </sc-if>
 
@@ -1070,6 +1163,20 @@
     <span style="font-family:'Forum',serif;font-size:24px">Кошик · {{ cartCount }}</span>
     <button onClick="{{ closeCart }}" aria-label="Закрити" style="width:36px;height:36px;border:1px solid rgba(30,35,31,.2);border-radius:50%;display:flex;align-items:center;justify-content:center;transition:all .3s" style-hover="background:#28332c;color:#f1ebe1"><svg width="15" height="15" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
   </div>
+  <div style="padding:0 26px 0;border-bottom:1px solid rgba(30,35,31,.1)">
+    <sc-if value="{{ !freeShipDone }}" hint-placeholder-val="{{ true }}">
+      <div style="padding:12px 0">
+        <p style="font-size:11.5px;color:#6c7166;margin-bottom:8px">До безкоштовної доставки залишилось <b style="color:#1e231f">{{ freeShipFmt }}</b></p>
+        <div style="height:3px;background:rgba(30,35,31,.1);border-radius:2px"><div style="height:100%;width:{{ freeShipPct }}%;background:linear-gradient(90deg,#28332c,#6f7a5e);border-radius:2px;transition:width .6s cubic-bezier(.16,.84,.44,1)"></div></div>
+      </div>
+    </sc-if>
+    <sc-if value="{{ freeShipDone }}" hint-placeholder-val="{{ false }}">
+      <div style="padding:10px 0;display:flex;align-items:center;gap:8px">
+        <span style="color:#6f7a5e;font-size:14px">✓</span>
+        <span style="font-size:12px;font-weight:600;color:#6f7a5e">Безкоштовна доставка</span>
+      </div>
+    </sc-if>
+  </div>
   <sc-if value="{{ cartEmpty }}" hint-placeholder-val="{{ true }}">
     <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;padding:40px;text-align:center">
       <span style="font-family:'Forum',serif;font-size:26px;color:#6f7a5e">Тут поки порожньо</span>
@@ -1173,6 +1280,64 @@
   <span style="color:#cdbfa3">✓</span><span>{{ toastMsg }}</span>
 </div>
 
+<!-- MOBILE BOTTOM NAV -->
+<nav aria-label="Мобільна навігація" style="display:{{ mobileNavDisplay }};position:fixed;bottom:0;left:0;right:0;z-index:105;background:rgba(241,235,225,.97);backdrop-filter:blur(12px);border-top:1px solid rgba(30,35,31,.12);padding:0 0 env(safe-area-inset-bottom)">
+  <div style="display:grid;grid-template-columns:repeat(4,1fr);height:58px">
+    <!-- Home -->
+    <button onClick="{{ goHome }}" style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;color:{{ mbHome }};transition:color .2s">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 9.5L12 3l9 6.5V20a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9.5z"/><path d="M9 21V12h6v9"/></svg>
+      <span style="font-size:9px;letter-spacing:.06em;font-weight:600;text-transform:uppercase">Головна</span>
+    </button>
+    <!-- Catalog -->
+    <button onClick="{{ goCatalog }}" style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;color:{{ mbCatalog }};transition:color .2s">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+      <span style="font-size:9px;letter-spacing:.06em;font-weight:600;text-transform:uppercase">Каталог</span>
+    </button>
+    <!-- Wishlist -->
+    <button onClick="{{ openWishlistInfo }}" style="position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;color:{{ mbWish }};transition:color .2s">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="{{ mbWishFill }}" stroke="currentColor" stroke-width="1.5"><path d="M12 20s-7-4.5-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.5-7 10-7 10z"/></svg>
+      <span style="font-size:9px;letter-spacing:.06em;font-weight:600;text-transform:uppercase">Обране</span>
+      <sc-if value="{{ hasWishlist }}" hint-placeholder-val="{{ false }}"><span style="position:absolute;top:6px;right:calc(50% - 18px);min-width:14px;height:14px;background:#6f7a5e;color:#f1ebe1;border-radius:7px;font-size:8.5px;display:flex;align-items:center;justify-content:center;font-weight:700;padding:0 3px">{{ wishlistCount }}</span></sc-if>
+    </button>
+    <!-- Cart -->
+    <button onClick="{{ openCart }}" style="position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;color:{{ mbCart }};transition:color .2s">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6 8h12l-1 12H7L6 8z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/></svg>
+      <span style="font-size:9px;letter-spacing:.06em;font-weight:600;text-transform:uppercase">Кошик</span>
+      <sc-if value="{{ hasCart }}" hint-placeholder-val="{{ false }}"><span style="position:absolute;top:6px;right:calc(50% - 18px);min-width:14px;height:14px;background:#a7613f;color:#f1ebe1;border-radius:7px;font-size:8.5px;display:flex;align-items:center;justify-content:center;font-weight:700;padding:0 3px;animation:mrlPop .4s ease">{{ cartCount }}</span></sc-if>
+    </button>
+  </div>
+</nav>
+
+<!-- EXIT INTENT POPUP -->
+<sc-if value="{{ exitPopupOpen }}" hint-placeholder-val="{{ false }}">
+<div onClick="{{ closeExitPopup }}" style="position:fixed;inset:0;background:rgba(20,26,21,.65);backdrop-filter:blur(6px);z-index:220;display:flex;align-items:center;justify-content:center;padding:20px;animation:mrlFadeIn .4s ease">
+  <div onClick="{{ stopProp }}" style="background:#f1ebe1;max-width:480px;width:100%;position:relative;overflow:hidden">
+    <div style="background:#28332c;padding:clamp(28px,5vw,48px) clamp(24px,4vw,40px);text-align:center;position:relative">
+      <button onClick="{{ closeExitPopup }}" style="position:absolute;top:14px;right:14px;color:rgba(241,235,225,.6);font-size:22px;line-height:1" aria-label="Закрити">×</button>
+      <span style="font-size:10px;letter-spacing:.4em;color:#cdbfa3;font-weight:600">СПЕЦІАЛЬНА ПРОПОЗИЦІЯ</span>
+      <p style="font-family:'Forum',serif;font-size:clamp(36px,8vw,56px);color:#f1ebe1;line-height:.95;margin-top:14px">−10%</p>
+      <p style="font-size:13.5px;color:rgba(241,235,225,.75);margin-top:8px;line-height:1.6">на перше замовлення.<br>Залиште пошту — отримайте код знижки.</p>
+    </div>
+    <div style="padding:clamp(20px,4vw,36px) clamp(24px,4vw,40px)">
+      <sc-if value="{{ exitPopupDone }}" hint-placeholder-val="{{ false }}">
+        <div style="text-align:center;padding:10px 0">
+          <p style="font-family:'Forum',serif;font-size:22px;color:#6f7a5e">Дякуємо!</p>
+          <p style="font-size:13.5px;color:#6c7166;margin-top:10px">Ваш промокод: <b style="color:#1e231f;letter-spacing:.06em">MEREELY10</b></p>
+          <p style="font-size:12px;color:#8a8f84;margin-top:6px">Перевірте пошту для підтвердження</p>
+        </div>
+      </sc-if>
+      <sc-if value="{{ !exitPopupDone }}" hint-placeholder-val="{{ true }}">
+        <form onSubmit="{{ submitExitPopup }}" novalidate style="display:flex;flex-direction:column;gap:12px">
+          <input type="email" value="{{ exitPopupEmail }}" onInput="{{ setExitEmail }}" placeholder="Ваш email" style="width:100%;background:#fff;border:1px solid rgba(30,35,31,.2);padding:13px 14px;font-size:14px;color:#1e231f;outline:none;font-family:'Manrope',sans-serif"/>
+          <button type="submit" class="mrl-cta" style="width:100%;background:#28332c;color:#f1ebe1;padding:16px;font-size:12px;letter-spacing:.22em;text-transform:uppercase;font-weight:600;border:1px solid #28332c;transition:all .35s">Отримати -10%</button>
+        </form>
+        <button onClick="{{ closeExitPopup }}" style="display:block;margin:12px auto 0;font-size:12px;color:#8a8f84;text-decoration:underline">Ні, дякую</button>
+      </sc-if>
+    </div>
+  </div>
+</div>
+</sc-if>
+
 </div>
 </x-dc>
 <script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:&quot;100%&quot;,&quot;height&quot;:900}}">
@@ -1235,10 +1400,16 @@ class Component extends DCLogic {
     try { savedCart = JSON.parse(localStorage.getItem('mrl_cart')||'[]'); } catch(e){}
     let savedWishlist = [];
     try { savedWishlist = JSON.parse(localStorage.getItem('mrl_wish')||'[]'); } catch(e){}
+    let savedRecent = [];
+    try { savedRecent = JSON.parse(localStorage.getItem('mrl_recent')||'[]'); } catch(e){}
+    let savedLastSize = '';
+    try { savedLastSize = localStorage.getItem('mrl_lastSize') || ''; } catch(e){}
 
     this.state = {
       page:'home', device:'desktop',
       cart:savedCart, cartOpen:false, menuOpen:false, wishlist:savedWishlist, sizeChartOpen:false,
+      recentlyViewed:savedRecent, lastSize:savedLastSize,
+      exitPopupShown:false, exitPopupOpen:false, exitPopupEmail:'', exitPopupDone:false,
       homeTab:'new', hoverId:null,
       newsEmail:'', newsErr:false, newsDone:false,
       filters:{cat:'all', sizes:[], colors:[], priceMax:999999}, sort:'pop', filtersOpen:false, filterSec:{cat:false,size:false,color:false,price:false},
@@ -1269,7 +1440,10 @@ class Component extends DCLogic {
     this._parsePath();
     this._updateTitle();
     this._loadProducts();
+    this._exitHandler=(e)=>{if(e.clientY<10&&!this.state.exitPopupShown){this.setState({exitPopupOpen:true,exitPopupShown:true});}};
+    document.addEventListener('mouseleave',this._exitHandler);
   }
+  componentWillUnmount(){ window.removeEventListener('resize', this._onResize); if(this._popHandler) window.removeEventListener('popstate', this._popHandler); if(this._io) this._io.disconnect(); if(this._exitHandler) document.removeEventListener('mouseleave',this._exitHandler); }
   async _loadProducts(){
     try {
       const r = await fetch('/api/?action=products');
@@ -1464,12 +1638,19 @@ class Component extends DCLogic {
     if(next!==cur) history.pushState(null,'',next);
   }
   nav(p){ return (e)=>{ if(e&&e.preventDefault)e.preventDefault(); this._pushRoute(p==='home'?'':p); this.setState({page:p,menuOpen:false,quick:null}); this._updateTitle(); }; }
-  openProduct(id){ 
+  openProduct(id){
     const p=this.products.find(x=>x.id===id);
     this._pushRoute('product/'+(p?p.slug:id));
     document.title=(p?p.name+' — ':'')+('Mereely Shop — жіночий одяг онлайн');
-    this.setState({page:'product',pid:id,pImg:0,pColor:0,pSize:null,pQty:1,pTab:'desc',quick:null,menuOpen:false,zoom:false}); 
-    window.scrollTo(0,0); 
+    const lastSz = this.state.lastSize || '';
+    const autoSize = p && p.sizes && p.sizes.includes(lastSz) ? lastSz : null;
+    this.setState({page:'product',pid:id,pImg:0,pColor:0,pSize:autoSize,pQty:1,pTab:'desc',quick:null,menuOpen:false,zoom:false});
+    this.setState(s=>{
+      const recent=[id,...s.recentlyViewed.filter(x=>x!==id)].slice(0,6);
+      try{localStorage.setItem('mrl_recent',JSON.stringify(recent));}catch(e){}
+      return {recentlyViewed:recent};
+    });
+    window.scrollTo(0,0);
   }
 
   _saveCart(cart){ try{ localStorage.setItem('mrl_cart', JSON.stringify(cart)); }catch(e){} }
@@ -1618,6 +1799,12 @@ class Component extends DCLogic {
     const sortOpts=[['pop','Популярні'],['new','Спершу нові'],['priceAsc','Ціна: зростання'],['priceDesc','Ціна: спадання']].map(([v,l])=>({value:v,label:l}));
 
     // ===== PRODUCT =====
+    // Free shipping progress
+    const FREE_SHIP = 2500;
+    const freeShipRemaining = Math.max(0, FREE_SHIP - cartSub);
+    const freeShipPct = Math.min(100, Math.round(cartSub / FREE_SHIP * 100));
+    const freeShipDone = cartSub >= FREE_SHIP;
+
     const PD=this.products.find(x=>x.id===S.pid)||this.products[0]||{id:0,name:'',cat:'',price:0,old:0,desc:'',care:'',material:'',manufacturer:'',colors:[],sizes:[],imgs:[''],tone:this.C.olive,slug:'',badge:null};
     const pdColors=PD.colors.map(c=>Array.isArray(c)?{name:c[0],hex:c[1]}:(c.name?c:{name:String(c),hex:'#9a9a8a'}));
     const pColors=pdColors.map((c,i)=>{const sel=i===S.pColor;return{name:c.name,hex:c.hex,sel,outline:sel?'3px solid #1e231f':'2px solid rgba(30,35,31,.15)',outlineOffset:'4px',shadow:sel?'0 0 0 6px rgba(30,35,31,.08)':'none',pick:()=>this.setState({pColor:i})};});
@@ -1626,7 +1813,7 @@ class Component extends DCLogic {
     const stdSizes=PD.sizes.filter(s=>STD_SIZES.includes(s));
     const numSizes=PD.sizes.filter(s=>isNum(s));
     const otherSizes=PD.sizes.filter(s=>!STD_SIZES.includes(s)&&!isNum(s));
-    const mkSz=sz=>({label:sz,isGroup:false,notGroup:true,bg:S.pSize===sz?'#28332c':'transparent',color:S.pSize===sz?'#f1ebe1':'#1e231f',border:S.pSize===sz?'2px solid #28332c':'1px solid rgba(30,35,31,.25)',pick:()=>this.setState({pSize:sz})});
+    const mkSz=sz=>({label:sz,isGroup:false,notGroup:true,bg:S.pSize===sz?'#28332c':'transparent',color:S.pSize===sz?'#f1ebe1':'#1e231f',border:S.pSize===sz?'2px solid #28332c':'1px solid rgba(30,35,31,.25)',pick:()=>{this.setState({pSize:sz,lastSize:sz});try{localStorage.setItem('mrl_lastSize',sz);}catch(e){}}});
     const mkGr=label=>({label,isGroup:true,notGroup:false,bg:'',color:'',border:'',pick:()=>{}});
     const mixed=stdSizes.length>0&&(numSizes.length>0||otherSizes.length>0);
     const pSizes=mixed
@@ -1636,6 +1823,14 @@ class Component extends DCLogic {
     const pMainUrl=PD.imgs[S.pImg]||PD.imgs[0]||'';
     const pHasMainImg=pMainUrl.startsWith('/')||pMainUrl.startsWith('http');
     const pRelated=this.products.filter(x=>x.cat===PD.cat&&x.id!==PD.id).concat(this.products.filter(x=>x.cat!==PD.cat)).slice(0,4).map(mkProd);
+    const pViewers = PD.id ? (7 + (PD.id * 3) % 11) : 0;
+    const complementProds = this.products.filter(x=>x.cat!==PD.cat&&x.id!==PD.id).slice(0,2).map(mkProd);
+    const hasComplement = complementProds.length > 0;
+    const recentProds = S.recentlyViewed.filter(id=>id!==PD.id).slice(0,4).map(id=>this.products.find(p=>p.id===id)).filter(Boolean).map(mkProd);
+    const hasRecent = recentProds.length > 0;
+    const pAllImgs = PD.imgs.filter(u=>u&&(u.startsWith('/')||u.startsWith('http'))).map((url,i)=>({url, active:i===S.pImg, sel:()=>this.setState({pImg:i})}));
+    const pImgDots = PD.imgs.filter(u=>u&&(u.startsWith('/')||u.startsWith('http'))).map((u,i)=>({active:i===S.pImg,bg:i===S.pImg?'#28332c':'rgba(30,35,31,.2)'}));
+    const pHasMultiImg = PD.imgs.filter(u=>u&&(u.startsWith('/')||u.startsWith('http'))).length > 1;
     const wishlistProds=this.products.filter(p=>S.wishlist.includes(p.id)).map(mkProd);
     const pReviews=[];
     const hasCare=!!(PD.care&&PD.care.trim());
@@ -1766,6 +1961,26 @@ class Component extends DCLogic {
       pWishFill:S.wishlist.includes(PD.id)?'#a7613f':'none', pWishStroke:S.wishlist.includes(PD.id)?'#a7613f':'#28332c', pWishLabel:S.wishlist.includes(PD.id)?'В обраному':'В обране',
       pTabsList, pTab:S.pTab, pTabDesc:S.pTab==='desc', pTabCare:S.pTab==='care', pTabReviews:S.pTab==='reviews',
       careText, pReviews, pRelated, wishlistProds, wishlistEmpty:wishlistProds.length===0,
+      pViewers, complementProds, hasComplement, recentProds, hasRecent,
+      pAllImgs, pImgDots, pHasMultiImg, pDotsDisplay:isMobile?'flex':'none',
+      pModelInfo:'Модель: зріст 172 см, одягнена у розмір S',
+      // free shipping
+      freeShipRemaining, freeShipPct, freeShipDone, freeShipFmt:fmt(freeShipRemaining),
+      // mobile nav
+      mobileNavDisplay:isMobile?'block':'none',
+      contentPaddingBottom:isMobile?'70px':'0',
+      mbHome:S.page==='home'?'#28332c':'#8a8f84',
+      mbCatalog:S.page==='catalog'?'#28332c':'#8a8f84',
+      mbWish:S.page==='wishlist'?'#28332c':'#8a8f84',
+      mbWishFill:S.page==='wishlist'?'#28332c':'none',
+      mbCart:S.cartOpen?'#28332c':'#8a8f84',
+      // exit popup
+      exitPopupOpen:S.exitPopupOpen,
+      exitPopupDone:S.exitPopupDone||false,
+      exitPopupEmail:S.exitPopupEmail,
+      closeExitPopup:()=>this.setState({exitPopupOpen:false}),
+      setExitEmail:(e)=>this.setState({exitPopupEmail:e.target.value}),
+      submitExitPopup:(e)=>{e.preventDefault();if(/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(S.exitPopupEmail)){this.setState({exitPopupDone:true});}},
       pMainTransform:S.zoom?'scale(1.9)':'scale(1)', pMainOrigin:S.zoomXY, pZoomCursor:S.zoom?'zoom-out':'zoom-in',
       pZoomToggle:()=>this.setState(s=>({zoom:!s.zoom})),
       pZoomMove:(e)=>{ if(!S.zoom)return; const r=e.currentTarget.getBoundingClientRect(); const x=((e.clientX-r.left)/r.width*100).toFixed(1); const y=((e.clientY-r.top)/r.height*100).toFixed(1); this.setState({zoomXY:x+'% '+y+'%'}); },
