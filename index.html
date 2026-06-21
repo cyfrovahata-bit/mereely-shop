@@ -42,10 +42,10 @@
 
   /* Product card image zoom */
   .mrl-prod-img{transition:transform 1.1s cubic-bezier(.16,.84,.44,1)!important;transform:scale(1)!important}
-  .mrl-prod-card{transition:box-shadow .5s ease;overflow:visible}
+  .mrl-prod-card{transition:box-shadow .5s ease,background .5s ease;overflow:visible;padding:0 6px 12px;background:transparent;margin:0 -6px}
   @media(hover:hover){
     .mrl-prod-card:hover .mrl-prod-img{transform:scale(1.05)!important}
-    .mrl-prod-card:hover{box-shadow:0 20px 48px rgba(20,26,21,.12)}
+    .mrl-prod-card:hover{box-shadow:0 12px 36px rgba(20,26,21,.11);background:#f5f1eb}
   }
 
   /* Smooth nav underline */
