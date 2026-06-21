@@ -11,6 +11,17 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Forum&family=Manrope:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<title>{{ metaTitle }}</title>
+<meta name="description" content="{{ metaDesc }}">
+<meta property="og:title" content="{{ metaTitle }}">
+<meta property="og:description" content="{{ metaDesc }}">
+<meta property="og:image" content="/uploads/images/hero-editorial.webp">
+<meta property="og:type" content="{{ metaOgType }}">
+<meta property="og:locale" content="uk_UA">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="canonical" href="{{ metaCanonical }}">
+<link rel="icon" href="/favicon.ico" sizes="any">
+<link rel="apple-touch-icon" href="/uploads/images/hero-editorial.webp">
 <style>
   *{box-sizing:border-box;margin:0;padding:0}
   html{scroll-behavior:smooth}
@@ -550,13 +561,16 @@
     <h2 style="font-family:'Forum',serif;font-weight:400;font-size:clamp(28px,3.6vw,46px);margin-bottom:clamp(20px,3vw,36px)">Вам також сподобається</h2>
     <div style="display:grid;grid-template-columns:{{ productGridCols }};gap:clamp(14px,2vw,26px)">
       <sc-for list="{{ pRelated }}" as="p" hint-placeholder-count="4">
-        <article>
+        <article class="mrl-prod-card">
           <div onClick="{{ p.open }}" style="position:relative;aspect-ratio:4/5;overflow:hidden;cursor:pointer;background:{{ p.tone }}" onMouseEnter="{{ p.hoverOn }}" onMouseLeave="{{ p.hoverOff }}">
-            <sc-if value="{{ p.hasImg }}" hint-placeholder-val="{{ false }}"><img src="{{ p.imgSrc }}" alt="{{ p.name }}" loading="lazy" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover"/></sc-if>
-            <sc-if value="{{ p.hasImg }}" hint-placeholder-val="{{ true }}"><div style="position:absolute;inset:0"></div></sc-if>
+            <sc-if value="{{ p.hasImg }}" hint-placeholder-val="{{ false }}"><img src="{{ p.imgSrc }}" alt="{{ p.name }}" loading="lazy" class="mrl-prod-img" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover"/></sc-if>
+            <sc-if value="{{ p.hasImg }}" hint-placeholder-val="{{ false }}"><div style="position:absolute;inset:0"></div></sc-if>
             <sc-if value="{{ p.hasBadge }}" hint-placeholder-val="{{ false }}"><span style="position:absolute;top:12px;left:12px;background:{{ p.badgeBg }};color:#f1ebe1;font-size:10px;letter-spacing:.14em;text-transform:uppercase;font-weight:700;padding:5px 11px">{{ p.badge }}</span></sc-if>
+            <button onClick="{{ p.quick }}" style="position:absolute;left:0;right:0;bottom:0;background:rgba(40,51,44,.94);color:#f1ebe1;padding:14px;font-size:11px;letter-spacing:.2em;text-transform:uppercase;font-weight:600;transform:{{ p.quickShift }};opacity:{{ p.quickOpacity }};transition:all .4s cubic-bezier(.16,.84,.44,1)">Швидкий перегляд</button>
           </div>
-          <div style="padding-top:14px;display:flex;justify-content:space-between;gap:10px"><h3 onClick="{{ p.open }}" style="font-family:'Forum',serif;font-size:18px;font-weight:400;cursor:pointer">{{ p.name }}</h3><span style="font-size:14px;font-weight:600;white-space:nowrap">{{ p.priceFmt }}</span></div>
+          <div class="mrl-prod-info">
+            <div style="display:flex;justify-content:space-between;gap:10px;align-items:flex-start"><h3 onClick="{{ p.open }}" style="font-family:'Forum',serif;font-size:18px;font-weight:400;cursor:pointer;line-height:1.1">{{ p.name }}</h3><span style="font-size:14px;font-weight:600;white-space:nowrap">{{ p.priceFmt }}</span></div>
+          </div>
         </article>
       </sc-for>
     </div>
@@ -711,6 +725,58 @@
       </sc-for>
     </div>
   </section>
+</div>
+</sc-if>
+
+<!-- =========================== WISHLIST =========================== -->
+<sc-if value="{{ isWishlist }}" hint-placeholder-val="{{ false }}">
+<div data-screen-label="Обране" style="max-width:1340px;margin:0 auto;padding:clamp(28px,4vw,56px) clamp(18px,4vw,46px) clamp(60px,8vw,110px)">
+  <nav aria-label="Хлібні крихти" style="font-size:12px;letter-spacing:.06em;color:#8a8f84;margin-bottom:24px"><a href="#" onClick="{{ goHome }}" style-hover="color:#a7613f">Головна</a> <span style="color:#c3c0b6">/</span> <span style="color:#1e231f">Обране</span></nav>
+  <div style="display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:16px;margin-bottom:clamp(28px,4vw,48px)">
+    <div>
+      <span style="font-size:11px;letter-spacing:.4em;color:#6f7a5e;font-weight:600">МОЄ ОБРАНЕ</span>
+      <h1 style="font-family:'Forum',serif;font-weight:400;font-size:clamp(36px,5.5vw,72px);line-height:.96;margin-top:14px">Збережені речі</h1>
+    </div>
+    <sc-if value="{{ !wishlistEmpty }}" hint-placeholder-val="{{ false }}"><span style="font-size:13px;color:#6c7166">{{ wishlistCount }} товар(ів)</span></sc-if>
+  </div>
+
+  <sc-if value="{{ wishlistEmpty }}" hint-placeholder-val="{{ false }}">
+    <div style="text-align:center;padding:80px 20px;border:1px solid rgba(30,35,31,.14)">
+      <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#c3c0b6" stroke-width="1" style="margin:0 auto 20px;display:block"><path d="M12 20s-7-4.5-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.5-7 10-7 10z"/></svg>
+      <p style="font-family:'Forum',serif;font-size:24px;color:#6f7a5e">Поки що тут порожньо</p>
+      <p style="font-size:14px;color:#6c7166;margin-top:10px;max-width:320px;margin-left:auto;margin-right:auto">Натискайте ♥ на картках товарів — і вони з'являться тут</p>
+      <button onClick="{{ goCatalog }}" class="mrl-cta" style="margin-top:28px;background:#28332c;color:#f1ebe1;padding:15px 36px;font-size:12px;letter-spacing:.2em;text-transform:uppercase;font-weight:600;border:1px solid #28332c;transition:all .45s">До каталогу</button>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ !wishlistEmpty }}" hint-placeholder-val="{{ false }}">
+    <div style="display:grid;grid-template-columns:{{ productGridCols }};gap:clamp(14px,2vw,26px)">
+      <sc-for list="{{ wishlistProds }}" as="p" hint-placeholder-count="4">
+        <article class="mrl-prod-card">
+          <div onClick="{{ p.open }}" style="position:relative;aspect-ratio:4/5;overflow:hidden;cursor:pointer;background:{{ p.tone }}" onMouseEnter="{{ p.hoverOn }}" onMouseLeave="{{ p.hoverOff }}">
+            <sc-if value="{{ p.hasImg }}" hint-placeholder-val="{{ false }}"><img src="{{ p.imgSrc }}" alt="{{ p.name }}" loading="lazy" class="mrl-prod-img" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover"/></sc-if>
+            <sc-if value="{{ p.hasBadge }}" hint-placeholder-val="{{ false }}"><span style="position:absolute;top:12px;left:12px;background:{{ p.badgeBg }};color:#f1ebe1;font-size:10px;letter-spacing:.14em;text-transform:uppercase;font-weight:700;padding:5px 11px">{{ p.badge }}</span></sc-if>
+            <button onClick="{{ p.toggleWish }}" aria-label="Прибрати з обраного" style="position:absolute;top:10px;right:10px;width:34px;height:34px;border-radius:50%;background:rgba(241,235,225,.85);display:flex;align-items:center;justify-content:center;transition:transform .3s" style-hover="transform:scale(1.12)">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="#a7613f" stroke="#a7613f" stroke-width="1.4"><path d="M12 20s-7-4.5-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.5-7 10-7 10z"/></svg>
+            </button>
+            <button onClick="{{ p.quick }}" style="position:absolute;left:0;right:0;bottom:0;background:rgba(40,51,44,.94);color:#f1ebe1;padding:14px;font-size:11px;letter-spacing:.2em;text-transform:uppercase;font-weight:600;transform:{{ p.quickShift }};opacity:{{ p.quickOpacity }};transition:all .4s cubic-bezier(.16,.84,.44,1)">Швидкий перегляд</button>
+          </div>
+          <div class="mrl-prod-info">
+            <div style="display:flex;justify-content:space-between;gap:12px;align-items:flex-start">
+              <div><p style="font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:#8a8f84;margin-bottom:5px">{{ p.category }}</p><h3 onClick="{{ p.open }}" style="font-family:'Forum',serif;font-size:20px;font-weight:400;cursor:pointer;line-height:1.1">{{ p.name }}</h3></div>
+              <div style="text-align:right;white-space:nowrap"><sc-if value="{{ p.hasOld }}" hint-placeholder-val="{{ false }}"><span style="font-size:12.5px;color:#a99;text-decoration:line-through;display:block">{{ p.oldFmt }}</span></sc-if><span style="font-size:15px;font-weight:600;color:{{ p.priceColor }}">{{ p.priceFmt }}</span></div>
+            </div>
+            <div style="display:flex;gap:6px;margin-top:9px">
+              <sc-for list="{{ p.colors }}" as="c" hint-placeholder-count="2"><span title="{{ c.name }}" style="width:13px;height:13px;border-radius:50%;background:{{ c.hex }};border:1px solid rgba(30,35,31,.25)"></span></sc-for>
+            </div>
+          </div>
+        </article>
+      </sc-for>
+    </div>
+    <div style="margin-top:clamp(36px,5vw,60px);text-align:center">
+      <button onClick="{{ goCatalog }}" style="background:transparent;color:#28332c;padding:15px 36px;font-size:12px;letter-spacing:.2em;text-transform:uppercase;font-weight:600;border:1px solid rgba(30,35,31,.3);transition:all .35s" style-hover="border-color:#28332c">Продовжити покупки</button>
+    </div>
+  </sc-if>
 </div>
 </sc-if>
 
@@ -1290,6 +1356,7 @@ class Component extends DCLogic {
       else this.setState({page:'catalog'});
     } else if(seg==='about'){ this.setState({page:'about'});
     } else if(seg==='contacts'){ this.setState({page:'contacts'});
+    } else if(seg==='wishlist'){ this.setState({page:'wishlist'});
     } else { this.setState({page:'home'}); }
   }
 
@@ -1569,6 +1636,7 @@ class Component extends DCLogic {
     const pMainUrl=PD.imgs[S.pImg]||PD.imgs[0]||'';
     const pHasMainImg=pMainUrl.startsWith('/')||pMainUrl.startsWith('http');
     const pRelated=this.products.filter(x=>x.cat===PD.cat&&x.id!==PD.id).concat(this.products.filter(x=>x.cat!==PD.cat)).slice(0,4).map(mkProd);
+    const wishlistProds=this.products.filter(p=>S.wishlist.includes(p.id)).map(mkProd);
     const pReviews=[];
     const hasCare=!!(PD.care&&PD.care.trim());
     const pTabsList=[['desc','Опис'],...(hasCare?[['care','Догляд']]:[]),...(pReviews.length?[['reviews','Відгуки · '+pReviews.length]]:[])].map(([v,l])=>({label:l,color:S.pTab===v?'#1e231f':'#8a8f84',bd:S.pTab===v?'#28332c':'transparent',sel:()=>this.setState({pTab:v})}));
@@ -1616,11 +1684,16 @@ class Component extends DCLogic {
       heroImgRow: isMobile?'2':'1',
       trustCols, productGridCols:productCols, catGridCols, testCols, whyCols, instaCols, footerCols,
       // page flags
-      isHome:S.page==='home', isCatalog:S.page==='catalog', isProduct:S.page==='product', isAbout:S.page==='about', isContacts:S.page==='contacts',
+      isHome:S.page==='home', isCatalog:S.page==='catalog', isProduct:S.page==='product', isAbout:S.page==='about', isContacts:S.page==='contacts', isWishlist:S.page==='wishlist',
+      // SEO meta
+      metaTitle: S.page==='product'?(PD.name+' — Mereely Shop'):S.page==='catalog'?'Каталог жіночого одягу — Mereely Shop':S.page==='about'?'Про нас — Mereely Shop':S.page==='wishlist'?'Обране — Mereely Shop':'Mereely Shop — жіночий одяг | Доставка по Україні',
+      metaDesc: S.page==='product'?(PD.desc||'Жіночий одяг у Mereely Shop — природні тканини, безчасові силуети.'):S.page==='catalog'?'Каталог жіночого одягу з доставкою по Україні. Сукні, костюми, верхній одяг, трикотаж. Природні тканини, безчасові силуети.':'Mereely Shop — жіночий одяг з доставкою по Україні. Лаконічні силуети, природні тканини й продуманий вибір.',
+      metaOgType: S.page==='product'?'product':'website',
+      metaCanonical: 'https://styleroom.pp.ua'+(S.page==='home'?'':'/'+S.page),
       // header
-      navLinks, goHome:this.nav('home'), goCatalog:this.nav('catalog'), goAbout:this.nav('about'), goContacts:this.nav('contacts'),
+      navLinks, goHome:this.nav('home'), goCatalog:this.nav('catalog'), goAbout:this.nav('about'), goContacts:this.nav('contacts'), goWishlist:()=>{ this._pushRoute('wishlist'); this.setState({page:'wishlist',menuOpen:false}); },
       hasCart:cartCount>0, cartCount, hasWishlist:S.wishlist.length>0, wishlistCount:S.wishlist.length,
-      openWishlistInfo:()=>{ this.setState(s=>({page:'catalog'})); this.toast('Ваше обране — у каталозі'); },
+      openWishlistInfo:()=>{ this._pushRoute('wishlist'); this.setState({page:'wishlist',menuOpen:false}); },
       openCart:()=>this.setState({cartOpen:true}), closeCart:()=>this.setState({cartOpen:false}),
       openSizeChart:(e)=>{e.preventDefault();this.setState({sizeChartOpen:true});}, closeSizeChart:()=>this.setState({sizeChartOpen:false}),
       stopProp:(e)=>e.stopPropagation(),
@@ -1692,7 +1765,7 @@ class Component extends DCLogic {
       pToggleWish:()=>{ const inW=S.wishlist.includes(PD.id); this.setState(st=>{ const wishlist=inW?st.wishlist.filter(x=>x!==PD.id):[...st.wishlist,PD.id]; this._saveWish(wishlist); return {wishlist}; }); this.toast(inW?'Прибрано з обраного':'Додано в обране ♥'); },
       pWishFill:S.wishlist.includes(PD.id)?'#a7613f':'none', pWishStroke:S.wishlist.includes(PD.id)?'#a7613f':'#28332c', pWishLabel:S.wishlist.includes(PD.id)?'В обраному':'В обране',
       pTabsList, pTab:S.pTab, pTabDesc:S.pTab==='desc', pTabCare:S.pTab==='care', pTabReviews:S.pTab==='reviews',
-      careText, pReviews, pRelated,
+      careText, pReviews, pRelated, wishlistProds, wishlistEmpty:wishlistProds.length===0,
       pMainTransform:S.zoom?'scale(1.9)':'scale(1)', pMainOrigin:S.zoomXY, pZoomCursor:S.zoom?'zoom-out':'zoom-in',
       pZoomToggle:()=>this.setState(s=>({zoom:!s.zoom})),
       pZoomMove:(e)=>{ if(!S.zoom)return; const r=e.currentTarget.getBoundingClientRect(); const x=((e.clientX-r.left)/r.width*100).toFixed(1); const y=((e.clientY-r.top)/r.height*100).toFixed(1); this.setState({zoomXY:x+'% '+y+'%'}); },
