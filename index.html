@@ -319,7 +319,7 @@
         <div style="border-top:1px solid rgba(30,35,31,.16);padding:18px 0">
           <p style="font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:#6c7166;margin-bottom:13px">Колір</p>
           <div style="display:flex;flex-wrap:wrap;gap:12px">
-            <sc-for list="{{ colorChips }}" as="cc" hint-placeholder-count="8"><button onClick="{{ cc.toggle }}" title="{{ cc.name }}" aria-label="{{ cc.name }}" style="width:30px;height:30px;border-radius:50%;background:{{ cc.hex }};border:2px solid {{ cc.ring }};box-shadow:inset 0 0 0 2px #f1ebe1;transform:{{ cc.scale }};transition:transform .2s"></button></sc-for>
+            <sc-for list="{{ colorChips }}" as="cc" hint-placeholder-count="8"><button onClick="{{ cc.toggle }}" title="{{ cc.name }}" aria-label="{{ cc.name }}" style="width:30px;height:30px;border-radius:50%;background:{{ cc.hex }};border:none;outline:{{ cc.outline }};outline-offset:{{ cc.outlineOffset }};box-shadow:{{ cc.shadow }};transition:all .2s"></button></sc-for>
           </div>
         </div>
 
@@ -400,12 +400,15 @@
 
       <div style="margin-top:26px">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px"><span style="font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:#6c7166">Колір</span></div>
-        <div style="display:flex;gap:12px"><sc-for list="{{ pColors }}" as="c" hint-placeholder-count="2"><button onClick="{{ c.pick }}" aria-label="{{ c.name }}" title="{{ c.name }}" style="width:34px;height:34px;border-radius:50%;background:{{ c.hex }};border:2px solid {{ c.ring }};box-shadow:inset 0 0 0 2px #f1ebe1;transition:transform .2s" style-hover="transform:scale(1.1)"></button></sc-for></div>
+        <div style="display:flex;gap:14px;align-items:center"><sc-for list="{{ pColors }}" as="c" hint-placeholder-count="2"><button onClick="{{ c.pick }}" aria-label="{{ c.name }}" title="{{ c.name }}" style="width:36px;height:36px;border-radius:50%;background:{{ c.hex }};border:none;outline:{{ c.outline }};outline-offset:{{ c.outlineOffset }};box-shadow:{{ c.shadow }};transition:all .2s" style-hover="box-shadow:0 0 0 6px rgba(30,35,31,.12)"></button></sc-for></div>
       </div>
 
       <div style="margin-top:24px">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px"><span style="font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:#6c7166">Розмір</span><a href="#" onClick="{{ openSizeChart }}" style="font-size:12px;color:#6c7166;border-bottom:1px solid rgba(30,35,31,.2)">Таблиця розмірів</a></div>
-        <div style="display:flex;flex-wrap:wrap;gap:9px"><sc-for list="{{ pSizes }}" as="sz" hint-placeholder-count="4"><button onClick="{{ sz.pick }}" style="min-width:52px;padding:13px 16px;font-size:13px;font-weight:500;background:{{ sz.bg }};color:{{ sz.color }};border:1px solid rgba(30,35,31,.25);transition:all .25s">{{ sz.label }}</button></sc-for></div>
+        <div style="display:flex;flex-wrap:wrap;gap:8px;align-items:center"><sc-for list="{{ pSizes }}" as="sz" hint-placeholder-count="4">
+          <sc-if value="{{ sz.isGroup }}" hint-placeholder-val="{{ false }}"><span style="width:100%;font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:#8a8f84;font-weight:600;margin-top:6px;margin-bottom:2px;display:block">{{ sz.label }}</span></sc-if>
+          <sc-if value="{{ sz.notGroup }}" hint-placeholder-val="{{ true }}"><button onClick="{{ sz.pick }}" style="min-width:52px;padding:13px 16px;font-size:13px;font-weight:500;background:{{ sz.bg }};color:{{ sz.color }};border:{{ sz.border }};transition:all .25s">{{ sz.label }}</button></sc-if>
+        </sc-for></div>
       </div>
 
       <sc-if value="{{ pHasStock }}" hint-placeholder-val="{{ false }}"><p style="display:flex;align-items:center;gap:9px;font-size:13px;color:{{ pStockColor }};margin-top:20px;font-weight:600"><span style="width:8px;height:8px;border-radius:50%;background:{{ pStockColor }};display:inline-block;animation:mrlPop .5s ease"></span>{{ pStockText }}</p></sc-if>
@@ -1462,7 +1465,7 @@ class Component extends DCLogic {
     const availSizes=[...new Set(this.products.flatMap(p=>p.sizes))];
     const sizeChips=availSizes.map(sz=>({label:sz,bg:F.sizes.includes(sz)?'#28332c':'transparent',color:F.sizes.includes(sz)?'#f1ebe1':'#1e231f',toggle:()=>this.setState(s=>{const h=s.filters.sizes.includes(sz);return{filters:{...s.filters,sizes:h?s.filters.sizes.filter(x=>x!==sz):[...s.filters.sizes,sz]}};})}));
     const availColors=[...new Map(this.products.flatMap(p=>p.colors).map(c=>[c.name||c[0],c])).values()];
-    const colorChips=availColors.map(c=>{const n=c.name||c[0]||'',hex=c.hex||c[1]||'#9a9a8a';return{name:n,hex,ring:F.colors.includes(n)?'#28332c':'rgba(30,35,31,.25)',scale:F.colors.includes(n)?'scale(.78)':'scale(1)',toggle:()=>this.setState(s=>{const h=s.filters.colors.includes(n);return{filters:{...s.filters,colors:h?s.filters.colors.filter(x=>x!==n):[...s.filters.colors,n]}};})}});
+    const colorChips=availColors.map(c=>{const n=c.name||c[0]||'',hex=c.hex||c[1]||'#9a9a8a';const act=F.colors.includes(n);return{name:n,hex,outline:act?'3px solid #28332c':'2px solid rgba(30,35,31,.15)',outlineOffset:'4px',shadow:act?'0 0 0 6px rgba(30,35,31,.08)':'none',toggle:()=>this.setState(s=>{const h=s.filters.colors.includes(n);return{filters:{...s.filters,colors:h?s.filters.colors.filter(x=>x!==n):[...s.filters.colors,n]}};})}});
     const maxPrice=Math.max(...this.products.map(p=>p.price),1000);
     const activeFilterCount=(F.cat!=='all'?1:0)+F.sizes.length+F.colors.length+(F.priceMax<maxPrice?1:0);
     const sortOpts=[['pop','Популярні'],['new','Спершу нові'],['priceAsc','Ціна: зростання'],['priceDesc','Ціна: спадання']].map(([v,l])=>({value:v,label:l}));
@@ -1470,8 +1473,18 @@ class Component extends DCLogic {
     // ===== PRODUCT =====
     const PD=this.products.find(x=>x.id===S.pid)||this.products[0]||{id:0,name:'',cat:'',price:0,old:0,desc:'',care:'',material:'',manufacturer:'',colors:[],sizes:[],imgs:[''],tone:this.C.olive,slug:'',badge:null};
     const pdColors=PD.colors.map(c=>Array.isArray(c)?{name:c[0],hex:c[1]}:(c.name?c:{name:String(c),hex:'#9a9a8a'}));
-    const pColors=pdColors.map((c,i)=>({name:c.name,hex:c.hex,ring:i===S.pColor?'#28332c':'rgba(30,35,31,.25)',pick:()=>this.setState({pColor:i})}));
-    const pSizes=PD.sizes.map(sz=>({label:sz,bg:S.pSize===sz?'#28332c':'transparent',color:S.pSize===sz?'#f1ebe1':'#1e231f',pick:()=>this.setState({pSize:sz})}));
+    const pColors=pdColors.map((c,i)=>{const sel=i===S.pColor;return{name:c.name,hex:c.hex,sel,outline:sel?'3px solid #1e231f':'2px solid rgba(30,35,31,.15)',outlineOffset:'4px',shadow:sel?'0 0 0 6px rgba(30,35,31,.08)':'none',pick:()=>this.setState({pColor:i})};});
+    const STD_SIZES=['XS','S','M','L','XL','XXL','One size'];
+    const isNum=sz=>/^\d+$/.test(sz);
+    const stdSizes=PD.sizes.filter(s=>STD_SIZES.includes(s));
+    const numSizes=PD.sizes.filter(s=>isNum(s));
+    const otherSizes=PD.sizes.filter(s=>!STD_SIZES.includes(s)&&!isNum(s));
+    const mkSz=sz=>({label:sz,isGroup:false,notGroup:true,bg:S.pSize===sz?'#28332c':'transparent',color:S.pSize===sz?'#f1ebe1':'#1e231f',border:S.pSize===sz?'2px solid #28332c':'1px solid rgba(30,35,31,.25)',pick:()=>this.setState({pSize:sz})});
+    const mkGr=label=>({label,isGroup:true,notGroup:false,bg:'',color:'',border:'',pick:()=>{}});
+    const mixed=stdSizes.length>0&&(numSizes.length>0||otherSizes.length>0);
+    const pSizes=mixed
+      ?[...(stdSizes.length?[mkGr('Стандарт'),...stdSizes.map(mkSz)]:[]),...(numSizes.length?[mkGr('Числові'),...numSizes.map(mkSz)]:[]),...(otherSizes.length?[mkGr('Інші'),...otherSizes.map(mkSz)]:[])]
+      :PD.sizes.map(mkSz);
     const pThumbs=PD.imgs.map((url,i)=>{const isU=url&&(url.startsWith('/')||url.startsWith('http'));return{imgSrc:isU?url:'',hasImg:isU,cap:isU?'':url,tone:PD.tone,border:i===S.pImg?'#28332c':'rgba(30,35,31,.12)',sel:()=>this.setState({pImg:i})};});
     const pMainUrl=PD.imgs[S.pImg]||PD.imgs[0]||'';
     const pHasMainImg=pMainUrl.startsWith('/')||pMainUrl.startsWith('http');
