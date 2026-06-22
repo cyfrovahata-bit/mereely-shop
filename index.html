@@ -1825,21 +1825,8 @@
 </sc-if>
 
 <!-- ====== FLOATING BUTTONS (right side) ====== -->
-<div style="position:fixed;bottom:{{ feedbackBottom }};right:24px;z-index:104;display:flex;flex-direction:column-reverse;align-items:flex-end;gap:10px">
-  <!-- Trigger button (at bottom, first in column-reverse) -->
-  <button onClick="{{ toggleFeedback }}" aria-label="Зворотній зв'язок" style="width:50px;height:50px;background:#a7613f;color:#f1ebe1;border:none;border-radius:50%;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 18px rgba(167,97,63,.45);transition:transform .3s ease,background .3s ease;cursor:pointer" style-hover="transform:scale(1.08)">
-    <sc-if value="{{ feedbackOpen }}" hint-placeholder-val="{{ false }}">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-    </sc-if>
-    <sc-if value="{{ !feedbackOpen }}" hint-placeholder-val="{{ true }}">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
-    </sc-if>
-  </button>
-  <!-- Back to top (above trigger) -->
-  <button onClick="{{ scrollToTop }}" aria-label="Вгору" style="width:44px;height:44px;background:#28332c;color:#f1ebe1;border:none;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 18px rgba(20,26,21,.25);opacity:{{ backTopOpacity }};pointer-events:{{ backTopPE }};transition:opacity .35s ease,transform .35s ease;cursor:pointer" style-hover="background:#a7613f;transform:translateY(-3px)">
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
-  </button>
-  <!-- Feedback popup (at top, last in column-reverse) -->
+<div style="position:fixed;bottom:{{ feedbackBottom }};right:24px;z-index:104;display:flex;flex-direction:column;align-items:flex-end;gap:10px">
+  <!-- Feedback popup (top, opens upward) -->
   <sc-if value="{{ feedbackOpen }}" hint-placeholder-val="{{ false }}">
   <div style="background:#f1ebe1;border:1px solid rgba(30,35,31,.12);box-shadow:0 12px 40px rgba(20,26,21,.18);padding:20px 22px;min-width:220px;animation:mrlFadeUp .25s ease">
     <p style="font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:#8a8f84;margin-bottom:14px;font-weight:600">Зв'язатися з нами</p>
@@ -1863,6 +1850,21 @@
     </div>
   </div>
   </sc-if>
+  <!-- Feedback trigger (second from bottom, pushed up when back-to-top visible) -->
+  <button onClick="{{ toggleFeedback }}" aria-label="Зворотній зв'язок" style="width:50px;height:50px;background:#a7613f;color:#f1ebe1;border:none;border-radius:50%;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 18px rgba(167,97,63,.45);transition:transform .3s ease,background .3s ease;cursor:pointer" style-hover="transform:scale(1.08)">
+    <sc-if value="{{ feedbackOpen }}" hint-placeholder-val="{{ false }}">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </sc-if>
+    <sc-if value="{{ !feedbackOpen }}" hint-placeholder-val="{{ true }}">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+    </sc-if>
+  </button>
+  <!-- Back to top (always at bottom, grows in/out) -->
+  <div style="height:{{ backTopH }};overflow:hidden;transition:height .35s cubic-bezier(.16,.84,.44,1)">
+    <button onClick="{{ scrollToTop }}" aria-label="Вгору" style="width:44px;height:44px;background:#28332c;color:#f1ebe1;border:none;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 18px rgba(20,26,21,.25);pointer-events:{{ backTopPE }};cursor:pointer;transition:background .25s" style-hover="background:#a7613f">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
+    </button>
+  </div>
 </div>
 
 <!-- ======== COOKIE CONSENT BANNER ======== -->
@@ -2514,7 +2516,7 @@ class Component extends DCLogic {
     const pMainUrl=PD.imgs[S.pImg]||PD.imgs[0]||'';
     const pHasMainImg=pMainUrl.startsWith('/')||pMainUrl.startsWith('http');
     const pRelated=this.products.filter(x=>x.cat===PD.cat&&x.id!==PD.id).concat(this.products.filter(x=>x.cat!==PD.cat)).slice(0,4).map(mkProd);
-    const pViewers = PD.id ? (7 + (PD.id * 3) % 11) : 0;
+    const pViewers = PD.id ? (1 + (PD.id * 7 + new Date().getMinutes()) % 5) : 0;
     const complementProds = this.products.filter(x=>x.cat!==PD.cat&&x.id!==PD.id).slice(0,2).map(mkProd);
     const hasComplement = complementProds.length > 0;
     const recentProds = S.recentlyViewed.filter(id=>id!==PD.id).slice(0,4).map(id=>this.products.find(p=>p.id===id)).filter(Boolean).map(mkProd);
@@ -2738,7 +2740,7 @@ class Component extends DCLogic {
       mbWishFill:S.page==='wishlist'?'#28332c':'none',
       mbCart:S.cartOpen?'#28332c':'#8a8f84',
       // back to top + feedback
-      backTopOpacity:S._scrolled?'1':'0', backTopPE:S._scrolled?'auto':'none',
+      backTopH:S._scrolled?'44px':'0px', backTopPE:S._scrolled?'auto':'none',
       feedbackBottom:isMobile?'82px':'24px',
       scrollToTop:()=>window.scrollTo({top:0,behavior:'smooth'}),
       feedbackOpen:S.feedbackOpen,
