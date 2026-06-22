@@ -90,7 +90,7 @@
 </style>
 </helmet>
 
-<div style="font-family:'Manrope',sans-serif;color:#1e231f;background:#f1ebe1;min-height:100vh;overflow-x:hidden;position:relative;padding-bottom:{{ contentPaddingBottom }}">
+<div style="font-family:'Manrope',sans-serif;color:#1e231f;background:#f1ebe1;min-height:100vh;overflow-x:clip;position:relative;padding-bottom:{{ contentPaddingBottom }}">
 
 <a href="#mrl-main" style="position:absolute;left:-999px;top:0;background:#28332c;color:#f1ebe1;padding:10px 18px;z-index:200">Перейти до вмісту</a>
 
@@ -1768,6 +1768,48 @@
 </div>
 </sc-if>
 
+<!-- ====== BACK TO TOP ====== -->
+<button onClick="{{ scrollToTop }}" aria-label="Вгору" style="position:fixed;bottom:{{ backTopBottom }};right:24px;z-index:104;width:44px;height:44px;background:#28332c;color:#f1ebe1;border:none;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 18px rgba(20,26,21,.25);opacity:{{ backTopOpacity }};pointer-events:{{ backTopPE }};transition:opacity .35s ease,transform .35s ease;cursor:pointer" style-hover="background:#a7613f;transform:translateY(-3px)">
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
+</button>
+
+<!-- ====== FLOATING FEEDBACK ====== -->
+<div style="position:fixed;bottom:{{ feedbackBottom }};left:24px;z-index:104;display:flex;flex-direction:column;align-items:flex-start;gap:10px">
+  <!-- Popup меню -->
+  <sc-if value="{{ feedbackOpen }}" hint-placeholder-val="{{ false }}">
+  <div style="background:#f1ebe1;border:1px solid rgba(30,35,31,.12);box-shadow:0 12px 40px rgba(20,26,21,.18);padding:20px 22px;min-width:220px;animation:mrlFadeUp .25s ease">
+    <p style="font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:#8a8f84;margin-bottom:14px;font-weight:600">Зв'язатися з нами</p>
+    <div style="display:flex;flex-direction:column;gap:10px">
+      <a href="tel:+380671234567" style="display:flex;align-items:center;gap:10px;font-size:13.5px;color:#1e231f;font-weight:500;padding:10px 12px;background:rgba(30,35,31,.04);transition:background .2s" style-hover="background:rgba(30,35,31,.08)">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#6f7a5e" stroke-width="2"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.09 12a19.79 19.79 0 01-3.07-8.67A2 2 0 012 1.27h3a2 2 0 012 1.72 12.84 12.84 0 00.7 2.81 2 2 0 01-.45 2.11L6.09 9a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45 12.84 12.84 0 002.81.7A2 2 0 0122 16.92z"/></svg>
+        +38 (067) 123-45-67
+      </a>
+      <a href="https://t.me/mereely_shop" target="_blank" rel="noopener" style="display:flex;align-items:center;gap:10px;font-size:13.5px;color:#1e231f;font-weight:500;padding:10px 12px;background:rgba(30,35,31,.04);transition:background .2s" style-hover="background:rgba(30,35,31,.08)">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="#2AABEE"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8l-1.68 7.92c-.12.56-.48.7-.96.44l-2.64-1.94-1.28 1.22c-.14.14-.26.26-.52.26l.18-2.66 4.74-4.28c.2-.18-.04-.28-.32-.1L7.46 14.4l-2.6-.82c-.56-.18-.58-.56.12-.82l10.18-3.92c.48-.16.9.12.48.96z"/></svg>
+        Telegram
+      </a>
+      <a href="viber://chat?number=%2B380671234567" style="display:flex;align-items:center;gap:10px;font-size:13.5px;color:#1e231f;font-weight:500;padding:10px 12px;background:rgba(30,35,31,.04);transition:background .2s" style-hover="background:rgba(30,35,31,.08)">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="#7360f2"><path d="M12 2C6.48 2 2 6.48 2 12c0 2.96 1.3 5.63 3.36 7.48L4 22l2.7-1.3A9.96 9.96 0 0012 22c5.52 0 10-4.48 10-10S17.52 2 12 2zm1.5 14.5c-.5.14-1.02.1-1.5-.1-1.8-.72-3.16-2.08-3.88-3.88-.2-.48-.24-1-.1-1.5.14-.5.48-.92.94-1.18l.76-.44c.18-.1.4-.08.56.06l1.04 1.04c.14.14.16.36.06.52l-.44.72c-.12.2-.1.46.06.62.56.56 1.16 1.04 1.84 1.4.18.1.42.06.56-.1l.64-.76c.14-.16.38-.2.56-.1l1.18.6c.2.1.3.32.24.54z"/></svg>
+        Viber
+      </a>
+      <a href="mailto:hello@styleroom.pp.ua" style="display:flex;align-items:center;gap:10px;font-size:13.5px;color:#1e231f;font-weight:500;padding:10px 12px;background:rgba(30,35,31,.04);transition:background .2s" style-hover="background:rgba(30,35,31,.08)">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#6f7a5e" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+        hello@styleroom.pp.ua
+      </a>
+    </div>
+  </div>
+  </sc-if>
+  <!-- Кнопка-тригер -->
+  <button onClick="{{ toggleFeedback }}" aria-label="Зворотній зв'язок" style="width:50px;height:50px;background:#a7613f;color:#f1ebe1;border:none;border-radius:50%;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 18px rgba(167,97,63,.45);transition:transform .3s ease,background .3s ease;cursor:pointer" style-hover="transform:scale(1.08)">
+    <sc-if value="{{ feedbackOpen }}" hint-placeholder-val="{{ false }}">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </sc-if>
+    <sc-if value="{{ !feedbackOpen }}" hint-placeholder-val="{{ true }}">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+    </sc-if>
+  </button>
+</div>
+
 </div>
 </x-dc>
 <script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:&quot;100%&quot;,&quot;height&quot;:900}}">
@@ -1843,7 +1885,7 @@ class Component extends DCLogic {
       page:'home', device:'desktop',
       cart:savedCart, cartOpen:false, menuOpen:false, wishlist:savedWishlist, sizeChartOpen:false,
       recentlyViewed:savedRecent, lastSize:savedLastSize,
-      exitPopupShown:false, exitPopupOpen:false, exitPopupEmail:'', exitPopupDone:false, _scrolled:false,
+      exitPopupShown:false, exitPopupOpen:false, exitPopupEmail:'', exitPopupDone:false, _scrolled:false, feedbackOpen:false,
       homeTab:'new', hoverId:null,
       newsEmail:'', newsErr:false, newsDone:false,
       filters:{cat:'all', sizes:[], colors:[], priceMax:999999}, sort:'pop', filtersOpen:false, filterSec:{cat:false,size:false,color:false,price:false},
@@ -2501,6 +2543,14 @@ class Component extends DCLogic {
       mbWish:S.page==='wishlist'?'#28332c':'#8a8f84',
       mbWishFill:S.page==='wishlist'?'#28332c':'none',
       mbCart:S.cartOpen?'#28332c':'#8a8f84',
+      // back to top + feedback
+      backTopOpacity:S._scrolled?'1':'0', backTopPE:S._scrolled?'auto':'none',
+      backTopBottom:isMobile?'82px':'24px',
+      feedbackBottom:isMobile?'82px':'24px',
+      scrollToTop:()=>window.scrollTo({top:0,behavior:'smooth'}),
+      feedbackOpen:S.feedbackOpen,
+      toggleFeedback:()=>this.setState(s=>({feedbackOpen:!s.feedbackOpen})),
+      closeFeedback:()=>this.setState({feedbackOpen:false}),
       // exit popup
       exitPopupOpen:S.exitPopupOpen,
       exitPopupDone:S.exitPopupDone||false,
