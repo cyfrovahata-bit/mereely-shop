@@ -495,8 +495,8 @@
         </sc-for>
       </div>
       <div class="mrl-gallery-wrap" style="flex:1;aspect-ratio:4/5">
-      <div onMouseMove="{{ pZoomMove }}" onMouseLeave="{{ pZoomLeave }}" onClick="{{ pZoomToggle }}" onTouchStart="{{ pTouchStart }}" onTouchEnd="{{ pTouchEnd }}" style="width:100%;height:100%;background:{{ pMainTone }};position:relative;overflow:hidden;cursor:{{ pZoomCursor }}">
-        <sc-if value="{{ pHasMainImg }}" hint-placeholder-val="{{ false }}"><img src="{{ pMainShot }}" alt="{{ pName }}" key="{{ pImg }}" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transform:{{ pMainTransform }};transform-origin:{{ pMainOrigin }};transition:transform .25s ease-out;animation:mrlImgFade .35s ease"/></sc-if>
+      <div onMouseMove="{{ pZoomMove }}" onMouseLeave="{{ pZoomLeave }}" onClick="{{ pZoomToggle }}" onTouchStart="{{ pTouchStart }}" onTouchEnd="{{ pTouchEnd }}" style="width:100%;height:100%;background:{{ pMainTone }};position:relative;overflow:hidden;cursor:{{ pZoomCursor }};opacity:{{ pGalleryOpacity }};transition:opacity .18s ease">
+        <sc-if value="{{ pHasMainImg }}" hint-placeholder-val="{{ false }}"><img src="{{ pMainShot }}" alt="{{ pName }}" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transform:{{ pMainTransform }};transform-origin:{{ pMainOrigin }};transition:transform .25s ease-out"/></sc-if>
         <sc-if value="{{ pHasMainImg }}" hint-placeholder-val="{{ true }}"><div style="position:absolute;inset:0;transform:{{ pMainTransform }};transform-origin:{{ pMainOrigin }};transition:transform .25s ease-out"></div></sc-if>
         <sc-if value="{{ pHasMainImg }}" hint-placeholder-val="{{ false }}"><span style="position:absolute;top:14px;right:14px;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,.65)">наведіть · клік для zoom</span></sc-if>
         <span style="position:absolute;left:-12px;top:-12px;width:54px;height:54px;border-left:1px solid #28332c;border-top:1px solid #28332c"></span>
@@ -1825,8 +1825,21 @@
 </sc-if>
 
 <!-- ====== FLOATING BUTTONS (right side) ====== -->
-<div style="position:fixed;bottom:{{ feedbackBottom }};right:24px;z-index:104;display:flex;flex-direction:column;align-items:flex-end;gap:10px">
-  <!-- Feedback popup -->
+<div style="position:fixed;bottom:{{ feedbackBottom }};right:24px;z-index:104;display:flex;flex-direction:column-reverse;align-items:flex-end;gap:10px">
+  <!-- Trigger button (at bottom, first in column-reverse) -->
+  <button onClick="{{ toggleFeedback }}" aria-label="Зворотній зв'язок" style="width:50px;height:50px;background:#a7613f;color:#f1ebe1;border:none;border-radius:50%;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 18px rgba(167,97,63,.45);transition:transform .3s ease,background .3s ease;cursor:pointer" style-hover="transform:scale(1.08)">
+    <sc-if value="{{ feedbackOpen }}" hint-placeholder-val="{{ false }}">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </sc-if>
+    <sc-if value="{{ !feedbackOpen }}" hint-placeholder-val="{{ true }}">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+    </sc-if>
+  </button>
+  <!-- Back to top (above trigger) -->
+  <button onClick="{{ scrollToTop }}" aria-label="Вгору" style="width:44px;height:44px;background:#28332c;color:#f1ebe1;border:none;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 18px rgba(20,26,21,.25);opacity:{{ backTopOpacity }};pointer-events:{{ backTopPE }};transition:opacity .35s ease,transform .35s ease;cursor:pointer" style-hover="background:#a7613f;transform:translateY(-3px)">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
+  </button>
+  <!-- Feedback popup (at top, last in column-reverse) -->
   <sc-if value="{{ feedbackOpen }}" hint-placeholder-val="{{ false }}">
   <div style="background:#f1ebe1;border:1px solid rgba(30,35,31,.12);box-shadow:0 12px 40px rgba(20,26,21,.18);padding:20px 22px;min-width:220px;animation:mrlFadeUp .25s ease">
     <p style="font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:#8a8f84;margin-bottom:14px;font-weight:600">Зв'язатися з нами</p>
@@ -1850,19 +1863,6 @@
     </div>
   </div>
   </sc-if>
-  <!-- Back to top -->
-  <button onClick="{{ scrollToTop }}" aria-label="Вгору" style="width:44px;height:44px;background:#28332c;color:#f1ebe1;border:none;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 18px rgba(20,26,21,.25);opacity:{{ backTopOpacity }};pointer-events:{{ backTopPE }};transition:opacity .35s ease,transform .35s ease;cursor:pointer" style-hover="background:#a7613f;transform:translateY(-3px)">
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
-  </button>
-  <!-- Trigger button -->
-  <button onClick="{{ toggleFeedback }}" aria-label="Зворотній зв'язок" style="width:50px;height:50px;background:#a7613f;color:#f1ebe1;border:none;border-radius:50%;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 18px rgba(167,97,63,.45);transition:transform .3s ease,background .3s ease;cursor:pointer" style-hover="transform:scale(1.08)">
-    <sc-if value="{{ feedbackOpen }}" hint-placeholder-val="{{ false }}">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-    </sc-if>
-    <sc-if value="{{ !feedbackOpen }}" hint-placeholder-val="{{ true }}">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
-    </sc-if>
-  </button>
 </div>
 
 <!-- ======== COOKIE CONSENT BANNER ======== -->
@@ -1883,7 +1883,8 @@
 
 <!-- ======== PRIVACY POLICY PAGE ======== -->
 <sc-if value="{{ isPrivacy }}">
-<div style="min-height:60vh;padding:60px 16px;max-width:800px;margin:0 auto;font-family:Manrope,sans-serif">
+<main style="padding:clamp(40px,6vw,80px) clamp(18px,4vw,46px);min-height:60vh">
+<div style="max-width:800px;margin:0 auto;font-family:Manrope,sans-serif">
   <h1 style="font-family:'Forum',serif;font-size:36px;margin-bottom:8px;color:#1e231f">Політика конфіденційності</h1>
   <p style="color:#6f7a5e;margin-bottom:32px;font-size:14px">Останнє оновлення: 1 червня 2025 р.</p>
 
@@ -1917,11 +1918,13 @@
 
   <button onClick="{{ goHome }}" style="background:#28332c;color:#f1ebe1;border:none;padding:13px 28px;font-size:12px;letter-spacing:.18em;text-transform:uppercase;font-weight:600;cursor:pointer;margin-top:16px" style-hover="background:#a7613f">← На головну</button>
 </div>
+</main>
 </sc-if>
 
 <!-- ======== TERMS OF USE PAGE ======== -->
 <sc-if value="{{ isTerms }}">
-<div style="min-height:60vh;padding:60px 16px;max-width:800px;margin:0 auto;font-family:Manrope,sans-serif">
+<main style="padding:clamp(40px,6vw,80px) clamp(18px,4vw,46px);min-height:60vh">
+<div style="max-width:800px;margin:0 auto;font-family:Manrope,sans-serif">
   <h1 style="font-family:'Forum',serif;font-size:36px;margin-bottom:8px;color:#1e231f">Умови використання</h1>
   <p style="color:#6f7a5e;margin-bottom:32px;font-size:14px">Останнє оновлення: 1 червня 2025 р.</p>
 
@@ -1953,6 +1956,7 @@
 
   <button onClick="{{ goHome }}" style="background:#28332c;color:#f1ebe1;border:none;padding:13px 28px;font-size:12px;letter-spacing:.18em;text-transform:uppercase;font-weight:600;cursor:pointer;margin-top:16px" style-hover="background:#a7613f">← На головну</button>
 </div>
+</main>
 </sc-if>
 
 </div>
@@ -2319,7 +2323,7 @@ class Component extends DCLogic {
     const next='/'+path;
     if(next!==cur) history.pushState(null,'',next);
   }
-  nav(p){ return (e)=>{ if(e&&e.preventDefault)e.preventDefault(); this._pushRoute(p==='home'?'':p); this.setState({page:p,menuOpen:false,quick:null}); this._updateTitle(); }; }
+  nav(p){ return (e)=>{ if(e&&e.preventDefault)e.preventDefault(); this._pushRoute(p==='home'?'':p); this.setState({page:p,menuOpen:false,quick:null}); this._updateTitle(); window.scrollTo(0,0); }; }
   openProduct(id){
     const p=this.products.find(x=>x.id===id);
     this._pushRoute('product/'+(p?p.slug:id));
@@ -2506,7 +2510,7 @@ class Component extends DCLogic {
     const pSizes=mixed
       ?[...(stdSizes.length?[mkGr('Стандарт'),...stdSizes.map(mkSz)]:[]),...(numSizes.length?[mkGr('Числові'),...numSizes.map(mkSz)]:[]),...(otherSizes.length?[mkGr('Інші'),...otherSizes.map(mkSz)]:[])]
       :PD.sizes.map(mkSz);
-    const pThumbs=PD.imgs.map((url,i)=>{const isU=url&&(url.startsWith('/')||url.startsWith('http'));const active=i===S.pImg;return{imgSrc:isU?url:'',hasImg:isU,cap:isU?'':url,tone:PD.tone,active,border:active?'#1e231f':'rgba(30,35,31,.18)',opacity:active?'1':'0.55',outline:active?'none':'none',sel:()=>this.setState({pImg:i})};});
+    const pThumbs=PD.imgs.map((url,i)=>{const isU=url&&(url.startsWith('/')||url.startsWith('http'));const active=i===S.pImg;return{imgSrc:isU?url:'',hasImg:isU,cap:isU?'':url,tone:PD.tone,active,border:active?'#1e231f':'rgba(30,35,31,.18)',opacity:active?'1':'0.55',outline:active?'none':'none',sel:()=>{if(i===S.pImg)return;this.setState({_imgFading:true},()=>setTimeout(()=>this.setState({pImg:i,_imgFading:false}),180));}};});
     const pMainUrl=PD.imgs[S.pImg]||PD.imgs[0]||'';
     const pHasMainImg=pMainUrl.startsWith('/')||pMainUrl.startsWith('http');
     const pRelated=this.products.filter(x=>x.cat===PD.cat&&x.id!==PD.id).concat(this.products.filter(x=>x.cat!==PD.cat)).slice(0,4).map(mkProd);
@@ -2752,9 +2756,10 @@ class Component extends DCLogic {
       pZoomMove:(e)=>{ if(!S.zoom)return; const r=e.currentTarget.getBoundingClientRect(); const x=((e.clientX-r.left)/r.width*100).toFixed(1); const y=((e.clientY-r.top)/r.height*100).toFixed(1); this.setState({zoomXY:x+'% '+y+'%'}); },
       pZoomLeave:()=>{ if(S.zoom) this.setState({zoom:false}); },
       pTouchStart:(e)=>{ this._touchX=e.touches[0].clientX; },
-      pTouchEnd:(e)=>{ const dx=e.changedTouches[0].clientX-this._touchX; if(Math.abs(dx)<40)return; const imgs=PD.imgs||[]; if(dx<0)this.setState(s=>({pImg:Math.min(s.pImg+1,imgs.length-1)})); else this.setState(s=>({pImg:Math.max(s.pImg-1,0)})); },
-      pImgPrev:(e)=>{e.stopPropagation();this.setState(s=>({pImg:Math.max(0,s.pImg-1)}));},
-      pImgNext:(e)=>{e.stopPropagation();this.setState(s=>({pImg:Math.min((PD.imgs||[]).length-1,s.pImg+1)}));},
+      pGalleryOpacity: S._imgFading?'0':'1',
+      pTouchEnd:(e)=>{ const dx=e.changedTouches[0].clientX-this._touchX; if(Math.abs(dx)<40)return; const imgs=PD.imgs||[]; const next=dx<0?Math.min(S.pImg+1,imgs.length-1):Math.max(S.pImg-1,0); if(next===S.pImg)return; this.setState({_imgFading:true},()=>setTimeout(()=>this.setState({pImg:next,_imgFading:false}),180)); },
+      pImgPrev:(e)=>{e.stopPropagation();const next=Math.max(0,S.pImg-1);if(next===S.pImg)return;this.setState({_imgFading:true},()=>setTimeout(()=>this.setState({pImg:next,_imgFading:false}),180));},
+      pImgNext:(e)=>{e.stopPropagation();const next=Math.min((PD.imgs||[]).length-1,S.pImg+1);if(next===S.pImg)return;this.setState({_imgFading:true},()=>setTimeout(()=>this.setState({pImg:next,_imgFading:false}),180));},
       pShowPrev:S.pImg>0,
       pShowNext:S.pImg<(PD.imgs||[]).length-1,
       showStickyBuy:S.page==='product'&&isMobile,
