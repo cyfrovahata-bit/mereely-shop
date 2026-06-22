@@ -870,7 +870,437 @@
 </div>
 </sc-if>
 
+
+<!-- =========================== GIFT =========================== -->
+<sc-if value="{{ isGift }}" hint-placeholder-val="{{ false }}">
+<div data-screen-label="Подарункові сертифікати">
+  <div style="max-width:860px;margin:0 auto;padding:clamp(40px,6vw,80px) clamp(18px,4vw,46px)">
+    <nav aria-label="Хлібні крихти" style="font-size:12px;letter-spacing:.1em;color:#8a8f84;margin-bottom:32px;display:flex;gap:8px;align-items:center">
+      <a href="#" onClick="{{ goHome }}" style="color:#6f7a5e">Головна</a><span>/</span><span>Подарункові сертифікати</span>
+    </nav>
+    <h1 style="font-family:'Forum',serif;font-weight:400;font-size:clamp(28px,4vw,48px);margin-bottom:16px">Подарункові сертифікати</h1>
+    <p style="font-size:15px;color:#41463f;line-height:1.7;margin-bottom:48px;max-width:520px">Подаруйте близькій людині свободу вибору — нехай обере саме те, що хочеться.</p>
+    <!-- Certificate visual -->
+    <div style="background:linear-gradient(135deg,#28332c 0%,#3d4d3e 50%,#1e231f 100%);padding:clamp(32px,5vw,56px);margin-bottom:48px;position:relative;overflow:hidden">
+      <div style="position:absolute;top:-30px;right:-30px;width:200px;height:200px;border-radius:50%;background:rgba(241,235,225,.04)"></div>
+      <div style="position:absolute;bottom:-20px;left:40px;width:120px;height:120px;border-radius:50%;background:rgba(167,97,63,.12)"></div>
+      <span style="font-family:'Forum',serif;font-size:11px;letter-spacing:.42em;color:rgba(241,235,225,.5);display:block;margin-bottom:18px">MEREELY SHOP · UKRAINE</span>
+      <span style="font-family:'Forum',serif;font-size:clamp(36px,6vw,64px);color:#f1ebe1;display:block;line-height:1">Сертифікат</span>
+      <span style="font-family:'Forum',serif;font-size:clamp(22px,4vw,38px);color:#cdbfa3;display:block;margin-top:8px">{{ giftDenom }} ₴</span>
+      <span style="display:block;margin-top:24px;font-size:11px;letter-spacing:.22em;color:rgba(241,235,225,.45)">ПОДАРУНКОВИЙ · ЖІНОЧИЙ ОДЯГ</span>
+    </div>
+    <!-- Denominations -->
+    <p style="font-size:12px;letter-spacing:.2em;text-transform:uppercase;color:#6f7a5e;margin-bottom:16px">Оберіть номінал</p>
+    <div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:48px">
+      <button onClick="{{ setGift500 }}" style="padding:18px 32px;font-family:'Forum',serif;font-size:22px;background:{{ giftD500Bg }};color:{{ giftD500Color }};border:{{ giftD500Border }};transition:all .3s">500 ₴</button>
+      <button onClick="{{ setGift1000 }}" style="padding:18px 32px;font-family:'Forum',serif;font-size:22px;background:{{ giftD1000Bg }};color:{{ giftD1000Color }};border:{{ giftD1000Border }};transition:all .3s">1 000 ₴</button>
+      <button onClick="{{ setGift1500 }}" style="padding:18px 32px;font-family:'Forum',serif;font-size:22px;background:{{ giftD1500Bg }};color:{{ giftD1500Color }};border:{{ giftD1500Border }};transition:all .3s">1 500 ₴</button>
+    </div>
+    <!-- Form -->
+    <form onSubmit="{{ submitGift }}" style="display:flex;flex-direction:column;gap:18px;max-width:540px">
+      <p style="font-size:12px;letter-spacing:.2em;text-transform:uppercase;color:#6f7a5e;margin-bottom:4px">Деталі замовлення</p>
+      <label style="display:block"><span style="font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:#6c7166;display:block;margin-bottom:6px">Ім'я отримувача</span><input value="{{ giftRecipient }}" onInput="{{ setGiftRecipient }}" placeholder="Наприклад, Олена" style="width:100%;background:#fff;border:1px solid rgba(30,35,31,.2);padding:12px 14px;font-size:14px;color:#1e231f;outline:none;font-family:'Manrope',sans-serif"/></label>
+      <label style="display:block"><span style="font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:#6c7166;display:block;margin-bottom:6px">Ваше ім'я</span><input value="{{ giftSender }}" onInput="{{ setGiftSender }}" placeholder="Від кого" style="width:100%;background:#fff;border:1px solid rgba(30,35,31,.2);padding:12px 14px;font-size:14px;color:#1e231f;outline:none;font-family:'Manrope',sans-serif"/></label>
+      <label style="display:block"><span style="font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:#6c7166;display:block;margin-bottom:6px">Побажання (необов'язково)</span><textarea value="{{ giftMsg }}" onInput="{{ setGiftMsg }}" rows="3" placeholder="Привітання або особисте побажання..." style="width:100%;background:#fff;border:1px solid rgba(30,35,31,.2);padding:12px 14px;font-size:14px;color:#1e231f;outline:none;font-family:'Manrope',sans-serif;resize:vertical"></textarea></label>
+      <label style="display:block"><span style="font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:#6c7166;display:block;margin-bottom:6px">Email для надсилання</span><input type="email" value="{{ giftEmail }}" onInput="{{ setGiftEmail }}" placeholder="email@приклад.com" style="width:100%;background:#fff;border:1px solid rgba(30,35,31,.2);padding:12px 14px;font-size:14px;color:#1e231f;outline:none;font-family:'Manrope',sans-serif"/></label>
+      <button type="submit" class="mrl-cta" style="background:#a7613f;color:#f1ebe1;padding:16px 36px;font-size:12px;letter-spacing:.22em;text-transform:uppercase;font-weight:600;border:none;align-self:flex-start;transition:opacity .3s" style-hover="opacity:.85">Замовити сертифікат</button>
+    </form>
+  </div>
+</div>
+</sc-if>
+
+<!-- =========================== DELIVERY =========================== -->
+<sc-if value="{{ isDelivery }}" hint-placeholder-val="{{ false }}">
+<div data-screen-label="Доставка й оплата">
+  <div style="max-width:860px;margin:0 auto;padding:clamp(40px,6vw,80px) clamp(18px,4vw,46px)">
+    <nav aria-label="Хлібні крихти" style="font-size:12px;letter-spacing:.1em;color:#8a8f84;margin-bottom:32px;display:flex;gap:8px;align-items:center">
+      <a href="#" onClick="{{ goHome }}" style="color:#6f7a5e">Головна</a><span>/</span><span>Доставка й оплата</span>
+    </nav>
+    <h1 style="font-family:'Forum',serif;font-weight:400;font-size:clamp(28px,4vw,48px);margin-bottom:40px">Доставка й оплата</h1>
+    <!-- Delivery methods -->
+    <section style="margin-bottom:48px">
+      <h2 style="font-family:'Forum',serif;font-size:clamp(20px,3vw,28px);font-weight:400;margin-bottom:24px;color:#1e231f">Способи доставки</h2>
+      <div style="display:flex;flex-direction:column;gap:16px">
+        <div style="background:#fff;border:1px solid rgba(30,35,31,.12);padding:24px;display:flex;gap:20px;align-items:flex-start">
+          <span style="font-size:28px;flex:none">📦</span>
+          <div>
+            <p style="font-weight:600;font-size:15px;margin-bottom:6px">Нова Пошта</p>
+            <p style="font-size:14px;color:#41463f;line-height:1.6;margin-bottom:8px">1–2 робочих дні. Відправляємо щодня до 14:00.</p>
+            <div style="display:flex;gap:16px;flex-wrap:wrap">
+              <span style="font-size:13px;color:#6f7a5e;font-weight:500">До 2500 ₴ — 60 ₴</span>
+              <span style="font-size:13px;color:#a7613f;font-weight:600">Від 2500 ₴ — безкоштовно</span>
+            </div>
+          </div>
+        </div>
+        <div style="background:#fff;border:1px solid rgba(30,35,31,.12);padding:24px;display:flex;gap:20px;align-items:flex-start">
+          <span style="font-size:28px;flex:none">✉️</span>
+          <div>
+            <p style="font-weight:600;font-size:15px;margin-bottom:6px">Укрпошта</p>
+            <p style="font-size:14px;color:#41463f;line-height:1.6;margin-bottom:8px">2–4 робочих дні. Доставка за адресою або у відділення.</p>
+            <span style="font-size:13px;color:#6f7a5e;font-weight:500">45 ₴ по Україні</span>
+          </div>
+        </div>
+        <div style="background:#fff;border:1px solid rgba(30,35,31,.12);padding:24px;display:flex;gap:20px;align-items:flex-start">
+          <span style="font-size:28px;flex:none">🚚</span>
+          <div>
+            <p style="font-weight:600;font-size:15px;margin-bottom:6px">Meest</p>
+            <p style="font-size:14px;color:#41463f;line-height:1.6;margin-bottom:8px">2–3 робочих дні. Мережа відділень та поштоматів по Україні.</p>
+            <span style="font-size:13px;color:#6f7a5e;font-weight:500">60 ₴ по Україні</span>
+          </div>
+        </div>
+      </div>
+    </section>
+    <!-- Payment -->
+    <section style="margin-bottom:48px">
+      <h2 style="font-family:'Forum',serif;font-size:clamp(20px,3vw,28px);font-weight:400;margin-bottom:24px;color:#1e231f">Оплата</h2>
+      <div style="background:#fff;border:1px solid rgba(30,35,31,.12);padding:28px">
+        <p style="font-size:15px;font-weight:600;margin-bottom:12px">Тільки передплата онлайн</p>
+        <p style="font-size:14px;color:#41463f;line-height:1.7;margin-bottom:20px">Ми працюємо виключно по передплаті — це гарантує безпеку для обох сторін. Після підтвердження замовлення ми надішлемо вам посилання або реквізити для оплати.</p>
+        <div style="display:flex;gap:12px;flex-wrap:wrap">
+          <span style="background:#f1ebe1;border:1px solid rgba(30,35,31,.12);padding:8px 16px;font-size:13px;font-weight:500">💳 Visa / Mastercard</span>
+          <span style="background:#f1ebe1;border:1px solid rgba(30,35,31,.12);padding:8px 16px;font-size:13px;font-weight:500"> Apple Pay</span>
+          <span style="background:#f1ebe1;border:1px solid rgba(30,35,31,.12);padding:8px 16px;font-size:13px;font-weight:500">🟢 Google Pay</span>
+        </div>
+      </div>
+    </section>
+    <!-- Returns note -->
+    <section style="background:#eef0e6;border-left:3px solid #6f7a5e;padding:20px 24px">
+      <p style="font-size:14px;color:#28332c;line-height:1.7"><strong>Повернення:</strong> 14 днів з моменту отримання. Товар має бути з бирками й без слідів носіння. <a href="#" onClick="{{ goReturns }}" style="color:#a7613f;text-decoration:underline">Детальніше про повернення →</a></p>
+    </section>
+  </div>
+</div>
+</sc-if>
+
+<!-- =========================== RETURNS =========================== -->
+<sc-if value="{{ isReturns }}" hint-placeholder-val="{{ false }}">
+<div data-screen-label="Обмін і повернення">
+  <div style="max-width:860px;margin:0 auto;padding:clamp(40px,6vw,80px) clamp(18px,4vw,46px)">
+    <nav aria-label="Хлібні крихти" style="font-size:12px;letter-spacing:.1em;color:#8a8f84;margin-bottom:32px;display:flex;gap:8px;align-items:center">
+      <a href="#" onClick="{{ goHome }}" style="color:#6f7a5e">Головна</a><span>/</span><span>Обмін і повернення</span>
+    </nav>
+    <h1 style="font-family:'Forum',serif;font-weight:400;font-size:clamp(28px,4vw,48px);margin-bottom:16px">Обмін і повернення</h1>
+    <p style="font-size:15px;color:#41463f;line-height:1.7;margin-bottom:48px">Ми хочемо, щоб ви були задоволені своєю покупкою. Якщо щось не підійшло — ми вирішимо це.</p>
+    <!-- Policy -->
+    <section style="margin-bottom:48px">
+      <h2 style="font-family:'Forum',serif;font-size:clamp(20px,3vw,28px);font-weight:400;margin-bottom:20px">Умови повернення</h2>
+      <div style="display:flex;flex-direction:column;gap:12px">
+        <div style="display:flex;gap:16px;padding:18px 20px;background:#fff;border:1px solid rgba(30,35,31,.1)">
+          <span style="color:#6f7a5e;font-size:20px;flex:none">✓</span>
+          <div><p style="font-weight:600;font-size:14px;margin-bottom:4px">14 днів</p><p style="font-size:13.5px;color:#41463f">Термін для повернення чи обміну з моменту отримання</p></div>
+        </div>
+        <div style="display:flex;gap:16px;padding:18px 20px;background:#fff;border:1px solid rgba(30,35,31,.1)">
+          <span style="color:#6f7a5e;font-size:20px;flex:none">✓</span>
+          <div><p style="font-weight:600;font-size:14px;margin-bottom:4px">Бирки на місці</p><p style="font-size:13.5px;color:#41463f">Товар має бути з усіма оригінальними бирками</p></div>
+        </div>
+        <div style="display:flex;gap:16px;padding:18px 20px;background:#fff;border:1px solid rgba(30,35,31,.1)">
+          <span style="color:#6f7a5e;font-size:20px;flex:none">✓</span>
+          <div><p style="font-weight:600;font-size:14px;margin-bottom:4px">Не ношений</p><p style="font-size:13.5px;color:#41463f">Без слідів носіння, запахів чи пошкоджень</p></div>
+        </div>
+        <div style="display:flex;gap:16px;padding:18px 20px;background:#fff;border:1px solid rgba(30,35,31,.1)">
+          <span style="color:#a7613f;font-size:20px;flex:none">✗</span>
+          <div><p style="font-weight:600;font-size:14px;margin-bottom:4px">Не підлягають поверненню</p><p style="font-size:13.5px;color:#41463f">Нижня білизна, купальники та товари зі знятою гігієнічною плівкою</p></div>
+        </div>
+      </div>
+    </section>
+    <!-- Steps -->
+    <section style="margin-bottom:56px">
+      <h2 style="font-family:'Forum',serif;font-size:clamp(20px,3vw,28px);font-weight:400;margin-bottom:24px">Як оформити повернення</h2>
+      <div style="display:flex;flex-direction:column;gap:0">
+        <div style="display:flex;gap:20px;padding-bottom:28px;border-left:2px solid #6f7a5e;padding-left:28px;position:relative;margin-left:14px">
+          <span style="position:absolute;left:-14px;top:0;width:26px;height:26px;border-radius:50%;background:#6f7a5e;color:#f1ebe1;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;flex:none">1</span>
+          <div><p style="font-weight:600;font-size:15px;margin-bottom:4px">Зв'яжіться з нами</p><p style="font-size:14px;color:#41463f;line-height:1.6">Заповніть форму нижче або напишіть на mereely@gmail.com із зазначенням номера замовлення.</p></div>
+        </div>
+        <div style="display:flex;gap:20px;padding-bottom:28px;border-left:2px solid #6f7a5e;padding-left:28px;position:relative;margin-left:14px">
+          <span style="position:absolute;left:-14px;top:0;width:26px;height:26px;border-radius:50%;background:#6f7a5e;color:#f1ebe1;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;flex:none">2</span>
+          <div><p style="font-weight:600;font-size:15px;margin-bottom:4px">Запакуйте товар</p><p style="font-size:14px;color:#41463f;line-height:1.6">Дбайливо запакуйте річ в оригінальне або інше надійне пакування.</p></div>
+        </div>
+        <div style="display:flex;gap:20px;padding-bottom:28px;border-left:2px solid #6f7a5e;padding-left:28px;position:relative;margin-left:14px">
+          <span style="position:absolute;left:-14px;top:0;width:26px;height:26px;border-radius:50%;background:#6f7a5e;color:#f1ebe1;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;flex:none">3</span>
+          <div><p style="font-weight:600;font-size:15px;margin-bottom:4px">Відправте Новою Поштою</p><p style="font-size:14px;color:#41463f;line-height:1.6">Після узгодження ми надішлемо вам адресу повернення. Вартість відправки — за рахунок покупця (окрім випадків браку).</p></div>
+        </div>
+        <div style="display:flex;gap:20px;padding-left:28px;position:relative;margin-left:14px">
+          <span style="position:absolute;left:-14px;top:0;width:26px;height:26px;border-radius:50%;background:#a7613f;color:#f1ebe1;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;flex:none">4</span>
+          <div><p style="font-weight:600;font-size:15px;margin-bottom:4px">Отримайте кошти</p><p style="font-size:14px;color:#41463f;line-height:1.6">Повернення коштів — протягом 3–5 робочих днів після отримання товару нами.</p></div>
+        </div>
+      </div>
+    </section>
+    <!-- Return form -->
+    <section>
+      <h2 style="font-family:'Forum',serif;font-size:clamp(20px,3vw,28px);font-weight:400;margin-bottom:24px">Форма повернення</h2>
+      <form onSubmit="{{ submitReturn }}" style="display:flex;flex-direction:column;gap:16px;max-width:520px">
+        <label style="display:block"><span style="font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:#6c7166;display:block;margin-bottom:6px">Номер замовлення</span><input value="{{ returnOrderNum }}" onInput="{{ setReturnOrderNum }}" placeholder="MRL-XXXXXX" style="width:100%;background:#fff;border:1px solid rgba(30,35,31,.2);padding:12px 14px;font-size:14px;color:#1e231f;outline:none;font-family:'Manrope',sans-serif"/></label>
+        <label style="display:block"><span style="font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:#6c7166;display:block;margin-bottom:6px">Email замовлення</span><input type="email" value="{{ returnEmail }}" onInput="{{ setReturnEmail }}" placeholder="email@приклад.com" style="width:100%;background:#fff;border:1px solid rgba(30,35,31,.2);padding:12px 14px;font-size:14px;color:#1e231f;outline:none;font-family:'Manrope',sans-serif"/></label>
+        <label style="display:block"><span style="font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:#6c7166;display:block;margin-bottom:6px">Причина повернення</span>
+          <select value="{{ returnReason }}" onChange="{{ setReturnReason }}" style="width:100%;background:#fff;border:1px solid rgba(30,35,31,.2);padding:12px 14px;font-size:14px;color:#1e231f;outline:none;font-family:'Manrope',sans-serif;cursor:pointer">
+            <option value="">Оберіть причину...</option>
+            <option value="size">Не підійшов розмір</option>
+            <option value="quality">Не відповідає опису</option>
+            <option value="defect">Брак / пошкодження</option>
+            <option value="changed_mind">Змінила думку</option>
+            <option value="other">Інша причина</option>
+          </select>
+        </label>
+        <button type="submit" class="mrl-cta" style="background:#a7613f;color:#f1ebe1;padding:15px 32px;font-size:12px;letter-spacing:.22em;text-transform:uppercase;font-weight:600;border:none;align-self:flex-start;transition:opacity .3s" style-hover="opacity:.85">Надіслати заявку</button>
+      </form>
+    </section>
+  </div>
+</div>
+</sc-if>
+
+<!-- =========================== FAQ =========================== -->
+<sc-if value="{{ isFaq }}" hint-placeholder-val="{{ false }}">
+<div data-screen-label="FAQ">
+  <div style="max-width:860px;margin:0 auto;padding:clamp(40px,6vw,80px) clamp(18px,4vw,46px)">
+    <nav aria-label="Хлібні крихти" style="font-size:12px;letter-spacing:.1em;color:#8a8f84;margin-bottom:32px;display:flex;gap:8px;align-items:center">
+      <a href="#" onClick="{{ goHome }}" style="color:#6f7a5e">Головна</a><span>/</span><span>FAQ</span>
+    </nav>
+    <h1 style="font-family:'Forum',serif;font-weight:400;font-size:clamp(28px,4vw,48px);margin-bottom:12px">Часті запитання</h1>
+    <p style="font-size:15px;color:#41463f;line-height:1.7;margin-bottom:48px">Відповіді на найпоширеніші запитання про замовлення, доставку та повернення.</p>
+    <div style="display:flex;flex-direction:column;gap:0;border-top:1px solid rgba(30,35,31,.12)">
+      <sc-for list="{{ faqPageList }}" as="fq" hint-placeholder-count="5">
+        <div style="border-bottom:1px solid rgba(30,35,31,.12)">
+          <button onClick="{{ fq.toggle }}" style="width:100%;display:flex;justify-content:space-between;align-items:center;padding:22px 0;text-align:left;gap:16px;background:none;border:none">
+            <span style="font-size:15.5px;font-weight:600;color:#1e231f">{{ fq.q }}</span>
+            <svg style="flex:none;transform:{{ fq.iconRot }};transition:transform .35s" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#6f7a5e" stroke-width="1.5"><path d="M12 5v14M5 12h14"/></svg>
+          </button>
+          <div class="mrl-faq-body" style="grid-template-rows:{{ fq.gridRows }}">
+            <div class="mrl-faq-inner"><p style="font-size:14.5px;color:#41463f;line-height:1.75;padding-bottom:20px">{{ fq.a }}</p></div>
+          </div>
+        </div>
+      </sc-for>
+    </div>
+    <div style="margin-top:48px;background:#eef0e6;padding:28px;text-align:center">
+      <p style="font-size:14px;color:#28332c;margin-bottom:16px">Не знайшли відповіді на своє запитання?</p>
+      <button onClick="{{ goContacts }}" class="mrl-cta" style="background:#28332c;color:#f1ebe1;padding:14px 30px;font-size:12px;letter-spacing:.2em;text-transform:uppercase;font-weight:600;border:none">Написати нам</button>
+    </div>
+  </div>
+</div>
+</sc-if>
+
+<!-- =========================== JOURNAL =========================== -->
+<sc-if value="{{ isJournal }}" hint-placeholder-val="{{ false }}">
+<div data-screen-label="Журнал стилю">
+  <div style="max-width:1100px;margin:0 auto;padding:clamp(40px,6vw,80px) clamp(18px,4vw,46px)">
+    <nav aria-label="Хлібні крихти" style="font-size:12px;letter-spacing:.1em;color:#8a8f84;margin-bottom:32px;display:flex;gap:8px;align-items:center">
+      <a href="#" onClick="{{ goHome }}" style="color:#6f7a5e">Головна</a><span>/</span><span>Журнал стилю</span>
+    </nav>
+    <div style="margin-bottom:48px">
+      <p style="font-size:12px;letter-spacing:.32em;text-transform:uppercase;color:#a7613f;margin-bottom:16px">MEREELY JOURNAL</p>
+      <h1 style="font-family:'Forum',serif;font-weight:400;font-size:clamp(28px,4vw,48px);margin-bottom:12px">Журнал стилю</h1>
+      <p style="font-size:15px;color:#41463f;line-height:1.7;max-width:520px">Поради зі стилю, огляди трендів та гардеробні рішення від команди Mereely Shop.</p>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:clamp(20px,3vw,36px);margin-bottom:64px">
+      <!-- Article card 1 -->
+      <article style="display:flex;flex-direction:column">
+        <div style="aspect-ratio:4/3;background:linear-gradient(145deg,#7c8568,#5a6350);display:flex;align-items:flex-end;padding:20px;position:relative;overflow:hidden">
+          <div style="position:absolute;inset:0;opacity:.2;background:url('data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%22100%22 height=%22100%22><rect fill=%22%23000%22 width=%22100%22 height=%22100%22 opacity=%220%22/></svg>')"></div>
+          <span style="background:#f1ebe1;color:#1e231f;font-size:10px;letter-spacing:.2em;text-transform:uppercase;padding:5px 12px;font-weight:600">Гардероб</span>
+        </div>
+        <div style="padding:20px 0;flex:1;display:flex;flex-direction:column">
+          <p style="font-size:11.5px;color:#8a8f84;margin-bottom:10px">14 червня 2026 · 4 хв читання</p>
+          <h3 style="font-family:'Forum',serif;font-size:22px;font-weight:400;line-height:1.2;margin-bottom:12px;flex:1">5 базових речей, що поєднуються між собою</h3>
+          <p style="font-size:13.5px;color:#41463f;line-height:1.65;margin-bottom:16px">Капсульний гардероб — це не про кількість, а про якість вибору. Розповідаємо, що має бути у кожної жінки.</p>
+          <button onClick="{{ submitSaleNews }}" style="align-self:flex-start;font-size:12px;letter-spacing:.2em;text-transform:uppercase;font-weight:600;color:#a7613f;border:none;background:none;border-bottom:1px solid #a7613f;padding:0 0 2px;transition:opacity .3s" style-hover="opacity:.6">Читати →</button>
+        </div>
+      </article>
+      <!-- Article card 2 -->
+      <article style="display:flex;flex-direction:column">
+        <div style="aspect-ratio:4/3;background:linear-gradient(145deg,#9c6248,#7a4a36);display:flex;align-items:flex-end;padding:20px">
+          <span style="background:#f1ebe1;color:#1e231f;font-size:10px;letter-spacing:.2em;text-transform:uppercase;padding:5px 12px;font-weight:600">Догляд</span>
+        </div>
+        <div style="padding:20px 0;flex:1;display:flex;flex-direction:column">
+          <p style="font-size:11.5px;color:#8a8f84;margin-bottom:10px">8 червня 2026 · 3 хв читання</p>
+          <h3 style="font-family:'Forum',serif;font-size:22px;font-weight:400;line-height:1.2;margin-bottom:12px;flex:1">Як зберегти улюблену вовну на роки</h3>
+          <p style="font-size:13.5px;color:#41463f;line-height:1.65;margin-bottom:16px">Вовняні речі вимагають особливого ставлення. Ділимося секретами правильного прання та зберігання.</p>
+          <button onClick="{{ submitSaleNews }}" style="align-self:flex-start;font-size:12px;letter-spacing:.2em;text-transform:uppercase;font-weight:600;color:#a7613f;border:none;background:none;border-bottom:1px solid #a7613f;padding:0 0 2px;transition:opacity .3s" style-hover="opacity:.6">Читати →</button>
+        </div>
+      </article>
+      <!-- Article card 3 -->
+      <article style="display:flex;flex-direction:column">
+        <div style="aspect-ratio:4/3;background:linear-gradient(145deg,#b8bca8,#8f9b84);display:flex;align-items:flex-end;padding:20px">
+          <span style="background:#f1ebe1;color:#1e231f;font-size:10px;letter-spacing:.2em;text-transform:uppercase;padding:5px 12px;font-weight:600">Стиль</span>
+        </div>
+        <div style="padding:20px 0;flex:1;display:flex;flex-direction:column">
+          <p style="font-size:11.5px;color:#8a8f84;margin-bottom:10px">2 червня 2026 · 6 хв читання</p>
+          <h3 style="font-family:'Forum',serif;font-size:22px;font-weight:400;line-height:1.2;margin-bottom:12px;flex:1">Капсула на весну: від офісу до вечері</h3>
+          <p style="font-size:13.5px;color:#41463f;line-height:1.65;margin-bottom:16px">Як зібрати гардероб із 8 речей, де кожна поєднується з усіма іншими, і не думати «нічого вдягнути».</p>
+          <button onClick="{{ submitSaleNews }}" style="align-self:flex-start;font-size:12px;letter-spacing:.2em;text-transform:uppercase;font-weight:600;color:#a7613f;border:none;background:none;border-bottom:1px solid #a7613f;padding:0 0 2px;transition:opacity .3s" style-hover="opacity:.6">Читати →</button>
+        </div>
+      </article>
+      <!-- Article card 4 -->
+      <article style="display:flex;flex-direction:column">
+        <div style="aspect-ratio:4/3;background:linear-gradient(145deg,#9a8662,#6e5e43);display:flex;align-items:flex-end;padding:20px">
+          <span style="background:#f1ebe1;color:#1e231f;font-size:10px;letter-spacing:.2em;text-transform:uppercase;padding:5px 12px;font-weight:600">Тренди</span>
+        </div>
+        <div style="padding:20px 0;flex:1;display:flex;flex-direction:column">
+          <p style="font-size:11.5px;color:#8a8f84;margin-bottom:10px">28 травня 2026 · 5 хв читання</p>
+          <h3 style="font-family:'Forum',serif;font-size:22px;font-weight:400;line-height:1.2;margin-bottom:12px;flex:1">Земляні відтінки: як носити бежевий і не злитися</h3>
+          <p style="font-size:13.5px;color:#41463f;line-height:1.65;margin-bottom:16px">Монохромний образ у земляній гамі — один із найелегантніших виборів. Але є нюанси.</p>
+          <button onClick="{{ submitSaleNews }}" style="align-self:flex-start;font-size:12px;letter-spacing:.2em;text-transform:uppercase;font-weight:600;color:#a7613f;border:none;background:none;border-bottom:1px solid #a7613f;padding:0 0 2px;transition:opacity .3s" style-hover="opacity:.6">Читати →</button>
+        </div>
+      </article>
+    </div>
+    <!-- Subscribe section -->
+    <div style="background:#28332c;padding:clamp(32px,5vw,52px);text-align:center">
+      <p style="font-size:12px;letter-spacing:.32em;text-transform:uppercase;color:#cdbfa3;margin-bottom:16px">ЖУРНАЛ + НОВИНИ</p>
+      <h2 style="font-family:'Forum',serif;font-size:clamp(24px,3vw,36px);font-weight:400;color:#f1ebe1;margin-bottom:12px">Будьте в курсі</h2>
+      <p style="font-size:14px;color:rgba(241,235,225,.65);margin-bottom:28px">Нові статті, колекції та спеціальні пропозиції — прямо у вашу скриньку.</p>
+      <form onSubmit="{{ submitSaleNews }}" style="display:flex;gap:0;max-width:420px;margin:0 auto">
+        <input type="email" value="{{ saleNewsEmail }}" onInput="{{ setSaleNewsEmail }}" placeholder="Ваш email" style="flex:1;background:#fff;border:none;padding:14px 18px;font-size:14px;color:#1e231f;outline:none;font-family:'Manrope',sans-serif"/>
+        <button type="submit" class="mrl-cta" style="background:#a7613f;color:#f1ebe1;padding:14px 24px;font-size:11px;letter-spacing:.2em;text-transform:uppercase;font-weight:600;border:none;white-space:nowrap">Підписатися</button>
+      </form>
+    </div>
+  </div>
+</div>
+</sc-if>
+
+<!-- =========================== COLLAB =========================== -->
+<sc-if value="{{ isCollab }}" hint-placeholder-val="{{ false }}">
+<div data-screen-label="Співпраця">
+  <div style="max-width:860px;margin:0 auto;padding:clamp(40px,6vw,80px) clamp(18px,4vw,46px)">
+    <nav aria-label="Хлібні крихти" style="font-size:12px;letter-spacing:.1em;color:#8a8f84;margin-bottom:32px;display:flex;gap:8px;align-items:center">
+      <a href="#" onClick="{{ goHome }}" style="color:#6f7a5e">Головна</a><span>/</span><span>Співпраця</span>
+    </nav>
+    <h1 style="font-family:'Forum',serif;font-weight:400;font-size:clamp(28px,4vw,48px);margin-bottom:16px">Співпраця</h1>
+    <p style="font-size:15px;color:#41463f;line-height:1.7;margin-bottom:56px;max-width:540px">Ми відкриті до партнерства з блогерами, оптовими клієнтами та корпоративними замовниками.</p>
+    <!-- 3 sections -->
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:24px;margin-bottom:56px">
+      <div style="background:#fff;border:1px solid rgba(30,35,31,.1);padding:28px">
+        <span style="font-size:32px;display:block;margin-bottom:16px">📸</span>
+        <h3 style="font-family:'Forum',serif;font-size:22px;font-weight:400;margin-bottom:12px">Блогери та інфлюенсери</h3>
+        <p style="font-size:13.5px;color:#41463f;line-height:1.65">Співпрацюємо з авторами контенту в ніші моди та стилю. Пропонуємо бартер та комісійні програми.</p>
+      </div>
+      <div style="background:#fff;border:1px solid rgba(30,35,31,.1);padding:28px">
+        <span style="font-size:32px;display:block;margin-bottom:16px">🏪</span>
+        <h3 style="font-family:'Forum',serif;font-size:22px;font-weight:400;margin-bottom:12px">Оптові замовлення</h3>
+        <p style="font-size:13.5px;color:#41463f;line-height:1.65">Спеціальні умови для мереж та бутіків. Мінімальна партія від 10 одиниць. Знижки при великих обсягах.</p>
+      </div>
+      <div style="background:#fff;border:1px solid rgba(30,35,31,.1);padding:28px">
+        <span style="font-size:32px;display:block;margin-bottom:16px">🎁</span>
+        <h3 style="font-family:'Forum',serif;font-size:22px;font-weight:400;margin-bottom:12px">Корпоративні подарунки</h3>
+        <p style="font-size:13.5px;color:#41463f;line-height:1.65">Подаруйте своїм співробітницям елегантні речі. Брендування, індивідуальне пакування, рахунок-фактура.</p>
+      </div>
+    </div>
+    <!-- Collab form -->
+    <div style="background:#f8f4ee;padding:clamp(28px,4vw,48px)">
+      <h2 style="font-family:'Forum',serif;font-size:clamp(20px,3vw,30px);font-weight:400;margin-bottom:24px">Написати нам</h2>
+      <form onSubmit="{{ submitCollab }}" style="display:flex;flex-direction:column;gap:16px">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+          <label style="display:block"><span style="font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:#6c7166;display:block;margin-bottom:6px">Ваше ім'я</span><input value="{{ collabName }}" onInput="{{ setCollabName }}" placeholder="Ім'я та прізвище" style="width:100%;background:#fff;border:1px solid rgba(30,35,31,.2);padding:12px 14px;font-size:14px;color:#1e231f;outline:none;font-family:'Manrope',sans-serif"/></label>
+          <label style="display:block"><span style="font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:#6c7166;display:block;margin-bottom:6px">Компанія / Instagram</span><input value="{{ collabCompany }}" onInput="{{ setCollabCompany }}" placeholder="Назва або @нікнейм" style="width:100%;background:#fff;border:1px solid rgba(30,35,31,.2);padding:12px 14px;font-size:14px;color:#1e231f;outline:none;font-family:'Manrope',sans-serif"/></label>
+        </div>
+        <label style="display:block"><span style="font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:#6c7166;display:block;margin-bottom:6px">Тип співпраці</span>
+          <select value="{{ collabType }}" onChange="{{ setCollabType }}" style="width:100%;background:#fff;border:1px solid rgba(30,35,31,.2);padding:12px 14px;font-size:14px;color:#1e231f;outline:none;font-family:'Manrope',sans-serif;cursor:pointer">
+            <option value="">Оберіть тип...</option>
+            <option value="blogger">Блогер / інфлюенсер</option>
+            <option value="wholesale">Оптове замовлення</option>
+            <option value="corporate">Корпоративні подарунки</option>
+            <option value="other">Інше</option>
+          </select>
+        </label>
+        <label style="display:block"><span style="font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:#6c7166;display:block;margin-bottom:6px">Повідомлення</span><textarea value="{{ collabMsg }}" onInput="{{ setCollabMsg }}" rows="4" placeholder="Розкажіть про себе та ваші умови..." style="width:100%;background:#fff;border:1px solid rgba(30,35,31,.2);padding:12px 14px;font-size:14px;color:#1e231f;outline:none;font-family:'Manrope',sans-serif;resize:vertical"></textarea></label>
+        <button type="submit" class="mrl-cta" style="background:#28332c;color:#f1ebe1;padding:15px 36px;font-size:12px;letter-spacing:.22em;text-transform:uppercase;font-weight:600;border:none;align-self:flex-start;transition:opacity .3s" style-hover="opacity:.85">Надіслати заявку</button>
+      </form>
+    </div>
+  </div>
+</div>
+</sc-if>
+
+<!-- =========================== SIZE CHART =========================== -->
+<sc-if value="{{ isSizeChart }}" hint-placeholder-val="{{ false }}">
+<div data-screen-label="Таблиця розмірів">
+  <div style="max-width:860px;margin:0 auto;padding:clamp(40px,6vw,80px) clamp(18px,4vw,46px)">
+    <nav aria-label="Хлібні крихти" style="font-size:12px;letter-spacing:.1em;color:#8a8f84;margin-bottom:32px;display:flex;gap:8px;align-items:center">
+      <a href="#" onClick="{{ goHome }}" style="color:#6f7a5e">Головна</a><span>/</span><span>Таблиця розмірів</span>
+    </nav>
+    <h1 style="font-family:'Forum',serif;font-weight:400;font-size:clamp(28px,4vw,48px);margin-bottom:16px">Таблиця розмірів</h1>
+    <p style="font-size:15px;color:#41463f;line-height:1.7;margin-bottom:48px">Щоб підібрати ідеальний розмір, виміряйте об'єм грудей, талії та стегон і порівняйте з таблицею нижче.</p>
+    <!-- Measurement guide -->
+    <div style="background:#eef0e6;padding:24px 28px;margin-bottom:36px;border-left:3px solid #6f7a5e">
+      <p style="font-weight:600;font-size:14px;margin-bottom:12px">Як виміряти</p>
+      <div style="display:flex;flex-direction:column;gap:8px">
+        <p style="font-size:13.5px;color:#28332c;line-height:1.6"><strong>Груди (ОГ):</strong> виміряйте по найвиступаючій частині грудей, тримаючи сантиметр паралельно підлозі.</p>
+        <p style="font-size:13.5px;color:#28332c;line-height:1.6"><strong>Талія (ОТ):</strong> найвужче місце на тулубі, зазвичай приблизно на 2–3 см вище пупка.</p>
+        <p style="font-size:13.5px;color:#28332c;line-height:1.6"><strong>Стегна (ОС):</strong> найширше місце, включаючи сідниці. Тримайте сантиметр паралельно підлозі.</p>
+      </div>
+    </div>
+    <!-- Size table -->
+    <div style="overflow-x:auto;margin-bottom:48px">
+      <table style="width:100%;border-collapse:collapse;min-width:480px">
+        <thead>
+          <tr style="background:#28332c;color:#f1ebe1">
+            <th style="padding:14px 18px;text-align:left;font-size:12px;letter-spacing:.16em;text-transform:uppercase;font-weight:600">Розмір</th>
+            <th style="padding:14px 18px;text-align:center;font-size:12px;letter-spacing:.16em;text-transform:uppercase;font-weight:600">XS</th>
+            <th style="padding:14px 18px;text-align:center;font-size:12px;letter-spacing:.16em;text-transform:uppercase;font-weight:600">S</th>
+            <th style="padding:14px 18px;text-align:center;font-size:12px;letter-spacing:.16em;text-transform:uppercase;font-weight:600">M</th>
+            <th style="padding:14px 18px;text-align:center;font-size:12px;letter-spacing:.16em;text-transform:uppercase;font-weight:600">L</th>
+            <th style="padding:14px 18px;text-align:center;font-size:12px;letter-spacing:.16em;text-transform:uppercase;font-weight:600">XL</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr style="background:#fff;border-bottom:1px solid rgba(30,35,31,.08)">
+            <td style="padding:14px 18px;font-size:14px;font-weight:600;color:#1e231f">Груди, см</td>
+            <td style="padding:14px 18px;text-align:center;font-size:14px;color:#41463f">80–83</td>
+            <td style="padding:14px 18px;text-align:center;font-size:14px;color:#41463f">84–87</td>
+            <td style="padding:14px 18px;text-align:center;font-size:14px;color:#41463f">88–92</td>
+            <td style="padding:14px 18px;text-align:center;font-size:14px;color:#41463f">93–98</td>
+            <td style="padding:14px 18px;text-align:center;font-size:14px;color:#41463f">99–104</td>
+          </tr>
+          <tr style="background:#f8f4ee;border-bottom:1px solid rgba(30,35,31,.08)">
+            <td style="padding:14px 18px;font-size:14px;font-weight:600;color:#1e231f">Талія, см</td>
+            <td style="padding:14px 18px;text-align:center;font-size:14px;color:#41463f">60–63</td>
+            <td style="padding:14px 18px;text-align:center;font-size:14px;color:#41463f">64–67</td>
+            <td style="padding:14px 18px;text-align:center;font-size:14px;color:#41463f">68–72</td>
+            <td style="padding:14px 18px;text-align:center;font-size:14px;color:#41463f">73–78</td>
+            <td style="padding:14px 18px;text-align:center;font-size:14px;color:#41463f">79–84</td>
+          </tr>
+          <tr style="background:#fff;border-bottom:1px solid rgba(30,35,31,.08)">
+            <td style="padding:14px 18px;font-size:14px;font-weight:600;color:#1e231f">Стегна, см</td>
+            <td style="padding:14px 18px;text-align:center;font-size:14px;color:#41463f">86–89</td>
+            <td style="padding:14px 18px;text-align:center;font-size:14px;color:#41463f">90–93</td>
+            <td style="padding:14px 18px;text-align:center;font-size:14px;color:#41463f">94–98</td>
+            <td style="padding:14px 18px;text-align:center;font-size:14px;color:#41463f">99–104</td>
+            <td style="padding:14px 18px;text-align:center;font-size:14px;color:#41463f">105–110</td>
+          </tr>
+          <tr style="background:#f8f4ee">
+            <td style="padding:14px 18px;font-size:14px;font-weight:600;color:#1e231f">Укр. розмір</td>
+            <td style="padding:14px 18px;text-align:center;font-size:14px;color:#41463f">40</td>
+            <td style="padding:14px 18px;text-align:center;font-size:14px;color:#41463f">42</td>
+            <td style="padding:14px 18px;text-align:center;font-size:14px;color:#41463f">44–46</td>
+            <td style="padding:14px 18px;text-align:center;font-size:14px;color:#41463f">48</td>
+            <td style="padding:14px 18px;text-align:center;font-size:14px;color:#41463f">50–52</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div style="background:#f8f4ee;padding:20px 24px;border:1px solid rgba(30,35,31,.1)">
+      <p style="font-size:13.5px;color:#41463f;line-height:1.7">💡 <strong>Порада:</strong> якщо ваші мірки на межі двох розмірів — обирайте більший. Наш одяг можна злегка підігнати у шевця. Ще не впевнені? — <a href="#" onClick="{{ goContacts }}" style="color:#a7613f;text-decoration:underline">напишіть нам</a>, ми допоможемо.</p>
+    </div>
+  </div>
+</div>
+</sc-if>
+
 </main>
+
+<!-- ====== ORDER SUCCESS POPUP ====== -->
+<div onClick="{{ closeOrderSuccess }}" style="position:fixed;inset:0;background:rgba(20,26,21,.7);backdrop-filter:blur(6px);z-index:250;display:flex;align-items:center;justify-content:center;padding:20px;opacity:{{ orderSuccessOpacity }};pointer-events:{{ orderSuccessPE }};transition:opacity .4s ease">
+  <div onClick="{{ stopProp }}" style="background:#f1ebe1;max-width:480px;width:100%;padding:clamp(32px,5vw,56px);text-align:center;position:relative">
+    <button onClick="{{ closeOrderSuccess }}" aria-label="Закрити" style="position:absolute;top:16px;right:16px;width:32px;height:32px;border:1px solid rgba(30,35,31,.2);border-radius:50%;display:flex;align-items:center;justify-content:center;background:none;transition:all .3s" style-hover="background:#28332c;color:#f1ebe1">
+      <svg width="13" height="13" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path d="M6 6l12 12M18 6L6 18"/></svg>
+    </button>
+    <!-- Checkmark -->
+    <div style="width:72px;height:72px;border-radius:50%;background:#eef0e6;display:flex;align-items:center;justify-content:center;margin:0 auto 24px">
+      <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#6f7a5e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>
+    </div>
+    <h2 style="font-family:'Forum',serif;font-size:clamp(26px,4vw,36px);font-weight:400;margin-bottom:12px;color:#1e231f">Дякуємо!</h2>
+    <p style="font-size:15px;color:#41463f;line-height:1.7;margin-bottom:8px">Ваше замовлення прийнято та буде опрацьовано найближчим часом.</p>
+    <p style="font-size:13px;color:#8a8f84;margin-bottom:28px">Номер замовлення: <strong style="color:#1e231f">{{ orderSuccessNum }}</strong></p>
+    <div style="display:flex;flex-direction:column;gap:10px">
+      <button onClick="{{ orderSuccessToCatalog }}" class="mrl-cta" style="width:100%;background:#28332c;color:#f1ebe1;padding:14px;font-size:12px;letter-spacing:.2em;text-transform:uppercase;font-weight:600;border:none;transition:opacity .3s" style-hover="opacity:.85">Продовжити покупки</button>
+      <button onClick="{{ orderSuccessToWishlist }}" style="width:100%;background:transparent;color:#28332c;padding:13px;font-size:12px;letter-spacing:.2em;text-transform:uppercase;font-weight:600;border:1px solid rgba(30,35,31,.3);transition:all .3s" style-hover="border-color:#28332c">Переглянути обране</button>
+    </div>
+  </div>
+</div>
 
 <!-- ====== FOOTER ====== -->
 <footer style="background:#28332c;color:#cdbfa3">
@@ -1425,7 +1855,12 @@ class Component extends DCLogic {
       coMeestMode:'branch', coMeestLockerFilter:'',
       coDeliveryType:'np', coNpType:'branch', coNpWhFilter:'',
       coErr:{}, coCities:[], coWarehouses:[], coSearching:false, ukrCities:[], ukrStreets:[], meestCities:[], meestBranches:[], meestBranchesLoaded:false,
-      coPromo:'', coPromoApplied:false, coPromoDiscount:0, coPromoErr:false
+      coPromo:'', coPromoApplied:false, coPromoDiscount:0, coPromoErr:false,
+      orderSuccess:false, orderSuccessNum:'',
+      giftDenom:1000, giftRecipient:'', giftSender:'', giftMsg:'', giftEmail:'',
+      returnOrderNum:'', returnEmail:'', returnReason:'',
+      collabName:'', collabCompany:'', collabType:'', collabMsg:'',
+      saleNewsEmail:'', faqPageOpen:-1
     };
     this._toastT = null;
     this._npT = null;
@@ -1534,6 +1969,16 @@ class Component extends DCLogic {
     } else if(seg==='about'){ this.setState({page:'about'});
     } else if(seg==='contacts'){ this.setState({page:'contacts'});
     } else if(seg==='wishlist'){ this.setState({page:'wishlist'});
+    } else if(seg==='news'){ this.setState(s=>({page:'catalog',filters:{...s.filters,cat:'all',badge:'Новинка'}}));
+    } else if(seg==='sale'){ this.setState(s=>({page:'catalog',filters:{...s.filters,cat:'all',badge:'sale'}}));
+    } else if(seg==='bestsellers'){ this.setState(s=>({page:'catalog',filters:{...s.filters,cat:'all',badge:'Бестселер'}}));
+    } else if(seg==='gift'){ this.setState({page:'gift'});
+    } else if(seg==='delivery'){ this.setState({page:'delivery'});
+    } else if(seg==='returns'){ this.setState({page:'returns'});
+    } else if(seg==='faq'){ this.setState({page:'faq'});
+    } else if(seg==='journal'){ this.setState({page:'journal'});
+    } else if(seg==='collab'){ this.setState({page:'collab'});
+    } else if(seg==='sizechart'){ this.setState({page:'sizechart'});
     } else { this.setState({page:'home'}); }
   }
 
@@ -1559,6 +2004,20 @@ class Component extends DCLogic {
       title=`Контакти | ${site}`; desc=`Зв'яжіться з ${site}. Відповідаємо швидко — допоможемо підібрати розмір, оформити замовлення.`; canonical='https://styleroom.pp.ua/contacts';
     } else if(S.page==='wishlist'){
       title=`Обране | ${site}`; desc='Ваші обрані товари в Mereely Shop.'; canonical='https://styleroom.pp.ua/wishlist';
+    } else if(S.page==='gift'){
+      title=`Подарункові сертифікати | ${site}`; desc='Подаруйте стиль — сертифікати Mereely Shop на 500, 1000 і 1500 ₴.'; canonical='https://styleroom.pp.ua/gift';
+    } else if(S.page==='delivery'){
+      title=`Доставка й оплата | ${site}`; desc='Умови доставки Новою Поштою, Укрпоштою та Meest. Оплата онлайн.'; canonical='https://styleroom.pp.ua/delivery';
+    } else if(S.page==='returns'){
+      title=`Обмін і повернення | ${site}`; desc='Повернення товару протягом 14 днів. Умови та порядок повернення.'; canonical='https://styleroom.pp.ua/returns';
+    } else if(S.page==='faq'){
+      title=`FAQ | ${site}`; desc='Відповіді на часті запитання про замовлення, доставку, розміри та оплату.'; canonical='https://styleroom.pp.ua/faq';
+    } else if(S.page==='journal'){
+      title=`Журнал стилю | ${site}`; desc='Поради зі стилю, тренди та огляди від команди Mereely Shop.'; canonical='https://styleroom.pp.ua/journal';
+    } else if(S.page==='collab'){
+      title=`Співпраця | ${site}`; desc='Блогери, оптові замовлення, корпоративні подарунки — співпраця з Mereely Shop.'; canonical='https://styleroom.pp.ua/collab';
+    } else if(S.page==='sizechart'){
+      title=`Таблиця розмірів | ${site}`; desc='Таблиця розмірів жіночого одягу Mereely Shop — XS, S, M, L, XL.'; canonical='https://styleroom.pp.ua/sizechart';
     }
     document.title=title;
     const _m=(sel,attr,val)=>{ let el=document.querySelector(sel); if(el) el.setAttribute(attr,val); };
@@ -1770,9 +2229,9 @@ class Component extends DCLogic {
     const instaCols = isMobile?'repeat(2,1fr)':(isTablet?'repeat(3,1fr)':'repeat(6,1fr)');
 
     const footerCols2=[
-      {title:'Магазин',links:[['Новинки','catalog'],['Бестселери','catalog'],['Розпродаж','catalog'],['Подарункові сертифікати','contacts']]},
-      {title:'Клієнтам',links:[['Доставка й оплата','contacts'],['Обмін і повернення','contacts'],['Таблиця розмірів','contacts'],['FAQ','contacts']]},
-      {title:'Бренд',links:[['Про нас','about'],['Журнал стилю','about'],['Контакти','contacts'],['Співпраця','contacts']]}
+      {title:'Магазин',links:[['Новинки','news'],['Бестселери','bestsellers'],['Розпродаж','sale'],['Подарункові сертифікати','gift']]},
+      {title:'Клієнтам',links:[['Доставка й оплата','delivery'],['Обмін і повернення','returns'],['Таблиця розмірів','sizechart'],['FAQ','faq']]},
+      {title:'Бренд',links:[['Про нас','about'],['Журнал стилю','journal'],['Контакти','contacts'],['Співпраця','collab']]}
     ].map(col=>({title:col.title,links:col.links.map(([label,pg])=>({label,go:this.nav(pg)}))}));
     const footerCols = isMobile?'1fr':(isTablet?'1.4fr 1fr 1fr':'1.6fr 1fr 1fr 1fr');
 
@@ -1901,8 +2360,56 @@ class Component extends DCLogic {
       trustCols, productGridCols:productCols, catGridCols, testCols, whyCols, instaCols, footerCols,
       // page flags
       isHome:S.page==='home', isCatalog:S.page==='catalog', isProduct:S.page==='product', isAbout:S.page==='about', isContacts:S.page==='contacts', isWishlist:S.page==='wishlist',
+      isGift:S.page==='gift', isDelivery:S.page==='delivery', isReturns:S.page==='returns', isFaq:S.page==='faq', isJournal:S.page==='journal', isCollab:S.page==='collab', isSizeChart:S.page==='sizechart',
+      // order success popup
+      orderSuccessOpacity:S.orderSuccess?'1':'0', orderSuccessPE:S.orderSuccess?'auto':'none', orderSuccessNum:S.orderSuccessNum,
+      closeOrderSuccess:()=>this.setState({orderSuccess:false}),
+      orderSuccessToCatalog:()=>{ this.setState({orderSuccess:false}); this.nav('catalog')({preventDefault:()=>{}}); },
+      orderSuccessToWishlist:()=>{ this.setState({orderSuccess:false}); this._pushRoute('wishlist'); this.setState({page:'wishlist'}); },
+      // gift page
+      giftDenom:S.giftDenom,
+      giftD500Bg:S.giftDenom===500?'#28332c':'#fff', giftD500Color:S.giftDenom===500?'#f1ebe1':'#1e231f', giftD500Border:S.giftDenom===500?'2px solid #28332c':'1px solid rgba(30,35,31,.2)',
+      giftD1000Bg:S.giftDenom===1000?'#28332c':'#fff', giftD1000Color:S.giftDenom===1000?'#f1ebe1':'#1e231f', giftD1000Border:S.giftDenom===1000?'2px solid #28332c':'1px solid rgba(30,35,31,.2)',
+      giftD1500Bg:S.giftDenom===1500?'#28332c':'#fff', giftD1500Color:S.giftDenom===1500?'#f1ebe1':'#1e231f', giftD1500Border:S.giftDenom===1500?'2px solid #28332c':'1px solid rgba(30,35,31,.2)',
+      setGift500:()=>this.setState({giftDenom:500}), setGift1000:()=>this.setState({giftDenom:1000}), setGift1500:()=>this.setState({giftDenom:1500}),
+      giftRecipient:S.giftRecipient, giftSender:S.giftSender, giftMsg:S.giftMsg, giftEmail:S.giftEmail,
+      setGiftRecipient:(e)=>this.setState({giftRecipient:e.target.value}),
+      setGiftSender:(e)=>this.setState({giftSender:e.target.value}),
+      setGiftMsg:(e)=>this.setState({giftMsg:e.target.value}),
+      setGiftEmail:(e)=>this.setState({giftEmail:e.target.value}),
+      submitGift:(e)=>{e.preventDefault(); this.toast('Сертифікат замовлено! Ми зв\'яжемося з вами найближчим часом.');},
+      // faq page
+      faqPageOpen:S.faqPageOpen,
+      faqPageList:[
+        ['Як підібрати розмір?','На кожній картці товару є таблиця розмірів і порада від стиліста. Якщо сумніваєтесь — напишіть нам у Direct або на email, ми допоможемо обрати.'],
+        ['Скільки триває доставка?','Нова Пошта — 1–2 дні, Укрпошта — 2–4 дні, Meest — 2–3 дні. Відправляємо щодня до 14:00.'],
+        ['Чи можна повернути товар?','Так, протягом 14 днів без пояснення причин. Річ має бути з бирками й без слідів носіння.'],
+        ['Які способи оплати?','Виключно передплата: Visa/Mastercard, Apple Pay, Google Pay. Після підтвердження замовлення ми надішлемо посилання на оплату.'],
+        ['Як застосувати промокод?','Введіть код у відповідне поле при оформленні замовлення та натисніть «Застосувати».'],
+        ['Чи можна замовити індивідуальний пошив?','Так, окремі моделі доступні в індивідуальному пошитті. Напишіть нам — обговоримо деталі та терміни.'],
+        ['Чи є подарункові сертифікати?','Так! Ми пропонуємо сертифікати на 500, 1000 та 1500 ₴. Оформити можна у розділі «Подарункові сертифікати».'],
+        ['Як відслідкувати замовлення?','Після відправлення ми надішлемо вам номер накладної на вказаний email або телефон.'],
+        ['Чи є у вас фізичний магазин?','Наразі ми працюємо виключно онлайн. Це дозволяє нам пропонувати найкращі ціни.'],
+        ['Як доглядати за речами?','Детальна інструкція з догляду вказана на бирці кожного виробу та в картці товару на сайті.']
+      ].map(([q,a],i)=>({q,a,open:S.faqPageOpen===i,gridRows:S.faqPageOpen===i?'1fr':'0fr',iconRot:S.faqPageOpen===i?'rotate(45deg)':'rotate(0deg)',toggle:()=>this.setState(s=>({faqPageOpen:s.faqPageOpen===i?-1:i}))})),
+      // returns page
+      returnOrderNum:S.returnOrderNum, returnEmail:S.returnEmail, returnReason:S.returnReason,
+      setReturnOrderNum:(e)=>this.setState({returnOrderNum:e.target.value}),
+      setReturnEmail:(e)=>this.setState({returnEmail:e.target.value}),
+      setReturnReason:(e)=>this.setState({returnReason:e.target.value}),
+      submitReturn:(e)=>{e.preventDefault(); this.toast('Заявку на повернення отримано! Ми зв\'яжемося з вами протягом 24 годин.');},
+      // collab page
+      collabName:S.collabName, collabCompany:S.collabCompany, collabType:S.collabType, collabMsg:S.collabMsg,
+      setCollabName:(e)=>this.setState({collabName:e.target.value}),
+      setCollabCompany:(e)=>this.setState({collabCompany:e.target.value}),
+      setCollabType:(e)=>this.setState({collabType:e.target.value}),
+      setCollabMsg:(e)=>this.setState({collabMsg:e.target.value}),
+      submitCollab:(e)=>{e.preventDefault(); this.toast('Заявку на співпрацю отримано! Ми зв\'яжемося з вами найближчим часом.');},
+      // sale news subscribe
+      saleNewsEmail:S.saleNewsEmail, setSaleNewsEmail:(e)=>this.setState({saleNewsEmail:e.target.value}),
+      submitSaleNews:(e)=>{e.preventDefault(); this.toast('Дякуємо! Ви підписалися на розсилку.');},
       // header
-      navLinks, goHome:this.nav('home'), goCatalog:this.nav('catalog'), goAbout:this.nav('about'), goContacts:this.nav('contacts'), goWishlist:()=>{ this._pushRoute('wishlist'); this.setState({page:'wishlist',menuOpen:false}); },
+      navLinks, goHome:this.nav('home'), goCatalog:this.nav('catalog'), goAbout:this.nav('about'), goContacts:this.nav('contacts'), goReturns:this.nav('returns'), goWishlist:()=>{ this._pushRoute('wishlist'); this.setState({page:'wishlist',menuOpen:false}); },
       hasCart:cartCount>0, cartCount, hasWishlist:S.wishlist.length>0, wishlistCount:S.wishlist.length,
       openWishlistInfo:()=>{ this._pushRoute('wishlist'); this.setState({page:'wishlist',menuOpen:false}); },
       openCart:()=>this.setState({cartOpen:true}), closeCart:()=>this.setState({cartOpen:false}),
@@ -2175,7 +2682,7 @@ class Component extends DCLogic {
         orders.push({id:orderNum,date:new Date().toISOString(),items:S.cart,name:co.name,phone:co.phone,email:co.email,...deliveryInfo,promo:S.coPromoApplied?S.coPromo:'',total:cartSub-disc+sh});
         try { localStorage.setItem('mrl_orders', JSON.stringify(orders)); } catch(e){}
         try { localStorage.setItem('mrl_cart','[]'); } catch(e){}
-        this.setState({cart:[],coDone:true,coOrderNum:orderNum,coPromoApplied:false,coPromoDiscount:0,coPromo:''});
+        this.setState({cart:[],coDone:true,coOrderNum:orderNum,coPromoApplied:false,coPromoDiscount:0,coPromo:'',checkoutOpen:false,orderSuccess:true,orderSuccessNum:orderNum});
       }
     };
   }
