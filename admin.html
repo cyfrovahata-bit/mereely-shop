@@ -112,10 +112,18 @@ tr:hover td{background:rgba(30,35,31,.025)}
 .img-preview-item .drag-handle{position:absolute;bottom:0;left:0;right:0;background:rgba(30,35,31,.5);color:#fff;font-size:10px;text-align:center;padding:2px;cursor:grab}
 
 /* ORDERS */
-.order-status{display:inline-block;padding:3px 8px;font-size:11px;font-weight:600}
+.order-status{display:inline-block;padding:3px 8px;font-size:11px;font-weight:600;border-radius:3px}
 .status-new{background:#eef0e6;color:#28332c}
-.status-sent{background:#fef3e2;color:#a7613f}
-.status-done{background:#e6f0ee;color:#2c5248}
+.status-paid_partial{background:#fff3cd;color:#856404}
+.status-paid_full{background:#d1e7dd;color:#0a3622}
+.status-processing{background:#cfe2ff;color:#084298}
+.status-shipped{background:#fef3e2;color:#a7613f}
+.status-delivered{background:#e6f0ee;color:#2c5248}
+.status-cancelled{background:#f8d7da;color:#842029}
+.status-returned{background:#e2e3e5;color:#41464b}
+.order-row-detail{display:none;background:#faf8f4}
+.order-row-detail.open{display:table-row}
+.filter-bar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px;align-items:center}
 
 @media(max-width:900px){
   #app{flex-direction:column}
@@ -151,6 +159,7 @@ tr:hover td{background:rgba(30,35,31,.025)}
     <span class="nav-item" onclick="showPage('categories',this)">🗂 Категорії</span>
     <span class="nav-item" onclick="showPage('orders',this)">📦 Замовлення</span>
     <span class="nav-item" onclick="showPage('subscribers',this)">📧 Підписники</span>
+    <span class="nav-item" onclick="showPage('reviews',this)">⭐ Відгуки</span>
     <span class="nav-item" onclick="showPage('settings',this)">⚙️ Налаштування</span>
     <div class="sidebar-footer">
       <a href="index.html" style="display:block;font-size:12px;color:rgba(241,235,225,.5);text-decoration:none;margin-bottom:8px;transition:color .2s" onmouseover="this.style.color='#f1ebe1'" onmouseout="this.style.color='rgba(241,235,225,.5)'">← На сайт</a>
@@ -327,6 +336,7 @@ function showPage(name, el){
   else if(name==='categories')  { mc.innerHTML = '<div class="page-header"><h2>Категорії</h2></div><div style="color:#6c7166;padding:20px">Завантаження…</div>'; loadCategories(); }
   else if(name==='orders')      { mc.innerHTML = '<div class="page-header"><h2>Замовлення</h2></div><div style="color:#6c7166;padding:20px">Завантаження…</div>'; loadOrders(); }
   else if(name==='subscribers') { mc.innerHTML = '<div class="page-header"><h2>Підписники</h2></div><div style="color:#6c7166;padding:20px">Завантаження…</div>'; loadSubscribers(); }
+  else if(name==='reviews')     { mc.innerHTML = '<div class="page-header"><h2>Відгуки</h2></div><div style="color:#6c7166;padding:20px">Завантаження…</div>'; loadReviews(); }
   else if(name==='settings')    { mc.innerHTML = renderSettings(); }
 }
 
@@ -345,16 +355,16 @@ async function apiPost(action, body){
 async function loadDashboard(){
   const mc = document.getElementById('main-content');
   try {
-    const [st, orders] = await Promise.all([api('status'), api('orders_list','limit=5')]);
+    const [st, orders] = await Promise.all([api('status'), api('orders','limit=5&admin=1')]);
     const c = st.counts || {};
     const recentRows = (orders.rows||[]).map(o=>{
       const d = new Date(o.created_at).toLocaleDateString('uk-UA');
-      const name = esc((o.contact||{}).name||'—');
+      const name = esc(o.customer_name||'—');
       return `<tr>
-        <td style="font-size:12px;color:#6c7166">#${o.id}<br/>${d}</td>
+        <td style="font-size:12px;color:#6c7166">${esc(o.order_num||'#'+o.id)}<br/>${d}</td>
         <td>${name}</td>
         <td><strong>${(o.total||0).toLocaleString('uk-UA')} ₴</strong></td>
-        <td><span class="order-status status-${o.status==='new'?'new':(o.status==='shipped'?'sent':'done')}">${statusLabel(o.status)}</span></td>
+        <td><span class="order-status status-${esc(o.status||'new')}">${statusLabel(o.status||'new')}</span></td>
       </tr>`;
     }).join('') || '<tr><td colspan="4" style="padding:24px;color:#6c7166;text-align:center">Замовлень ще немає</td></tr>';
 
@@ -373,7 +383,7 @@ async function loadDashboard(){
   } catch(e){ mc.innerHTML = '<div style="color:#a7613f;padding:20px">Помилка завантаження: '+esc(e.message)+'</div>'; }
 }
 
-function statusLabel(s){ return {new:'Нове',confirmed:'Підтверджено',shipped:'Відправлено',delivered:'Доставлено',cancelled:'Скасовано'}[s]||s; }
+function statusLabel(s){ return {new:'Нове',paid_partial:'Часткова оплата',paid_full:'Оплачено',processing:'В обробці',shipped:'Відправлено',delivered:'Доставлено',cancelled:'Скасовано',returned:'Повернення'}[s]||s; }
 
 /* ===================== PRODUCTS ===================== */
 async function loadProducts(){
@@ -662,41 +672,124 @@ async function deleteProd(id){
 }
 
 /* ===================== ORDERS ===================== */
-async function loadOrders(){
+const ALL_ORDER_STATUSES = ['new','paid_partial','paid_full','processing','shipped','delivered','cancelled','returned'];
+let _ordersFilter = '';
+let _ordersPage   = 0;
+const _ordersPageSize = 20;
+
+async function loadOrders(status, page){
+  if(status !== undefined) _ordersFilter = status;
+  if(page    !== undefined) _ordersPage   = page;
   const mc = document.getElementById('main-content');
   try {
-    const data = await api('orders_list','limit=100');
-    const rows = (data.rows||[]).length ? (data.rows||[]).map(o=>{
+    const params = new URLSearchParams({limit: _ordersPageSize, offset: _ordersPage * _ordersPageSize, admin: 1});
+    if(_ordersFilter) params.set('status', _ordersFilter);
+    const data = await api('orders', params.toString());
+    const total = data.total || 0;
+    const totalPages = Math.ceil(total / _ordersPageSize);
+
+    const filterBtns = ['', ...ALL_ORDER_STATUSES].map(s=>`
+      <button class="btn btn-sm${_ordersFilter===s?' ':' btn-outline '}" style="font-size:11px;padding:6px 12px${_ordersFilter===s?';background:#28332c;color:#f1ebe1':''}" onclick="loadOrders('${s}',0)">${s===''?'Усі':statusLabel(s)}</button>
+    `).join('');
+
+    const rows = (data.rows||[]).length ? (data.rows||[]).flatMap(o=>{
       const d = new Date(o.created_at).toLocaleDateString('uk-UA',{day:'2-digit',month:'2-digit',year:'numeric'});
-      const c = o.contact||{};
-      const del = o.delivery||{};
-      const itemsStr = (o.items||[]).map(i=>esc(i.name||'')+(i.qty>1?'×'+i.qty:'')).join(', ');
-      const statusCls = {new:'new',confirmed:'new',shipped:'sent',delivered:'done',cancelled:'done'}[o.status]||'new';
-      return `<tr>
-        <td style="font-size:12px;color:#6c7166;white-space:nowrap">#${o.id}<br/>${d}</td>
-        <td><strong>${esc(c.name||'—')}</strong><br/><span style="font-size:12px;color:#6c7166">${esc(c.phone||'')}</span></td>
-        <td style="font-size:12px;max-width:180px">${itemsStr}</td>
-        <td style="white-space:nowrap"><strong>${(o.total||0).toLocaleString('uk-UA')} ₴</strong></td>
-        <td style="font-size:12px">${esc(del.method||'')}${del.city?'<br/>'+esc(del.city):''}</td>
-        <td>
-          <select onchange="updateOrderStatus(${o.id},this.value)" style="font-size:12px;border:1px solid rgba(30,35,31,.2);padding:4px 6px;background:#fff;cursor:pointer">
-            ${['new','confirmed','shipped','delivered','cancelled'].map(s=>`<option value="${s}"${o.status===s?' selected':''}>${statusLabel(s)}</option>`).join('')}
-          </select>
-        </td>
-      </tr>`;
+      const itemsArr = Array.isArray(o.items) ? o.items : [];
+      const itemsShort = itemsArr.slice(0,2).map(i=>esc((i.name||i.title||''))+(i.qty>1?'×'+i.qty:'')).join(', ')+(itemsArr.length>2?'…':'');
+      const itemsFull  = itemsArr.map(i=>`<li>${esc(i.name||i.title||'')} — ${i.qty||1} шт × ${(i.price||0).toLocaleString('uk-UA')} ₴</li>`).join('');
+      return [
+        `<tr style="cursor:pointer" onclick="toggleOrderDetail(${o.id})">
+          <td style="font-size:12px;color:#6c7166;white-space:nowrap"><strong>${esc(o.order_num||'#'+o.id)}</strong><br/>${d}</td>
+          <td><strong>${esc(o.customer_name||'—')}</strong><br/><span style="font-size:12px;color:#6c7166">${esc(o.customer_phone||'')}</span></td>
+          <td style="font-size:12px;max-width:180px">${itemsShort}</td>
+          <td style="white-space:nowrap"><strong>${(o.total||0).toLocaleString('uk-UA')} ₴</strong></td>
+          <td><span class="order-status status-${esc(o.status||'new')}">${statusLabel(o.status||'new')}</span></td>
+          <td onclick="event.stopPropagation()">
+            <select onchange="updateOrderStatus(${o.id},this.value)" style="font-size:12px;border:1px solid rgba(30,35,31,.2);padding:4px 6px;background:#fff;cursor:pointer">
+              ${ALL_ORDER_STATUSES.map(s=>`<option value="${s}"${o.status===s?' selected':''}>${statusLabel(s)}</option>`).join('')}
+            </select>
+          </td>
+        </tr>`,
+        `<tr class="order-row-detail" id="detail-${o.id}"><td colspan="6" style="padding:14px 20px">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;font-size:13px">
+            <div><strong>Контакт:</strong> ${esc(o.customer_name||'')} · ${esc(o.customer_phone||'')} · ${esc(o.customer_email||'')}</div>
+            <div><strong>Доставка:</strong> ${esc(o.city||'')} · ${esc(o.address||'')}</div>
+            <div><strong>Оплата:</strong> ${esc(o.payment_method||'')}</div>
+            <div><strong>Примітка:</strong> ${esc(o.notes||'—')}</div>
+            <div style="grid-column:1/-1"><strong>Товари:</strong><ul style="margin:6px 0 0 18px">${itemsFull||'<li>—</li>'}</ul></div>
+            <div><strong>Знижка:</strong> ${(o.discount||0).toLocaleString('uk-UA')} ₴ · <strong>Доставка:</strong> ${(o.shipping_cost||0).toLocaleString('uk-UA')} ₴ · <strong>Разом:</strong> ${(o.total||0).toLocaleString('uk-UA')} ₴</div>
+          </div>
+        </td></tr>`,
+      ];
     }).join('') : `<tr><td colspan="6" style="text-align:center;padding:36px;color:#6c7166">Замовлень ще немає</td></tr>`;
 
+    const pager = totalPages > 1 ? `<div style="display:flex;gap:6px;justify-content:center;margin-top:14px;flex-wrap:wrap">
+      ${[...Array(totalPages)].map((_,i)=>`<button class="btn btn-sm${i===_ordersPage?'':' btn-outline'}" style="padding:5px 10px;min-width:32px;font-size:12px" onclick="loadOrders('${_ordersFilter}',${i})">${i+1}</button>`).join('')}
+    </div>` : '';
+
     mc.innerHTML = `
-      <div class="page-header"><h2>Замовлення <span style="font-size:16px;color:#6c7166;font-family:Inter">(${data.total||0})</span></h2></div>
+      <div class="page-header"><h2>Замовлення <span style="font-size:16px;color:#6c7166;font-family:Inter">(${total})</span></h2></div>
+      <div class="filter-bar">${filterBtns}</div>
       <div class="card"><table>
-        <thead><tr><th>ID / Дата</th><th>Клієнт</th><th>Товари</th><th>Сума</th><th>Доставка</th><th>Статус</th></tr></thead>
+        <thead><tr><th>№ / Дата</th><th>Клієнт</th><th>Товари</th><th>Сума</th><th>Статус</th><th>Змінити</th></tr></thead>
+        <tbody>${rows}</tbody>
+      </table>${pager}</div>`;
+  } catch(e){ mc.innerHTML = '<div style="color:#a7613f;padding:20px">Помилка: '+esc(e.message)+'</div>'; }
+}
+
+function toggleOrderDetail(id){
+  const el = document.getElementById('detail-'+id);
+  if(el) el.classList.toggle('open');
+}
+
+async function updateOrderStatus(id, status){
+  await apiPost('order_status', {id, status});
+  // оновити бейдж в рядку без повного перезавантаження
+  const rows = document.querySelectorAll('tbody tr');
+  rows.forEach(tr=>{
+    const sel = tr.querySelector('select[onchange^="updateOrderStatus('+id+',"]');
+    if(sel){
+      const badge = tr.querySelector('.order-status');
+      if(badge){ badge.className='order-status status-'+status; badge.textContent=statusLabel(status); }
+    }
+  });
+}
+
+/* ===================== REVIEWS ===================== */
+async function loadReviews(){
+  const mc = document.getElementById('main-content');
+  try {
+    const data = await api('reviews_admin','admin=1&limit=100');
+    const rows = Array.isArray(data)&&data.length ? data.map(r=>{
+      const d = new Date(r.created_at).toLocaleDateString('uk-UA');
+      const stars = '★'.repeat(r.rating)+'☆'.repeat(5-r.rating);
+      const approvedBadge = r.approved ? '<span style="color:#6f7a5e;font-weight:600">✓ Схвалено</span>' : '<span style="color:#a7613f">На модерації</span>';
+      return `<tr>
+        <td style="font-size:12px;color:#6c7166">${d}</td>
+        <td><strong>${esc(r.product_name||'#'+r.product_id)}</strong></td>
+        <td>${esc(r.author)}</td>
+        <td style="color:#a7613f;letter-spacing:1px">${stars}</td>
+        <td style="max-width:260px;font-size:13px">${esc(r.text)}</td>
+        <td>${approvedBadge}</td>
+        <td>
+          ${!r.approved?`<button class="btn btn-sm" style="font-size:11px;padding:5px 10px;margin-right:4px" onclick="approveReview(${r.id},1)">Схвалити</button>`:''}
+          ${r.approved?`<button class="btn btn-outline btn-sm" style="font-size:11px;padding:5px 10px;margin-right:4px" onclick="approveReview(${r.id},0)">Зняти</button>`:''}
+        </td>
+      </tr>`;
+    }).join('') : `<tr><td colspan="7" style="text-align:center;padding:36px;color:#6c7166">Відгуків ще немає</td></tr>`;
+
+    mc.innerHTML = `
+      <div class="page-header"><h2>Відгуки</h2></div>
+      <div class="card"><table>
+        <thead><tr><th>Дата</th><th>Товар</th><th>Автор</th><th>Рейтинг</th><th>Текст</th><th>Статус</th><th>Дії</th></tr></thead>
         <tbody>${rows}</tbody>
       </table></div>`;
   } catch(e){ mc.innerHTML = '<div style="color:#a7613f;padding:20px">Помилка: '+esc(e.message)+'</div>'; }
 }
 
-async function updateOrderStatus(id, status){
-  await apiPost('order_status', {id, status});
+async function approveReview(id, approved){
+  await apiPost('review_approve', {id, approved: !!approved});
+  loadReviews();
 }
 
 /* ===================== CATEGORIES ===================== */

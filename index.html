@@ -627,14 +627,59 @@
       </sc-if>
       <sc-if value="{{ pTabCare }}" hint-placeholder-val="{{ false }}"><p style="font-size:15px;line-height:2;color:#41463f;max-width:680px;white-space:pre-line">{{ careText }}</p></sc-if>
       <sc-if value="{{ pTabReviews }}" hint-placeholder-val="{{ false }}">
-        <div style="display:flex;flex-direction:column;gap:24px">
+        <div style="display:flex;flex-direction:column;gap:0">
+          <!-- Summary -->
+          <div style="display:flex;align-items:center;gap:18px;margin-bottom:28px;padding-bottom:24px;border-bottom:1px solid rgba(30,35,31,.1)">
+            <div style="text-align:center">
+              <div style="font-family:'Forum',serif;font-size:48px;color:#1e231f;line-height:1">{{ pAvgRating }}</div>
+              <div style="color:#a7613f;letter-spacing:.2em;font-size:16px">★★★★★</div>
+              <div style="font-size:12px;color:#8a8f84;margin-top:4px">середня оцінка</div>
+            </div>
+          </div>
+          <!-- Reviews list -->
+          <sc-if value="{{ pHasReviews }}" hint-placeholder-val="{{ false }}">
           <sc-for list="{{ pReviews }}" as="r" hint-placeholder-count="3">
-            <div style="border-bottom:1px solid rgba(30,35,31,.1);padding-bottom:24px">
-              <div style="display:flex;justify-content:space-between;align-items:center"><span style="font-weight:700;font-size:14px">{{ r.name }}</span><span style="font-size:12px;color:#8a8f84">{{ r.date }}</span></div>
-              <span style="color:#a7613f;letter-spacing:.15em;font-size:13px;display:block;margin:8px 0">{{ r.stars }}</span>
+            <div style="border-bottom:1px solid rgba(30,35,31,.08);padding-bottom:24px;margin-bottom:24px">
+              <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+                <span style="font-weight:700;font-size:14px">{{ r.author }}</span>
+                <span style="font-size:12px;color:#8a8f84">{{ r.dateFmt }}</span>
+              </div>
+              <span style="color:#a7613f;letter-spacing:.15em;font-size:14px;display:block;margin-bottom:10px">{{ r.stars }}</span>
               <p style="font-size:14.5px;line-height:1.7;color:#41463f">{{ r.text }}</p>
             </div>
           </sc-for>
+          </sc-if>
+          <sc-if value="{{ pNoReviews }}" hint-placeholder-val="{{ false }}">
+          <p style="color:#8a8f84;font-size:14px;margin-bottom:28px">Відгуків ще немає. Будьте першим!</p>
+          </sc-if>
+          <!-- Submission form -->
+          <sc-if value="{{ reviewSent }}" hint-placeholder-val="{{ false }}">
+          <div style="padding:20px;background:#eef0e6;border-left:3px solid #6f7a5e;font-size:14px;color:#28332c">Дякуємо! Ваш відгук отримано і буде опублікований після модерації.</div>
+          </sc-if>
+          <sc-if value="{{ !reviewSent }}" hint-placeholder-val="{{ true }}">
+          <div style="margin-top:28px;padding-top:28px;border-top:1px solid rgba(30,35,31,.1)">
+            <h3 style="font-family:'Forum',serif;font-size:20px;margin-bottom:18px;font-weight:400">Залишити відгук</h3>
+            <form onSubmit="{{ submitReview }}" style="display:flex;flex-direction:column;gap:14px;max-width:540px">
+              <div>
+                <label style="display:block;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:#6c7166;margin-bottom:6px">Ваше ім'я *</label>
+                <input value="{{ reviewAuthor }}" onInput="{{ setReviewAuthor }}" placeholder="Олена К." style="width:100%;background:#fff;border:1px solid rgba(30,35,31,.2);padding:11px 14px;font-size:14px;color:#1e231f;outline:none;font-family:inherit"/>
+              </div>
+              <div>
+                <label style="display:block;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:#6c7166;margin-bottom:8px">Оцінка *</label>
+                <div style="display:flex;gap:8px">
+                  <sc-for list="{{ reviewStars }}" as="s" hint-placeholder-count="5">
+                    <span onClick="{{ s.sel }}" style="font-size:28px;color:{{ s.fill }};cursor:pointer;line-height:1;transition:color .15s">★</span>
+                  </sc-for>
+                </div>
+              </div>
+              <div>
+                <label style="display:block;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:#6c7166;margin-bottom:6px">Відгук *</label>
+                <textarea value="{{ reviewText }}" onInput="{{ setReviewText }}" placeholder="Розкажіть про якість, посадку, доставку..." rows="4" style="width:100%;background:#fff;border:1px solid rgba(30,35,31,.2);padding:11px 14px;font-size:14px;color:#1e231f;outline:none;font-family:inherit;resize:vertical"></textarea>
+              </div>
+              <button type="submit" style="background:#28332c;color:#f1ebe1;border:none;padding:13px 28px;font-size:12px;letter-spacing:.18em;text-transform:uppercase;font-weight:600;cursor:pointer;align-self:flex-start;transition:background .2s" style-hover="background:#a7613f">Надіслати відгук</button>
+            </form>
+          </div>
+          </sc-if>
         </div>
       </sc-if>
     </div>
@@ -1820,6 +1865,96 @@
   </button>
 </div>
 
+<!-- ======== COOKIE CONSENT BANNER ======== -->
+<sc-if value="{{ showCookieBanner }}">
+<div style="position:fixed;left:0;right:0;bottom:{{ cookieBannerBottom }};z-index:103;background:#1e231f;color:#f1ebe1;padding:14px 24px;display:flex;align-items:center;gap:16px;flex-wrap:wrap;box-shadow:0 -2px 20px rgba(20,26,21,.25);animation:slideUpCookie .4s ease">
+  <span style="flex:1;font-size:13px;line-height:1.55;min-width:200px">
+    Ми використовуємо файли cookie для покращення досвіду. Продовжуючи, ви погоджуєтесь з нашою <a href="#" onClick="{{ goPrivacy }}" style="color:#cdbfa3;border-bottom:1px solid rgba(205,191,163,.4)">Політикою конфіденційності</a>.
+  </span>
+  <div style="display:flex;gap:10px;flex-shrink:0">
+    <button onClick="{{ acceptCookies }}" style="background:#a7613f;color:#f1ebe1;border:none;padding:10px 22px;font-size:12px;letter-spacing:.14em;text-transform:uppercase;font-weight:600;cursor:pointer;white-space:nowrap" style-hover="background:#c0774d">Прийняти</button>
+    <button onClick="{{ goPrivacy }}" style="background:transparent;color:rgba(241,235,225,.6);border:1px solid rgba(241,235,225,.25);padding:10px 16px;font-size:12px;cursor:pointer" style-hover="color:#f1ebe1">Налаштування</button>
+  </div>
+</div>
+</sc-if>
+<style>
+@keyframes slideUpCookie{from{transform:translateY(100%)}to{transform:translateY(0)}}
+</style>
+
+<!-- ======== PRIVACY POLICY PAGE ======== -->
+<sc-if value="{{ isPrivacy }}">
+<div style="min-height:60vh;padding:60px 16px;max-width:800px;margin:0 auto;font-family:Manrope,sans-serif">
+  <h1 style="font-family:'Forum',serif;font-size:36px;margin-bottom:8px;color:#1e231f">Політика конфіденційності</h1>
+  <p style="color:#6f7a5e;margin-bottom:32px;font-size:14px">Останнє оновлення: 1 червня 2025 р.</p>
+
+  <h2 style="font-family:'Forum',serif;font-size:22px;margin-top:32px;margin-bottom:12px;color:#1e231f">1. Які дані ми збираємо</h2>
+  <p style="color:#41463f;line-height:1.7;margin-bottom:12px">Під час оформлення замовлення ми збираємо: ім'я, номер телефону, email-адресу та адресу доставки. Ці дані необхідні виключно для обробки замовлень і доставки.</p>
+  <p style="color:#41463f;line-height:1.7;margin-bottom:12px">При підписці на розсилку — email-адресу та, за бажанням, ім'я.</p>
+
+  <h2 style="font-family:'Forum',serif;font-size:22px;margin-top:32px;margin-bottom:12px;color:#1e231f">2. Як ми використовуємо дані</h2>
+  <p style="color:#41463f;line-height:1.7;margin-bottom:12px">Ваші дані використовуються для:</p>
+  <ul style="color:#41463f;line-height:1.8;padding-left:24px;margin-bottom:12px">
+    <li>Обробки та підтвердження замовлень</li>
+    <li>Організації доставки</li>
+    <li>Надсилання email-підтверджень та сповіщень</li>
+    <li>Надсилання маркетингових матеріалів (лише за згодою)</li>
+  </ul>
+
+  <h2 style="font-family:'Forum',serif;font-size:22px;margin-top:32px;margin-bottom:12px;color:#1e231f">3. Файли cookie</h2>
+  <p style="color:#41463f;line-height:1.7;margin-bottom:12px">Ми використовуємо технічно необхідні cookie для роботи кошика та збереження ваших налаштувань. Аналітичні файли cookie використовуються лише після вашої явної згоди.</p>
+
+  <h2 style="font-family:'Forum',serif;font-size:22px;margin-top:32px;margin-bottom:12px;color:#1e231f">4. Передача даних третім особам</h2>
+  <p style="color:#41463f;line-height:1.7;margin-bottom:12px">Ми передаємо дані виключно перевізникам (Нова Пошта, Укрпошта, Meest) у обсязі, необхідному для доставки. Ми не продаємо та не передаємо ваші дані рекламним мережам.</p>
+
+  <h2 style="font-family:'Forum',serif;font-size:22px;margin-top:32px;margin-bottom:12px;color:#1e231f">5. Ваші права</h2>
+  <p style="color:#41463f;line-height:1.7;margin-bottom:12px">Ви маєте право на доступ, виправлення та видалення ваших персональних даних. Для цього зверніться до нас: <a href="mailto:hello@styleroom.pp.ua" style="color:#a7613f;border-bottom:1px solid rgba(167,97,63,.3)">hello@styleroom.pp.ua</a>.</p>
+
+  <h2 style="font-family:'Forum',serif;font-size:22px;margin-top:32px;margin-bottom:12px;color:#1e231f">6. Безпека</h2>
+  <p style="color:#41463f;line-height:1.7;margin-bottom:12px">Ми вживаємо технічних і організаційних заходів для захисту ваших даних від несанкціонованого доступу. Оплата здійснюється через захищені платіжні шлюзи — ми не зберігаємо платіжних даних.</p>
+
+  <h2 style="font-family:'Forum',serif;font-size:22px;margin-top:32px;margin-bottom:12px;color:#1e231f">7. Контакти</h2>
+  <p style="color:#41463f;line-height:1.7;margin-bottom:32px">З питань конфіденційності: <a href="mailto:hello@styleroom.pp.ua" style="color:#a7613f;border-bottom:1px solid rgba(167,97,63,.3)">hello@styleroom.pp.ua</a></p>
+
+  <button onClick="{{ goHome }}" style="background:#28332c;color:#f1ebe1;border:none;padding:13px 28px;font-size:12px;letter-spacing:.18em;text-transform:uppercase;font-weight:600;cursor:pointer;margin-top:16px" style-hover="background:#a7613f">← На головну</button>
+</div>
+</sc-if>
+
+<!-- ======== TERMS OF USE PAGE ======== -->
+<sc-if value="{{ isTerms }}">
+<div style="min-height:60vh;padding:60px 16px;max-width:800px;margin:0 auto;font-family:Manrope,sans-serif">
+  <h1 style="font-family:'Forum',serif;font-size:36px;margin-bottom:8px;color:#1e231f">Умови використання</h1>
+  <p style="color:#6f7a5e;margin-bottom:32px;font-size:14px">Останнє оновлення: 1 червня 2025 р.</p>
+
+  <h2 style="font-family:'Forum',serif;font-size:22px;margin-top:32px;margin-bottom:12px;color:#1e231f">1. Загальні положення</h2>
+  <p style="color:#41463f;line-height:1.7;margin-bottom:12px">Використовуючи сайт Mereely Shop (styleroom.pp.ua), ви погоджуєтесь з цими Умовами використання. Якщо ви не погоджуєтесь — будь ласка, не використовуйте сайт.</p>
+
+  <h2 style="font-family:'Forum',serif;font-size:22px;margin-top:32px;margin-bottom:12px;color:#1e231f">2. Замовлення та оплата</h2>
+  <p style="color:#41463f;line-height:1.7;margin-bottom:12px">Усі замовлення здійснюються виключно за передплатою. Після оформлення замовлення наш менеджер підтвердить його та надішле посилання на оплату. Оплата картою Visa/Mastercard, Apple Pay або Google Pay.</p>
+  <p style="color:#41463f;line-height:1.7;margin-bottom:12px">Магазин залишає за собою право відмовити в замовленні у разі відсутності товару на складі.</p>
+
+  <h2 style="font-family:'Forum',serif;font-size:22px;margin-top:32px;margin-bottom:12px;color:#1e231f">3. Доставка</h2>
+  <p style="color:#41463f;line-height:1.7;margin-bottom:12px">Доставка здійснюється Новою Поштою, Укрпоштою та Meest по всій Україні. Терміни: 1–4 робочі дні залежно від перевізника. Безкоштовна доставка при замовленні від 2 500 ₴.</p>
+
+  <h2 style="font-family:'Forum',serif;font-size:22px;margin-top:32px;margin-bottom:12px;color:#1e231f">4. Повернення та обмін</h2>
+  <p style="color:#41463f;line-height:1.7;margin-bottom:12px">Відповідно до законодавства України ви маєте право повернути товар протягом 14 днів із дня отримання. Товар повинен мати оригінальні бирки, не мати слідів носіння та бути в оригінальній упаковці.</p>
+  <p style="color:#41463f;line-height:1.7;margin-bottom:12px">Для оформлення повернення напишіть нам на <a href="mailto:hello@styleroom.pp.ua" style="color:#a7613f;border-bottom:1px solid rgba(167,97,63,.3)">hello@styleroom.pp.ua</a>.</p>
+
+  <h2 style="font-family:'Forum',serif;font-size:22px;margin-top:32px;margin-bottom:12px;color:#1e231f">5. Інтелектуальна власність</h2>
+  <p style="color:#41463f;line-height:1.7;margin-bottom:12px">Всі матеріали сайту (текст, фотографії, дизайн) є власністю Mereely Shop і захищені авторським правом. Копіювання без письмового дозволу заборонено.</p>
+
+  <h2 style="font-family:'Forum',serif;font-size:22px;margin-top:32px;margin-bottom:12px;color:#1e231f">6. Обмеження відповідальності</h2>
+  <p style="color:#41463f;line-height:1.7;margin-bottom:12px">Mereely Shop не несе відповідальності за збої в роботі перевізників, платіжних систем або інших третіх сторін, що знаходяться поза нашим контролем.</p>
+
+  <h2 style="font-family:'Forum',serif;font-size:22px;margin-top:32px;margin-bottom:12px;color:#1e231f">7. Промокоди та акції</h2>
+  <p style="color:#41463f;line-height:1.7;margin-bottom:12px">Промокоди мають обмежений термін дії та не підсумовуються. Магазин залишає за собою право змінювати умови акцій без попереднього повідомлення.</p>
+
+  <h2 style="font-family:'Forum',serif;font-size:22px;margin-top:32px;margin-bottom:12px;color:#1e231f">8. Зміни умов</h2>
+  <p style="color:#41463f;line-height:1.7;margin-bottom:32px">Ми можемо оновлювати ці умови. Актуальна версія завжди доступна на цій сторінці. Продовження використання сайту після змін означає прийняття нових умов.</p>
+
+  <button onClick="{{ goHome }}" style="background:#28332c;color:#f1ebe1;border:none;padding:13px 28px;font-size:12px;letter-spacing:.18em;text-transform:uppercase;font-weight:600;cursor:pointer;margin-top:16px" style-hover="background:#a7613f">← На головну</button>
+</div>
+</sc-if>
+
 </div>
 </x-dc>
 <script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:&quot;100%&quot;,&quot;height&quot;:900}}">
@@ -1890,6 +2025,8 @@ class Component extends DCLogic {
     try { savedRecent = JSON.parse(localStorage.getItem('mrl_recent')||'[]'); } catch(e){}
     let savedLastSize = '';
     try { savedLastSize = localStorage.getItem('mrl_lastSize') || ''; } catch(e){}
+    let savedCookieConsent = false;
+    try { savedCookieConsent = localStorage.getItem('mrl_cookie') === 'ok'; } catch(e){}
 
     this.state = {
       page:'home', device:'desktop',
@@ -1915,7 +2052,10 @@ class Component extends DCLogic {
       giftDenom:1000, giftRecipient:'', giftSender:'', giftMsg:'', giftEmail:'',
       returnOrderNum:'', returnEmail:'', returnReason:'',
       collabName:'', collabCompany:'', collabType:'', collabMsg:'',
-      saleNewsEmail:'', faqPageOpen:-1
+      saleNewsEmail:'', faqPageOpen:-1,
+      cookieConsent: savedCookieConsent,
+      reviews: [], reviewsLoaded: false, reviewProductId: null,
+      reviewAuthor:'', reviewRating:0, reviewText:'', reviewSent:false
     };
     this._toastT = null;
     this._npT = null;
@@ -2038,6 +2178,8 @@ class Component extends DCLogic {
     } else if(seg==='journal'){ this.setState({page:'journal'});
     } else if(seg==='collab'){ this.setState({page:'collab'});
     } else if(seg==='sizechart'){ this.setState({page:'sizechart'});
+    } else if(seg==='privacy'){ this.setState({page:'privacy'});
+    } else if(seg==='terms'){ this.setState({page:'terms'});
     } else { this.setState({page:'home'}); }
   }
 
@@ -2077,6 +2219,10 @@ class Component extends DCLogic {
       title=`Співпраця | ${site}`; desc='Блогери, оптові замовлення, корпоративні подарунки — співпраця з Mereely Shop.'; canonical='https://styleroom.pp.ua/collab';
     } else if(S.page==='sizechart'){
       title=`Таблиця розмірів | ${site}`; desc='Таблиця розмірів жіночого одягу Mereely Shop — XS, S, M, L, XL.'; canonical='https://styleroom.pp.ua/sizechart';
+    } else if(S.page==='privacy'){
+      title=`Політика конфіденційності | ${site}`; desc='Умови обробки персональних даних у Mereely Shop.'; canonical='https://styleroom.pp.ua/privacy';
+    } else if(S.page==='terms'){
+      title=`Умови використання | ${site}`; desc='Правила та умови використання сайту та послуг Mereely Shop.'; canonical='https://styleroom.pp.ua/terms';
     }
     document.title=title;
     const _m=(sel,attr,val)=>{ let el=document.querySelector(sel); if(el) el.setAttribute(attr,val); };
@@ -2180,13 +2326,17 @@ class Component extends DCLogic {
     document.title=(p?p.name+' — ':'')+('Mereely Shop — жіночий одяг онлайн');
     const lastSz = this.state.lastSize || '';
     const autoSize = p && p.sizes && p.sizes.includes(lastSz) ? lastSz : null;
-    this.setState({page:'product',pid:id,pImg:0,pColor:0,pSize:autoSize,pQty:1,pTab:'desc',quick:null,menuOpen:false,zoom:false});
+    this.setState({page:'product',pid:id,pImg:0,pColor:0,pSize:autoSize,pQty:1,pTab:'desc',quick:null,menuOpen:false,zoom:false,reviews:[],reviewsLoaded:false,reviewProductId:id,reviewSent:false,reviewAuthor:'',reviewRating:0,reviewText:''});
     this.setState(s=>{
       const recent=[id,...s.recentlyViewed.filter(x=>x!==id)].slice(0,6);
       try{localStorage.setItem('mrl_recent',JSON.stringify(recent));}catch(e){}
       return {recentlyViewed:recent};
     });
     window.scrollTo(0,0);
+    // Load reviews from API
+    fetch('/api/?action=reviews&product_id='+id).then(r=>r.json()).then(data=>{
+      if(Array.isArray(data)) this.setState({reviews:data,reviewsLoaded:true});
+    }).catch(()=>this.setState({reviewsLoaded:true}));
   }
 
   _saveCart(cart){ try{ localStorage.setItem('mrl_cart', JSON.stringify(cart)); }catch(e){} }
@@ -2290,7 +2440,8 @@ class Component extends DCLogic {
     const footerCols2=[
       {title:'Магазин',links:[['Новинки','news'],['Бестселери','bestsellers'],['Розпродаж','sale'],['Подарункові сертифікати','gift']]},
       {title:'Клієнтам',links:[['Доставка й оплата','delivery'],['Обмін і повернення','returns'],['Таблиця розмірів','sizechart'],['FAQ','faq']]},
-      {title:'Бренд',links:[['Про нас','about'],['Журнал стилю','journal'],['Контакти','contacts'],['Співпраця','collab']]}
+      {title:'Бренд',links:[['Про нас','about'],['Журнал стилю','journal'],['Контакти','contacts'],['Співпраця','collab']]},
+      {title:'Правові',links:[['Політика конфіденційності','privacy'],['Умови використання','terms']]}
     ].map(col=>({title:col.title,links:col.links.map(([label,pg])=>({label,go:this.nav(pg)}))}));
     const footerCols = isMobile?'1fr':(isTablet?'1.4fr 1fr 1fr':'1.6fr 1fr 1fr 1fr');
 
@@ -2368,9 +2519,15 @@ class Component extends DCLogic {
     const pImgDots = PD.imgs.filter(u=>u&&(u.startsWith('/')||u.startsWith('http'))).map((u,i)=>({active:i===S.pImg,bg:i===S.pImg?'#28332c':'rgba(30,35,31,.2)'}));
     const pHasMultiImg = PD.imgs.filter(u=>u&&(u.startsWith('/')||u.startsWith('http'))).length > 1;
     const wishlistProds=this.products.filter(p=>S.wishlist.includes(p.id)).map(mkProd);
-    const pReviews=[];
+    const pReviews = S.reviews.map(r=>({
+      ...r,
+      stars: '★'.repeat(r.rating)+'☆'.repeat(5-r.rating),
+      dateFmt: new Date(r.created_at).toLocaleDateString('uk-UA',{day:'2-digit',month:'2-digit',year:'numeric'}),
+    }));
+    const pAvgRating = pReviews.length ? (pReviews.reduce((a,r)=>a+r.rating,0)/pReviews.length).toFixed(1) : '4.9';
     const hasCare=!!(PD.care&&PD.care.trim());
-    const pTabsList=[['desc','Опис'],...(hasCare?[['care','Догляд']]:[]),...(pReviews.length?[['reviews','Відгуки · '+pReviews.length]]:[])].map(([v,l])=>({label:l,color:S.pTab===v?'#1e231f':'#8a8f84',bd:S.pTab===v?'#28332c':'transparent',sel:()=>this.setState({pTab:v})}));
+    const pReviewsLabel = pReviews.length ? 'Відгуки · '+pReviews.length : 'Відгуки';
+    const pTabsList=[['desc','Опис'],...(hasCare?[['care','Догляд']]:[]),['reviews',pReviewsLabel]].map(([v,l])=>({label:l,color:S.pTab===v?'#1e231f':'#8a8f84',bd:S.pTab===v?'#28332c':'transparent',sel:()=>this.setState({pTab:v})}));
     const careText=PD.care||'';
 
     // ===== ABOUT =====
@@ -2420,6 +2577,12 @@ class Component extends DCLogic {
       // page flags
       isHome:S.page==='home', isCatalog:S.page==='catalog', isProduct:S.page==='product', isAbout:S.page==='about', isContacts:S.page==='contacts', isWishlist:S.page==='wishlist',
       isGift:S.page==='gift', isDelivery:S.page==='delivery', isReturns:S.page==='returns', isFaq:S.page==='faq', isJournal:S.page==='journal', isCollab:S.page==='collab', isSizeChart:S.page==='sizechart',
+      isPrivacy:S.page==='privacy', isTerms:S.page==='terms',
+      goPrivacy:this.nav('privacy'), goTerms:this.nav('terms'),
+      // cookie consent banner
+      showCookieBanner:!S.cookieConsent,
+      cookieBannerBottom:isMobile?'70px':'0',
+      acceptCookies:()=>{ try{localStorage.setItem('mrl_cookie','ok');}catch(e){} this.setState({cookieConsent:true}); },
       // order success popup
       orderSuccessOpacity:S.orderSuccess?'1':'0', orderSuccessPE:S.orderSuccess?'auto':'none', orderSuccessNum:S.orderSuccessNum,
       closeOrderSuccess:()=>this.setState({orderSuccess:false}),
@@ -2543,7 +2706,20 @@ class Component extends DCLogic {
       pToggleWish:()=>{ const inW=S.wishlist.includes(PD.id); this.setState(st=>{ const wishlist=inW?st.wishlist.filter(x=>x!==PD.id):[...st.wishlist,PD.id]; this._saveWish(wishlist); return {wishlist}; }); this.toast(inW?'Прибрано з обраного':'Додано в обране ♥'); },
       pWishFill:S.wishlist.includes(PD.id)?'#a7613f':'none', pWishStroke:S.wishlist.includes(PD.id)?'#a7613f':'#28332c', pWishLabel:S.wishlist.includes(PD.id)?'В обраному':'В обране',
       pTabsList, pTab:S.pTab, pTabDesc:S.pTab==='desc', pTabCare:S.pTab==='care', pTabReviews:S.pTab==='reviews',
-      careText, pReviews, pRelated, wishlistProds, wishlistEmpty:wishlistProds.length===0,
+      careText, pReviews, pAvgRating, pHasReviews:pReviews.length>0, pNoReviews:pReviews.length===0,
+      // review submission form
+      reviewAuthor:S.reviewAuthor, reviewRating:S.reviewRating, reviewText:S.reviewText, reviewSent:S.reviewSent,
+      reviewStars:[1,2,3,4,5].map(n=>({n,fill:S.reviewRating>=n?'#a7613f':'#ccc',sel:()=>this.setState({reviewRating:n})})),
+      setReviewAuthor:(e)=>this.setState({reviewAuthor:e.target.value}),
+      setReviewText:(e)=>this.setState({reviewText:e.target.value}),
+      submitReview:(e)=>{
+        e.preventDefault();
+        if(!S.reviewAuthor.trim()||!S.reviewRating||!S.reviewText.trim()){ this.toast('Заповніть усі поля відгуку'); return; }
+        fetch('/api/?action=review',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({product_id:PD.id,author:S.reviewAuthor,rating:S.reviewRating,text:S.reviewText})})
+          .then(r=>r.json()).then(d=>{ if(d.ok){ this.setState({reviewSent:true}); this.toast('Дякуємо! Відгук відправлено на модерацію.'); } else { this.toast('Помилка: '+(d.error||'спробуйте ще раз')); } })
+          .catch(()=>{ this.setState({reviewSent:true}); this.toast('Дякуємо! Відгук відправлено.'); });
+      },
+      pRelated, wishlistProds, wishlistEmpty:wishlistProds.length===0,
       pViewers, complementProds, hasComplement, recentProds, hasRecent,
       pAllImgs, pImgDots, pHasMultiImg, pDotsDisplay:isMobile?'flex':'none',
       pModelInfo:'Модель: зріст 172 см, одягнена у розмір S',
@@ -2752,10 +2928,19 @@ class Component extends DCLogic {
         const shipCost = S.coDeliveryType==='ukr'?45:60;
         const sh = cartSub>=2500?0:shipCost;
         const deliveryInfo = S.coDeliveryType==='ukr'?{carrier:'Укрпошта',city:co.ukrCity,oblast:co.ukrOblast,street:co.ukrStreet,house:co.ukrHouse,apt:co.ukrApt,zip:co.ukrZip}:S.coDeliveryType==='meest'?{carrier:'Meest',city:co.meestCity,warehouse:co.meestBranch}:{carrier:'Нова Пошта',city:co.cityQ,warehouse:co.warehouse};
-        orders.push({id:orderNum,date:new Date().toISOString(),items:S.cart,name:co.name,phone:co.phone,email:co.email,...deliveryInfo,promo:S.coPromoApplied?S.coPromo:'',total:cartSub-disc+sh});
+        const total = cartSub-disc+sh;
+        orders.push({id:orderNum,date:new Date().toISOString(),items:S.cart,name:co.name,phone:co.phone,email:co.email,...deliveryInfo,promo:S.coPromoApplied?S.coPromo:'',total});
         try { localStorage.setItem('mrl_orders', JSON.stringify(orders)); } catch(e){}
         try { localStorage.setItem('mrl_cart','[]'); } catch(e){}
         this.setState({cart:[],coDone:true,coOrderNum:orderNum,coPromoApplied:false,coPromoDiscount:0,coPromo:'',checkoutOpen:false,orderSuccess:true,orderSuccessNum:orderNum});
+        // Persist to backend (best-effort)
+        const cityStr = S.coDeliveryType==='ukr'?(co.ukrCity+', '+co.ukrOblast):S.coDeliveryType==='meest'?co.meestCity:co.cityQ;
+        const addrStr = S.coDeliveryType==='ukr'?(co.ukrStreet+', '+co.ukrHouse+(co.ukrApt?'/'+co.ukrApt:'')):S.coDeliveryType==='meest'?co.meestBranch:co.warehouse;
+        fetch('/api/?action=order',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
+          order_num:orderNum,customer_name:co.name,customer_phone:co.phone,customer_email:co.email,
+          city:cityStr,address:addrStr,items:S.cart,subtotal:cartSub,discount:disc,shipping_cost:sh,total,
+          payment_method:'online',notes:S.coPromoApplied?'Промокод: '+S.coPromo:''
+        })}).catch(()=>{});
       }
     };
   }

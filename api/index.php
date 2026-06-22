@@ -69,6 +69,39 @@ try {
         sort_order INTEGER NOT NULL DEFAULT 0
     )");
 
+    // Таблиця замовлень (нова схема)
+    $db->exec("CREATE TABLE IF NOT EXISTS orders_new (
+        id             INTEGER PRIMARY KEY AUTOINCREMENT,
+        order_num      TEXT NOT NULL,
+        customer_name  TEXT,
+        customer_phone TEXT,
+        customer_email TEXT,
+        city           TEXT,
+        address        TEXT,
+        items          TEXT,
+        subtotal       REAL,
+        discount       REAL DEFAULT 0,
+        shipping_cost  REAL DEFAULT 0,
+        total          REAL,
+        payment_method TEXT DEFAULT 'online',
+        status         TEXT DEFAULT 'new',
+        notes          TEXT,
+        created_at     DATETIME DEFAULT CURRENT_TIMESTAMP,
+        updated_at     DATETIME DEFAULT CURRENT_TIMESTAMP
+    )");
+
+    // Таблиця відгуків
+    $db->exec("CREATE TABLE IF NOT EXISTS reviews (
+        id         INTEGER PRIMARY KEY AUTOINCREMENT,
+        product_id INTEGER NOT NULL,
+        author     TEXT NOT NULL,
+        rating     INTEGER NOT NULL CHECK(rating BETWEEN 1 AND 5),
+        text       TEXT NOT NULL,
+        verified   INTEGER DEFAULT 0,
+        approved   INTEGER DEFAULT 0,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    )");
+
     $db->sqliteCreateFunction('mb_lower', function($s){ return mb_strtolower((string)$s, 'UTF-8'); }, 1);
 
 } catch (Exception $e) {
@@ -119,19 +152,139 @@ if ($action === 'subscribe') {
     json_out(['ok' => true]);
 }
 
-// --- Публічне замовлення ---
+// --- Публічне замовлення (нова схема) ---
+if ($action === 'order') {
+    if ($_SERVER['REQUEST_METHOD'] !== 'POST') err('POST only');
+    $input = json_decode(file_get_contents('php://input'), true) ?? [];
+    $order_num = $input['order_num'] ?? ('MRL-' . strtoupper(substr(base_convert(time(), 10, 36), -6)));
+    $s = $db->prepare("INSERT INTO orders_new
+        (order_num, customer_name, customer_phone, customer_email, city, address, items,
+         subtotal, discount, shipping_cost, total, payment_method, notes)
+        VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)");
+    $s->execute([
+        $order_num,
+        $input['customer_name']  ?? '',
+        $input['customer_phone'] ?? '',
+        $input['customer_email'] ?? '',
+        $input['city']           ?? '',
+        $input['address']        ?? '',
+        is_array($input['items'] ?? null) ? json_encode($input['items'], JSON_UNESCAPED_UNICODE) : ($input['items'] ?? ''),
+        (float)($input['subtotal']      ?? 0),
+        (float)($input['discount']      ?? 0),
+        (float)($input['shipping_cost'] ?? 0),
+        (float)($input['total']         ?? 0),
+        $input['payment_method'] ?? 'online',
+        $input['notes']          ?? '',
+    ]);
+    $new_id = (int)$db->lastInsertId();
+
+    // Email підтвердження клієнту
+    $customer_email = trim($input['customer_email'] ?? '');
+    $customer_name  = trim($input['customer_name']  ?? 'Покупцю');
+    $items_arr = is_array($input['items'] ?? null) ? $input['items'] : (json_decode($input['items'] ?? '[]', true) ?? []);
+    $items_html = '';
+    foreach ($items_arr as $it) {
+        $iname = htmlspecialchars($it['name'] ?? $it['title'] ?? '', ENT_QUOTES);
+        $iqty  = (int)($it['qty']  ?? $it['quantity'] ?? 1);
+        $iprice= (float)($it['price'] ?? 0);
+        $items_html .= "<tr><td style='padding:6px 12px;border-bottom:1px solid #e8e0d6;'>{$iname}</td><td style='padding:6px 12px;border-bottom:1px solid #e8e0d6;text-align:center;'>{$iqty}</td><td style='padding:6px 12px;border-bottom:1px solid #e8e0d6;text-align:right;'>" . number_format($iprice,0,'.',' ') . " ₴</td></tr>";
+    }
+    $total_fmt = number_format((float)($input['total'] ?? 0), 0, '.', "\xC2\xA0") . ' ₴';
+    $city_esc  = htmlspecialchars($input['city']    ?? '', ENT_QUOTES);
+    $addr_esc  = htmlspecialchars($input['address'] ?? '', ENT_QUOTES);
+
+    $html_body = <<<HTML
+<!DOCTYPE html><html lang="uk"><head><meta charset="utf-8"></head><body style="margin:0;padding:0;background:#f1ebe1;font-family:Manrope,Arial,sans-serif;">
+<table width="100%" cellpadding="0" cellspacing="0" style="background:#f1ebe1;padding:40px 0;">
+<tr><td align="center">
+<table width="600" cellpadding="0" cellspacing="0" style="background:#fff;border-radius:16px;overflow:hidden;max-width:600px;">
+<tr><td style="background:#1e231f;padding:32px 40px;text-align:center;">
+  <span style="font-family:serif;font-size:28px;color:#f1ebe1;letter-spacing:2px;">Mereely</span>
+</td></tr>
+<tr><td style="padding:40px;">
+  <h1 style="margin:0 0 8px;font-size:22px;color:#1e231f;">Дякуємо за замовлення!</h1>
+  <p style="color:#6f7a5e;margin:0 0 24px;">Привіт, {$customer_name}! Ваше замовлення <strong>{$order_num}</strong> прийнято.</p>
+  <table width="100%" cellpadding="0" cellspacing="0" style="border:1px solid #e8e0d6;border-radius:8px;overflow:hidden;margin-bottom:24px;">
+    <tr style="background:#f1ebe1;"><th style="padding:8px 12px;text-align:left;font-size:13px;color:#6f7a5e;">Товар</th><th style="padding:8px 12px;text-align:center;font-size:13px;color:#6f7a5e;">К-ть</th><th style="padding:8px 12px;text-align:right;font-size:13px;color:#6f7a5e;">Ціна</th></tr>
+    {$items_html}
+    <tr><td colspan="2" style="padding:10px 12px;font-weight:700;color:#1e231f;">Разом</td><td style="padding:10px 12px;font-weight:700;color:#1e231f;text-align:right;">{$total_fmt}</td></tr>
+  </table>
+  <p style="color:#6f7a5e;margin:0 0 4px;font-size:14px;"><strong>Місто:</strong> {$city_esc}</p>
+  <p style="color:#6f7a5e;margin:0 0 24px;font-size:14px;"><strong>Адреса доставки:</strong> {$addr_esc}</p>
+  <p style="color:#6f7a5e;font-size:13px;margin:0;">З питань: <a href="mailto:hello@styleroom.pp.ua" style="color:#a7613f;">hello@styleroom.pp.ua</a></p>
+</td></tr>
+<tr><td style="background:#1e231f;padding:20px 40px;text-align:center;">
+  <p style="color:#6f7a5e;font-size:12px;margin:0;">© Mereely Shop · styleroom.pp.ua</p>
+</td></tr>
+</table>
+</td></tr></table>
+</body></html>
+HTML;
+
+    $from    = 'noreply@styleroom.pp.ua';
+    $subject = "=?UTF-8?B?" . base64_encode("Замовлення #{$order_num} підтверджено — Mereely Shop") . "?=";
+    $headers = implode("\r\n", [
+        "From: Mereely Shop <{$from}>",
+        "MIME-Version: 1.0",
+        "Content-Type: text/html; charset=UTF-8",
+    ]);
+
+    if ($customer_email && filter_var($customer_email, FILTER_VALIDATE_EMAIL)) {
+        @mail($customer_email, $subject, $html_body, $headers);
+    }
+    // Повідомлення власнику
+    $owner_body = "<p>Нове замовлення <strong>{$order_num}</strong> від {$customer_name} ({$customer_email}, {$customer_phone}).<br>Сума: {$total_fmt}<br>Місто: {$city_esc}<br>Адреса: {$addr_esc}</p>";
+    $owner_headers = implode("\r\n", ["From: Mereely Shop <{$from}>", "MIME-Version: 1.0", "Content-Type: text/html; charset=UTF-8"]);
+    @mail('hello@styleroom.pp.ua', "=?UTF-8?B?" . base64_encode("Нове замовлення #{$order_num}") . "?=", $owner_body, $owner_headers);
+
+    json_out(['ok' => true, 'id' => $new_id, 'order_num' => $order_num]);
+}
+
+// --- Зворотна сумісність ---
 if ($action === 'order_create') {
     if ($_SERVER['REQUEST_METHOD'] !== 'POST') err('POST only');
     $input = json_decode(file_get_contents('php://input'), true) ?? [];
-    $s = $db->prepare("INSERT INTO orders (contact, delivery, items, total, note) VALUES (?,?,?,?,?)");
+    $order_num = 'MRL-' . strtoupper(substr(base_convert(time(), 10, 36), -6));
+    $contact  = $input['contact']  ?? [];
+    $delivery = $input['delivery'] ?? [];
+    $s = $db->prepare("INSERT INTO orders_new
+        (order_num, customer_name, customer_phone, customer_email, city, address, items, total, notes)
+        VALUES (?,?,?,?,?,?,?,?,?)");
     $s->execute([
-        json_encode($input['contact'] ?? [], JSON_UNESCAPED_UNICODE),
-        json_encode($input['delivery'] ?? [], JSON_UNESCAPED_UNICODE),
+        $order_num,
+        $contact['name']  ?? '',
+        $contact['phone'] ?? '',
+        $contact['email'] ?? '',
+        $delivery['city']    ?? '',
+        $delivery['address'] ?? '',
         json_encode($input['items'] ?? [], JSON_UNESCAPED_UNICODE),
         (int)($input['total'] ?? 0),
         $input['note'] ?? '',
     ]);
     json_out(['ok' => true, 'id' => (int)$db->lastInsertId()]);
+}
+
+// --- Відгуки (публічні — схвалені) ---
+if ($action === 'reviews') {
+    $product_id = (int)($_GET['product_id'] ?? 0);
+    if (!$product_id) json_out([]);
+    $s = $db->prepare("SELECT id, author, rating, text, verified, created_at FROM reviews WHERE product_id=? AND approved=1 ORDER BY created_at DESC");
+    $s->execute([$product_id]);
+    json_out($s->fetchAll(PDO::FETCH_ASSOC));
+}
+
+// --- Зберегти відгук (публічний) ---
+if ($action === 'review') {
+    if ($_SERVER['REQUEST_METHOD'] !== 'POST') err('POST only');
+    $input = json_decode(file_get_contents('php://input'), true) ?? [];
+    $product_id = (int)($input['product_id'] ?? 0);
+    $author     = trim($input['author'] ?? '');
+    $rating     = (int)($input['rating'] ?? 0);
+    $text       = trim($input['text'] ?? '');
+    if (!$product_id || !$author || $rating < 1 || $rating > 5 || !$text) err('Заповніть всі поля');
+    $s = $db->prepare("INSERT INTO reviews (product_id, author, rating, text) VALUES (?,?,?,?)");
+    $s->execute([$product_id, $author, $rating, $text]);
+    json_out(['ok' => true]);
 }
 
 // --- NP проксі (Nova Poshta API key залишається на сервері) ---
@@ -310,24 +463,50 @@ if ($action === 'category_delete') {
 }
 
 // --- Замовлення (адмін) ---
+if ($action === 'orders' && isset($_GET['admin'])) {
+    $limit  = min((int)($_GET['limit'] ?? 20), 200);
+    $offset = (int)($_GET['offset'] ?? 0);
+    $status = $_GET['status'] ?? '';
+    if ($status) {
+        $stmt = $db->prepare("SELECT * FROM orders_new WHERE status=? ORDER BY created_at DESC LIMIT ? OFFSET ?");
+        $stmt->execute([$status, $limit, $offset]);
+    } else {
+        $stmt = $db->prepare("SELECT * FROM orders_new ORDER BY created_at DESC LIMIT ? OFFSET ?");
+        $stmt->execute([$limit, $offset]);
+    }
+    $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    foreach ($rows as &$r) {
+        $r['items'] = json_decode($r['items'] ?? '[]', true) ?? [];
+    }
+    $total_q = $status
+        ? $db->prepare("SELECT COUNT(*) FROM orders_new WHERE status=?")
+        : $db->prepare("SELECT COUNT(*) FROM orders_new");
+    $status ? $total_q->execute([$status]) : $total_q->execute([]);
+    json_out(['rows' => $rows, 'total' => (int)$total_q->fetchColumn()]);
+}
+
+// Зворотна сумісність: старий ендпоінт
 if ($action === 'orders_list') {
     $limit  = min((int)($_GET['limit'] ?? 50), 200);
     $offset = (int)($_GET['offset'] ?? 0);
     $status = $_GET['status'] ?? '';
     if ($status) {
-        $stmt = $db->prepare("SELECT * FROM orders WHERE status=? ORDER BY created_at DESC LIMIT ? OFFSET ?");
+        $stmt = $db->prepare("SELECT * FROM orders_new WHERE status=? ORDER BY created_at DESC LIMIT ? OFFSET ?");
         $stmt->execute([$status, $limit, $offset]);
     } else {
-        $stmt = $db->prepare("SELECT * FROM orders ORDER BY created_at DESC LIMIT ? OFFSET ?");
+        $stmt = $db->prepare("SELECT * FROM orders_new ORDER BY created_at DESC LIMIT ? OFFSET ?");
         $stmt->execute([$limit, $offset]);
     }
     $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
     foreach ($rows as &$r) {
-        $r['contact']  = json_decode($r['contact'],  true) ?? [];
-        $r['delivery'] = json_decode($r['delivery'], true) ?? [];
-        $r['items']    = json_decode($r['items'],    true) ?? [];
+        $r['items'] = json_decode($r['items'] ?? '[]', true) ?? [];
+        // Зворотна сумісність полів для старого UI
+        $r['contact']  = ['name' => $r['customer_name'], 'phone' => $r['customer_phone'], 'email' => $r['customer_email']];
+        $r['delivery'] = ['city' => $r['city'], 'address' => $r['address']];
     }
-    $total_q = $status ? $db->prepare("SELECT COUNT(*) FROM orders WHERE status=?") : $db->prepare("SELECT COUNT(*) FROM orders");
+    $total_q = $status
+        ? $db->prepare("SELECT COUNT(*) FROM orders_new WHERE status=?")
+        : $db->prepare("SELECT COUNT(*) FROM orders_new");
     $status ? $total_q->execute([$status]) : $total_q->execute([]);
     json_out(['rows' => $rows, 'total' => (int)$total_q->fetchColumn()]);
 }
@@ -337,9 +516,28 @@ if ($action === 'order_status') {
     $input = json_decode(file_get_contents('php://input'), true) ?? [];
     $id     = (int)($input['id'] ?? 0);
     $status = $input['status'] ?? '';
-    $allowed = ['new','confirmed','shipped','delivered','cancelled'];
+    $allowed = ['new','paid_partial','paid_full','processing','shipped','delivered','cancelled','returned'];
     if (!$id || !in_array($status, $allowed)) err('Invalid');
-    $db->prepare("UPDATE orders SET status=? WHERE id=?")->execute([$status, $id]);
+    $db->prepare("UPDATE orders_new SET status=?, updated_at=CURRENT_TIMESTAMP WHERE id=?")->execute([$status, $id]);
+    json_out(['ok' => true]);
+}
+
+// --- Відгуки (адмін) ---
+if ($action === 'reviews_admin' && isset($_GET['admin'])) {
+    $limit  = min((int)($_GET['limit'] ?? 50), 200);
+    $offset = (int)($_GET['offset'] ?? 0);
+    $s = $db->prepare("SELECT r.*, p.name as product_name FROM reviews r LEFT JOIN products p ON p.id=r.product_id ORDER BY r.created_at DESC LIMIT ? OFFSET ?");
+    $s->execute([$limit, $offset]);
+    json_out($s->fetchAll(PDO::FETCH_ASSOC));
+}
+
+if ($action === 'review_approve') {
+    if ($_SERVER['REQUEST_METHOD'] !== 'POST') err('POST only');
+    $input    = json_decode(file_get_contents('php://input'), true) ?? [];
+    $id       = (int)($input['id'] ?? 0);
+    $approved = (int)(bool)($input['approved'] ?? false);
+    if (!$id) err('No id');
+    $db->prepare("UPDATE reviews SET approved=? WHERE id=?")->execute([$approved, $id]);
     json_out(['ok' => true]);
 }
 
