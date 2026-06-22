@@ -1379,6 +1379,10 @@ class Component extends DCLogic {
       5:'turin-trousers', 6:'verona-skirt', 7:'london-trench', 8:'berlin-coat',
       9:'prague-sweater', 10:'vienna-cardigan', 11:'como-scarf', 12:'capri-bag'
     };
+    this._toSlug = (name='')=>{
+      const MAP={'а':'a','б':'b','в':'v','г':'h','ґ':'g','д':'d','е':'e','є':'ye','ж':'zh','з':'z','и':'y','і':'i','ї':'yi','й':'y','к':'k','л':'l','м':'m','н':'n','о':'o','п':'p','р':'r','с':'s','т':'t','у':'u','ф':'f','х':'kh','ц':'ts','ч':'ch','ш':'sh','щ':'shch','ь':'','ю':'yu','я':'ya'};
+      return name.toLowerCase().split('').map(c=>MAP[c]||(c.match(/[a-z0-9]/)?c:'-')).join('').replace(/-+/g,'-').replace(/^-|-$/g,'');
+    };
     this.catSlugs = {
       'Сукні':'dresses', 'Верх':'tops', 'Низ':'bottoms',
       'Верхній одяг':'outerwear', 'Трикотаж':'knitwear', 'Аксесуари':'accessories'
@@ -1468,7 +1472,7 @@ class Component extends DCLogic {
         sizes: Array.isArray(p.sizes)&&p.sizes.length ? p.sizes : [],
         imgs: Array.isArray(p.images)&&p.images.length ? p.images : [],
         tone: this.C.olive,
-        slug: 'item-'+p.id,
+        slug: this._toSlug(p.name)||('item-'+p.id),
         badge: p.badge||null,
         stock: 0,
       }));
@@ -1548,7 +1552,7 @@ class Component extends DCLogic {
       title=(p?p.name+' — ':'')+site;
       desc=p&&p.desc?p.desc:`Купити ${p?p.name:''} в ${site}. Доставка по Україні, оплата онлайн.`;
       ogType='product';
-      canonical='https://styleroom.pp.ua/product/'+(p?p.id:'');
+      canonical='https://styleroom.pp.ua/product/'+(p?p.slug:'');
     } else if(S.page==='about'){
       title=`Про нас | ${site}`; desc=`${site} — бутік жіночого одягу в Україні. Наша місія — якісний, елегантний одяг для сучасної жінки.`; canonical='https://styleroom.pp.ua/about';
     } else if(S.page==='contacts'){
