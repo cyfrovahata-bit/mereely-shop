@@ -495,8 +495,11 @@
         </sc-for>
       </div>
       <div class="mrl-gallery-wrap" style="flex:1;aspect-ratio:4/5">
-      <div onMouseMove="{{ pZoomMove }}" onMouseLeave="{{ pZoomLeave }}" onClick="{{ pZoomToggle }}" onTouchStart="{{ pTouchStart }}" onTouchEnd="{{ pTouchEnd }}" style="width:100%;height:100%;background:{{ pMainTone }};position:relative;overflow:hidden;cursor:{{ pZoomCursor }};opacity:{{ pGalleryOpacity }};transition:opacity .18s ease">
-        <sc-if value="{{ pHasMainImg }}" hint-placeholder-val="{{ false }}"><img src="{{ pMainShot }}" alt="{{ pName }}" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transform:{{ pMainTransform }};transform-origin:{{ pMainOrigin }};transition:transform .25s ease-out"/></sc-if>
+      <div onMouseMove="{{ pZoomMove }}" onMouseLeave="{{ pZoomLeave }}" onClick="{{ pZoomToggle }}" onTouchStart="{{ pTouchStart }}" onTouchEnd="{{ pTouchEnd }}" style="width:100%;height:100%;background:{{ pMainTone }};position:relative;overflow:hidden;cursor:{{ pZoomCursor }}">
+        <!-- Previous image (bottom layer, stays visible during crossfade) -->
+        <sc-if value="{{ pShowPrevLayer }}" hint-placeholder-val="{{ false }}"><img src="{{ pPrevShot }}" alt="{{ pName }}" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transform:{{ pMainTransform }};transform-origin:{{ pMainOrigin }}"/></sc-if>
+        <!-- Current image (top layer, fades in) -->
+        <sc-if value="{{ pHasMainImg }}" hint-placeholder-val="{{ false }}"><img src="{{ pMainShot }}" alt="{{ pName }}" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transform:{{ pMainTransform }};transform-origin:{{ pMainOrigin }};transition:opacity .35s ease,transform .25s ease-out;opacity:{{ pNextOpacity }}"/></sc-if>
         <sc-if value="{{ pHasMainImg }}" hint-placeholder-val="{{ true }}"><div style="position:absolute;inset:0;transform:{{ pMainTransform }};transform-origin:{{ pMainOrigin }};transition:transform .25s ease-out"></div></sc-if>
         <sc-if value="{{ pHasMainImg }}" hint-placeholder-val="{{ false }}"><span style="position:absolute;top:14px;right:14px;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,.65)">наведіть · клік для zoom</span></sc-if>
         <span style="position:absolute;left:-12px;top:-12px;width:54px;height:54px;border-left:1px solid #28332c;border-top:1px solid #28332c"></span>
@@ -2025,7 +2028,7 @@ class Component extends DCLogic {
       newsEmail:'', newsErr:false, newsDone:false,
       filters:{cat:'all', sizes:[], colors:[], priceMax:999999}, sort:'pop', filtersOpen:false, filterSec:{cat:false,size:false,color:false,price:false},
       quick:null, quickColor:0,
-      pid:1, pImg:0, pColor:0, pSize:null, pQty:1, pTab:'desc', zoom:false, zoomXY:'50% 50%',
+      pid:1, pImg:0, pImgPrev:0, _crossFading:false, _xfadeIn:false, pColor:0, pSize:null, pQty:1, pTab:'desc', zoom:false, zoomXY:'50% 50%',
       delivery:'np',
       contact:{name:'',email:'',phone:'',msg:''}, contactErr:{}, contactDone:false,
       faqOpen:0,
@@ -2494,7 +2497,8 @@ class Component extends DCLogic {
     const pSizes=mixed
       ?[...(stdSizes.length?[mkGr('Стандарт'),...stdSizes.map(mkSz)]:[]),...(numSizes.length?[mkGr('Числові'),...numSizes.map(mkSz)]:[]),...(otherSizes.length?[mkGr('Інші'),...otherSizes.map(mkSz)]:[])]
       :PD.sizes.map(mkSz);
-    const pThumbs=PD.imgs.map((url,i)=>{const isU=url&&(url.startsWith('/')||url.startsWith('http'));const active=i===S.pImg;return{imgSrc:isU?url:'',hasImg:isU,cap:isU?'':url,tone:PD.tone,active,border:active?'#1e231f':'rgba(30,35,31,.18)',opacity:active?'1':'0.55',outline:active?'none':'none',sel:()=>{if(i===S.pImg)return;this.setState({_imgFading:true},()=>setTimeout(()=>this.setState({pImg:i,_imgFading:false}),180));}};});
+    const _xfade=(next)=>{ const cur=this.state.pImg; if(next===cur)return; this.setState({pImgPrev:cur,pImg:next,_crossFading:true,_xfadeIn:false},()=>{ setTimeout(()=>{ this.setState({_xfadeIn:true}); setTimeout(()=>this.setState({_crossFading:false}),380); },20); }); };
+    const pThumbs=PD.imgs.map((url,i)=>{const isU=url&&(url.startsWith('/')||url.startsWith('http'));const active=i===S.pImg;return{imgSrc:isU?url:'',hasImg:isU,cap:isU?'':url,tone:PD.tone,active,border:active?'#1e231f':'rgba(30,35,31,.18)',opacity:active?'1':'0.55',outline:active?'none':'none',sel:()=>_xfade(i)};});
     const pMainUrl=PD.imgs[S.pImg]||PD.imgs[0]||'';
     const pHasMainImg=pMainUrl.startsWith('/')||pMainUrl.startsWith('http');
     const pRelated=this.products.filter(x=>x.cat===PD.cat&&x.id!==PD.id).concat(this.products.filter(x=>x.cat!==PD.cat)).slice(0,4).map(mkProd);
@@ -2740,10 +2744,11 @@ class Component extends DCLogic {
       pZoomMove:(e)=>{ if(!S.zoom)return; const r=e.currentTarget.getBoundingClientRect(); const x=((e.clientX-r.left)/r.width*100).toFixed(1); const y=((e.clientY-r.top)/r.height*100).toFixed(1); this.setState({zoomXY:x+'% '+y+'%'}); },
       pZoomLeave:()=>{ if(S.zoom) this.setState({zoom:false}); },
       pTouchStart:(e)=>{ this._touchX=e.touches[0].clientX; },
-      pGalleryOpacity: S._imgFading?'0':'1',
-      pTouchEnd:(e)=>{ const dx=e.changedTouches[0].clientX-this._touchX; if(Math.abs(dx)<40)return; const imgs=PD.imgs||[]; const next=dx<0?Math.min(S.pImg+1,imgs.length-1):Math.max(S.pImg-1,0); if(next===S.pImg)return; this.setState({_imgFading:true},()=>setTimeout(()=>this.setState({pImg:next,_imgFading:false}),180)); },
-      pImgPrev:(e)=>{e.stopPropagation();const next=Math.max(0,S.pImg-1);if(next===S.pImg)return;this.setState({_imgFading:true},()=>setTimeout(()=>this.setState({pImg:next,_imgFading:false}),180));},
-      pImgNext:(e)=>{e.stopPropagation();const next=Math.min((PD.imgs||[]).length-1,S.pImg+1);if(next===S.pImg)return;this.setState({_imgFading:true},()=>setTimeout(()=>this.setState({pImg:next,_imgFading:false}),180));},
+      pShowPrevLayer:S._crossFading, pNextOpacity:S._xfadeIn||!S._crossFading?'1':'0',
+      pPrevShot:(()=>{ const u=PD.imgs[S.pImgPrev]||''; return (u.startsWith('/')||u.startsWith('http'))?u:''; })(),
+      pTouchEnd:(e)=>{ const dx=e.changedTouches[0].clientX-this._touchX; if(Math.abs(dx)<40)return; const imgs=PD.imgs||[]; const next=dx<0?Math.min(S.pImg+1,imgs.length-1):Math.max(S.pImg-1,0); _xfade(next); },
+      pImgPrev:(e)=>{e.stopPropagation();_xfade(Math.max(0,S.pImg-1));},
+      pImgNext:(e)=>{e.stopPropagation();_xfade(Math.min((PD.imgs||[]).length-1,S.pImg+1));},
       pShowPrev:S.pImg>0,
       pShowNext:S.pImg<(PD.imgs||[]).length-1,
       showStickyBuy:S.page==='product'&&isMobile,
