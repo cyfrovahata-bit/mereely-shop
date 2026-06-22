@@ -110,8 +110,8 @@
 </div>
 
 <!-- ====== HEADER ====== -->
-<header style="position:sticky;top:0;z-index:90;background:{{ headerBg }};backdrop-filter:blur(14px);border-bottom:1px solid rgba(30,35,31,.12);transition:background .4s ease">
-  <div style="max-width:1340px;margin:0 auto;padding:0 clamp(18px,4vw,46px);height:74px;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:16px">
+<header style="position:sticky;top:0;z-index:90;background:{{ headerBg }};backdrop-filter:blur(16px);border-bottom:1px solid rgba(30,35,31,.10);box-shadow:{{ headerShadow }};transition:background .35s ease,box-shadow .35s ease,height .35s ease">
+  <div style="max-width:1340px;margin:0 auto;padding:0 clamp(18px,4vw,46px);height:{{ headerHeight }};display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:16px;transition:height .35s ease">
     <nav aria-label="Головна навігація" style="display:{{ navDisplay }};gap:34px;align-items:center;justify-self:start">
       <sc-for list="{{ navLinks }}" as="lnk" hint-placeholder-count="4">
         <a href="{{ lnk.href }}" onClick="{{ lnk.go }}" class="mrl-nav-link" style="font-size:12.5px;letter-spacing:.18em;text-transform:uppercase;font-weight:500;padding:6px 0;position:relative;color:{{ lnk.color }};transition:color .3s">{{ lnk.label }}</a>
@@ -123,7 +123,7 @@
       <span style="width:16px;height:1.5px;background:#1e231f;display:block"></span>
     </button>
 
-    <a href="#" onClick="{{ goHome }}" aria-label="Mereely Shop — на головну" style="justify-self:center;text-align:center;line-height:1">
+    <a href="#" onClick="{{ goHome }}" aria-label="Mereely Shop — на головну" style="justify-self:center;text-align:center;line-height:1;transform:{{ logoScale }};transition:transform .35s ease;display:block">
       <span style="font-family:'Forum',serif;font-size:clamp(22px,3vw,29px);letter-spacing:.42em;text-indent:.42em;display:block;color:#1e231f">MEREELY</span>
       <span style="font-size:8.5px;letter-spacing:.62em;text-indent:.62em;text-transform:uppercase;color:#6f7a5e;display:block;margin-top:3px;font-weight:600">Shop · Ukraine</span>
     </a>
@@ -1409,7 +1409,7 @@ class Component extends DCLogic {
       page:'home', device:'desktop',
       cart:savedCart, cartOpen:false, menuOpen:false, wishlist:savedWishlist, sizeChartOpen:false,
       recentlyViewed:savedRecent, lastSize:savedLastSize,
-      exitPopupShown:false, exitPopupOpen:false, exitPopupEmail:'', exitPopupDone:false,
+      exitPopupShown:false, exitPopupOpen:false, exitPopupEmail:'', exitPopupDone:false, _scrolled:false,
       homeTab:'new', hoverId:null,
       newsEmail:'', newsErr:false, newsDone:false,
       filters:{cat:'all', sizes:[], colors:[], priceMax:999999}, sort:'pop', filtersOpen:false, filterSec:{cat:false,size:false,color:false,price:false},
@@ -1442,8 +1442,10 @@ class Component extends DCLogic {
     this._loadProducts();
     this._exitHandler=(e)=>{if(e.clientY<10&&!this.state.exitPopupShown){this.setState({exitPopupOpen:true,exitPopupShown:true});}};
     document.addEventListener('mouseleave',this._exitHandler);
+    this._onScroll = ()=>{ const s=window.scrollY>40; if(s!==this.state._scrolled) this.setState({_scrolled:s}); };
+    window.addEventListener('scroll', this._onScroll, {passive:true});
   }
-  componentWillUnmount(){ window.removeEventListener('resize', this._onResize); if(this._popHandler) window.removeEventListener('popstate', this._popHandler); if(this._io) this._io.disconnect(); if(this._exitHandler) document.removeEventListener('mouseleave',this._exitHandler); }
+  componentWillUnmount(){ window.removeEventListener('resize', this._onResize); if(this._popHandler) window.removeEventListener('popstate', this._popHandler); if(this._io) this._io.disconnect(); if(this._exitHandler) document.removeEventListener('mouseleave',this._exitHandler); if(this._onScroll) window.removeEventListener('scroll',this._onScroll); }
   async _loadProducts(){
     try {
       const r = await fetch('/api/?action=products');
@@ -1872,7 +1874,10 @@ class Component extends DCLogic {
     return {
       // layout switches
       device:dev,
-      headerBg: 'rgba(241,235,225,.86)',
+      headerBg: S._scrolled?'rgba(241,235,225,.98)':'rgba(241,235,225,.82)',
+      headerShadow: S._scrolled?'0 2px 24px rgba(20,26,21,.10)':'none',
+      headerHeight: S._scrolled?'62px':'74px',
+      logoScale: S._scrolled?'scale(.88)':'scale(1)',
       navDisplay: isMobile?'none':'flex', burgerDisplay: isMobile?'flex':'none',
       heroCols: isMobile?'1fr':'1.05fr .95fr',
       heroDecoDisplay: isMobile?'none':'block',
