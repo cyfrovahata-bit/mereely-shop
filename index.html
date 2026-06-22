@@ -3,25 +3,22 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mereely Shop — жіночий одяг | Доставка по Україні</title>
+<meta name="description" content="Mereely Shop — жіночий одяг преміум-класу з доставкою по всій Україні. Сукні, блузи, брюки, верхній одяг. Оплата онлайн, швидка доставка.">
+<meta property="og:site_name" content="Mereely Shop">
+<meta property="og:locale" content="uk_UA">
+<meta property="og:image" content="/uploads/images/hero-editorial.webp">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="/favicon.ico" sizes="any">
+<link rel="apple-touch-icon" href="/uploads/images/hero-editorial.webp">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Forum&family=Manrope:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <script src="/support.js"></script>
 </head>
 <body>
 <x-dc>
 <helmet>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Forum&family=Manrope:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-<title>{{ metaTitle }}</title>
-<meta name="description" content="{{ metaDesc }}">
-<meta property="og:title" content="{{ metaTitle }}">
-<meta property="og:description" content="{{ metaDesc }}">
-<meta property="og:image" content="/uploads/images/hero-editorial.webp">
-<meta property="og:type" content="{{ metaOgType }}">
-<meta property="og:locale" content="uk_UA">
-<meta name="twitter:card" content="summary_large_image">
-<link rel="canonical" href="{{ metaCanonical }}">
-<link rel="icon" href="/favicon.ico" sizes="any">
-<link rel="apple-touch-icon" href="/uploads/images/hero-editorial.webp">
 <style>
   *{box-sizing:border-box;margin:0;padding:0}
   html{scroll-behavior:smooth}
@@ -1485,7 +1482,7 @@ class Component extends DCLogic {
       } catch(e){ this._catImages={}; }
       this.allColors=[...new Map(this.products.flatMap(p=>p.colors).map(c=>[c.name,c])).values()];
       this.allSizes=[...new Set(this.products.flatMap(p=>p.sizes))];
-      this.setState({_prodsLoaded:true}, ()=>{ this._parsePath(); });
+      this.setState({_prodsLoaded:true}, ()=>{ this._parsePath(); this._updateTitle(); });
     } catch(e){ console.warn('products load error',e); }
   }
   componentDidUpdate(prevProps, prevState){
@@ -1538,21 +1535,36 @@ class Component extends DCLogic {
 
   _updateTitle(){
     const S=this.state;
-    const base='Mereely Shop — жіночий одяг онлайн';
-    const titles={
-      home:base,
-      about:'Про нас | '+base,
-      contacts:'Контакти | '+base
-    };
+    const site='Mereely Shop';
+    const base=site+' — жіночий одяг онлайн';
+    let title=base, desc='Mereely Shop — жіночий одяг преміум-класу з доставкою по всій Україні. Сукні, блузи, брюки, верхній одяг. Оплата онлайн, швидка доставка.', ogType='website', canonical='https://styleroom.pp.ua';
     if(S.page==='catalog'){
       const cat=S.filters&&S.filters.cat!=='all'?S.filters.cat:'';
-      document.title=(cat?cat+' — ':'')+'Каталог | '+base;
+      title=(cat?cat+' — ':'')+`Каталог жіночого одягу | ${site}`;
+      desc=cat?`Купити ${cat.toLowerCase()} онлайн — ${site}. Широкий вибір, доставка по Україні, оплата онлайн.`:`Каталог жіночого одягу — сукні, блузи, брюки, верхній одяг, аксесуари. Доставка по Україні.`;
+      canonical='https://styleroom.pp.ua/catalog'+(cat?'/'+encodeURIComponent(cat):'');
     } else if(S.page==='product'){
       const p=this.products.find(x=>x.id===S.pid);
-      document.title=(p?p.name+' — ':'')+base;
-    } else {
-      document.title=titles[S.page]||base;
+      title=(p?p.name+' — ':'')+site;
+      desc=p&&p.desc?p.desc:`Купити ${p?p.name:''} в ${site}. Доставка по Україні, оплата онлайн.`;
+      ogType='product';
+      canonical='https://styleroom.pp.ua/product/'+(p?p.id:'');
+    } else if(S.page==='about'){
+      title=`Про нас | ${site}`; desc=`${site} — бутік жіночого одягу в Україні. Наша місія — якісний, елегантний одяг для сучасної жінки.`; canonical='https://styleroom.pp.ua/about';
+    } else if(S.page==='contacts'){
+      title=`Контакти | ${site}`; desc=`Зв'яжіться з ${site}. Відповідаємо швидко — допоможемо підібрати розмір, оформити замовлення.`; canonical='https://styleroom.pp.ua/contacts';
+    } else if(S.page==='wishlist'){
+      title=`Обране | ${site}`; desc='Ваші обрані товари в Mereely Shop.'; canonical='https://styleroom.pp.ua/wishlist';
     }
+    document.title=title;
+    const _m=(sel,attr,val)=>{ let el=document.querySelector(sel); if(el) el.setAttribute(attr,val); };
+    _m('meta[name="description"]','content',desc);
+    _m('meta[property="og:title"]','content',title);
+    _m('meta[property="og:description"]','content',desc);
+    _m('meta[property="og:type"]','content',ogType);
+    let can=document.querySelector('link[rel="canonical"]');
+    if(!can){can=document.createElement('link');can.rel='canonical';document.head.appendChild(can);}
+    can.href=canonical;
   }
 
   _npPost(body){
@@ -1885,11 +1897,6 @@ class Component extends DCLogic {
       trustCols, productGridCols:productCols, catGridCols, testCols, whyCols, instaCols, footerCols,
       // page flags
       isHome:S.page==='home', isCatalog:S.page==='catalog', isProduct:S.page==='product', isAbout:S.page==='about', isContacts:S.page==='contacts', isWishlist:S.page==='wishlist',
-      // SEO meta
-      metaTitle: S.page==='product'?(PD.name+' — Mereely Shop'):S.page==='catalog'?'Каталог жіночого одягу — Mereely Shop':S.page==='about'?'Про нас — Mereely Shop':S.page==='wishlist'?'Обране — Mereely Shop':'Mereely Shop — жіночий одяг | Доставка по Україні',
-      metaDesc: S.page==='product'?(PD.desc||'Жіночий одяг у Mereely Shop — природні тканини, безчасові силуети.'):S.page==='catalog'?'Каталог жіночого одягу з доставкою по Україні. Сукні, костюми, верхній одяг, трикотаж. Природні тканини, безчасові силуети.':'Mereely Shop — жіночий одяг з доставкою по Україні. Лаконічні силуети, природні тканини й продуманий вибір.',
-      metaOgType: S.page==='product'?'product':'website',
-      metaCanonical: 'https://styleroom.pp.ua'+(S.page==='home'?'':'/'+S.page),
       // header
       navLinks, goHome:this.nav('home'), goCatalog:this.nav('catalog'), goAbout:this.nav('about'), goContacts:this.nav('contacts'), goWishlist:()=>{ this._pushRoute('wishlist'); this.setState({page:'wishlist',menuOpen:false}); },
       hasCart:cartCount>0, cartCount, hasWishlist:S.wishlist.length>0, wishlistCount:S.wishlist.length,
