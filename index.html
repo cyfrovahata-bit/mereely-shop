@@ -58,6 +58,7 @@
   .mrl-prod-info{padding:12px 6px 8px}
   .mrl-prod-name{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;line-height:1.35;max-height:2.7em}
   .mrl-gallery-wrap{position:relative}
+  @keyframes mrlImgFade{from{opacity:0}to{opacity:1}}
   .mrl-gallery-nav{position:absolute;top:50%;transform:translateY(-50%);z-index:5;width:40px;height:40px;background:rgba(241,235,225,.92);border:1px solid rgba(30,35,31,.12);display:flex;align-items:center;justify-content:center;cursor:pointer;opacity:0;transition:opacity .25s ease,background .2s}
   @media(hover:hover){.mrl-gallery-wrap:hover .mrl-gallery-nav{opacity:1}.mrl-gallery-nav:hover{background:#f1ebe1}}
   @media(hover:none){.mrl-gallery-nav{display:none}}
@@ -486,15 +487,16 @@
     <div style="display:flex;flex-direction:{{ pGalleryDir }};gap:14px;position:{{ pGalleryPos }};top:{{ pGalleryTop }}">
       <div style="display:flex;flex-direction:{{ pThumbDir }};gap:10px;flex:none">
         <sc-for list="{{ pThumbs }}" as="th" hint-placeholder-count="4">
-          <button onClick="{{ th.sel }}" aria-label="Фото" style="width:72px;height:90px;flex:none;background:{{ th.tone }};border:1px solid {{ th.border }};position:relative;overflow:hidden;transition:border-color .25s">
+          <button onClick="{{ th.sel }}" aria-label="Фото" style="width:72px;height:90px;flex:none;background:{{ th.tone }};border:2px solid {{ th.border }};position:relative;overflow:hidden;transition:border-color .25s,opacity .25s;opacity:{{ th.opacity }};outline:{{ th.outline }};outline-offset:-2px">
             <sc-if value="{{ th.hasImg }}" hint-placeholder-val="{{ false }}"><img src="{{ th.imgSrc }}" alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover"/></sc-if>
             <sc-if value="{{ th.hasImg }}" hint-placeholder-val="{{ true }}"><div style="position:absolute;inset:0"></div></sc-if>
+            <sc-if value="{{ th.active }}" hint-placeholder-val="{{ false }}"><span style="position:absolute;bottom:0;left:0;right:0;height:3px;background:#a7613f"></span></sc-if>
           </button>
         </sc-for>
       </div>
       <div class="mrl-gallery-wrap" style="flex:1;aspect-ratio:4/5">
       <div onMouseMove="{{ pZoomMove }}" onMouseLeave="{{ pZoomLeave }}" onClick="{{ pZoomToggle }}" onTouchStart="{{ pTouchStart }}" onTouchEnd="{{ pTouchEnd }}" style="width:100%;height:100%;background:{{ pMainTone }};position:relative;overflow:hidden;cursor:{{ pZoomCursor }}">
-        <sc-if value="{{ pHasMainImg }}" hint-placeholder-val="{{ false }}"><img src="{{ pMainShot }}" alt="{{ pName }}" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transform:{{ pMainTransform }};transform-origin:{{ pMainOrigin }};transition:transform .25s ease-out"/></sc-if>
+        <sc-if value="{{ pHasMainImg }}" hint-placeholder-val="{{ false }}"><img src="{{ pMainShot }}" alt="{{ pName }}" key="{{ pImg }}" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transform:{{ pMainTransform }};transform-origin:{{ pMainOrigin }};transition:transform .25s ease-out;animation:mrlImgFade .35s ease"/></sc-if>
         <sc-if value="{{ pHasMainImg }}" hint-placeholder-val="{{ true }}"><div style="position:absolute;inset:0;transform:{{ pMainTransform }};transform-origin:{{ pMainOrigin }};transition:transform .25s ease-out"></div></sc-if>
         <sc-if value="{{ pHasMainImg }}" hint-placeholder-val="{{ false }}"><span style="position:absolute;top:14px;right:14px;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,.65)">наведіть · клік для zoom</span></sc-if>
         <span style="position:absolute;left:-12px;top:-12px;width:54px;height:54px;border-left:1px solid #28332c;border-top:1px solid #28332c"></span>
@@ -2353,7 +2355,7 @@ class Component extends DCLogic {
     const pSizes=mixed
       ?[...(stdSizes.length?[mkGr('Стандарт'),...stdSizes.map(mkSz)]:[]),...(numSizes.length?[mkGr('Числові'),...numSizes.map(mkSz)]:[]),...(otherSizes.length?[mkGr('Інші'),...otherSizes.map(mkSz)]:[])]
       :PD.sizes.map(mkSz);
-    const pThumbs=PD.imgs.map((url,i)=>{const isU=url&&(url.startsWith('/')||url.startsWith('http'));return{imgSrc:isU?url:'',hasImg:isU,cap:isU?'':url,tone:PD.tone,border:i===S.pImg?'#28332c':'rgba(30,35,31,.12)',sel:()=>this.setState({pImg:i})};});
+    const pThumbs=PD.imgs.map((url,i)=>{const isU=url&&(url.startsWith('/')||url.startsWith('http'));const active=i===S.pImg;return{imgSrc:isU?url:'',hasImg:isU,cap:isU?'':url,tone:PD.tone,active,border:active?'#1e231f':'rgba(30,35,31,.18)',opacity:active?'1':'0.55',outline:active?'none':'none',sel:()=>this.setState({pImg:i})};});
     const pMainUrl=PD.imgs[S.pImg]||PD.imgs[0]||'';
     const pHasMainImg=pMainUrl.startsWith('/')||pMainUrl.startsWith('http');
     const pRelated=this.products.filter(x=>x.cat===PD.cat&&x.id!==PD.id).concat(this.products.filter(x=>x.cat!==PD.cat)).slice(0,4).map(mkProd);
