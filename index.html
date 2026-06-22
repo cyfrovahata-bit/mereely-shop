@@ -56,6 +56,11 @@
   .mrl-prod-img{transition:transform 1.1s cubic-bezier(.16,.84,.44,1)!important;transform:scale(1)!important}
   .mrl-prod-card{transition:box-shadow .5s ease,background .5s ease;overflow:visible;background:transparent}
   .mrl-prod-info{padding:12px 6px 8px}
+  .mrl-prod-name{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;line-height:1.35;max-height:2.7em}
+  .mrl-gallery-wrap{position:relative}
+  .mrl-gallery-nav{position:absolute;top:50%;transform:translateY(-50%);z-index:5;width:40px;height:40px;background:rgba(241,235,225,.92);border:1px solid rgba(30,35,31,.12);display:flex;align-items:center;justify-content:center;cursor:pointer;opacity:0;transition:opacity .25s ease,background .2s}
+  @media(hover:hover){.mrl-gallery-wrap:hover .mrl-gallery-nav{opacity:1}.mrl-gallery-nav:hover{background:#f1ebe1}}
+  @media(hover:none){.mrl-gallery-nav{display:none}}
   @media(hover:hover){
     .mrl-prod-card:hover .mrl-prod-img{transform:scale(1.05)!important}
     .mrl-prod-card:hover{box-shadow:0 12px 36px rgba(20,26,21,.11);background:#f5f1eb}
@@ -208,7 +213,7 @@
           </div>
           <div class="mrl-prod-info">
           <div style="display:flex;justify-content:space-between;gap:12px;align-items:flex-start">
-            <div><p style="font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:#8a8f84;margin-bottom:5px">{{ p.category }}</p><h3 onClick="{{ p.open }}" style="font-family:'Forum',serif;font-size:20px;font-weight:400;cursor:pointer;line-height:1.1">{{ p.name }}</h3></div>
+            <div><p style="font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:#8a8f84;margin-bottom:5px">{{ p.category }}</p><h3 onClick="{{ p.open }}" class="mrl-prod-name" style="font-family:'Forum',serif;font-size:20px;font-weight:400;cursor:pointer">{{ p.name }}</h3></div>
             <div style="text-align:right;white-space:nowrap"><sc-if value="{{ p.hasOld }}" hint-placeholder-val="{{ false }}"><span style="font-size:12.5px;color:#a99;text-decoration:line-through;display:block">{{ p.oldFmt }}</span></sc-if><span style="font-size:15px;font-weight:600;color:{{ p.priceColor }}">{{ p.priceFmt }}</span></div>
           </div>
           <div style="display:flex;gap:6px;margin-top:9px">
@@ -438,7 +443,7 @@
             </div>
             <div class="mrl-prod-info">
             <div style="display:flex;justify-content:space-between;gap:12px;align-items:flex-start">
-              <div><p style="font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:#8a8f84;margin-bottom:5px">{{ p.category }}</p><h3 onClick="{{ p.open }}" style="font-family:'Forum',serif;font-size:20px;font-weight:400;cursor:pointer;line-height:1.1">{{ p.name }}</h3></div>
+              <div><p style="font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:#8a8f84;margin-bottom:5px">{{ p.category }}</p><h3 onClick="{{ p.open }}" class="mrl-prod-name" style="font-family:'Forum',serif;font-size:20px;font-weight:400;cursor:pointer">{{ p.name }}</h3></div>
               <div style="text-align:right;white-space:nowrap"><sc-if value="{{ p.hasOld }}" hint-placeholder-val="{{ false }}"><span style="font-size:12.5px;color:#a99;text-decoration:line-through;display:block">{{ p.oldFmt }}</span></sc-if><span style="font-size:15px;font-weight:600;color:{{ p.priceColor }}">{{ p.priceFmt }}</span></div>
             </div>
             <div style="display:flex;gap:6px;margin-top:9px"><sc-for list="{{ p.colors }}" as="c" hint-placeholder-count="2"><span title="{{ c.name }}" style="width:13px;height:13px;border-radius:50%;background:{{ c.hex }};border:1px solid rgba(30,35,31,.25)"></span></sc-for></div>
@@ -461,7 +466,7 @@
             <sc-if value="{{ p.hasBadge }}" hint-placeholder-val="{{ false }}"><span style="position:absolute;top:12px;left:12px;background:{{ p.badgeBg }};color:#f1ebe1;font-size:10px;letter-spacing:.14em;text-transform:uppercase;font-weight:700;padding:5px 11px">{{ p.badge }}</span></sc-if>
           </div>
           <div class="mrl-prod-info">
-            <div style="display:flex;justify-content:space-between;gap:10px;align-items:flex-start"><h3 onClick="{{ p.open }}" style="font-family:'Forum',serif;font-size:18px;font-weight:400;cursor:pointer;line-height:1.1">{{ p.name }}</h3><span style="font-size:14px;font-weight:600;white-space:nowrap">{{ p.priceFmt }}</span></div>
+            <div style="display:flex;justify-content:space-between;gap:10px;align-items:flex-start"><h3 onClick="{{ p.open }}" class="mrl-prod-name" style="font-family:'Forum',serif;font-size:18px;font-weight:400;cursor:pointer">{{ p.name }}</h3><span style="font-size:14px;font-weight:600;white-space:nowrap">{{ p.priceFmt }}</span></div>
           </div>
         </article>
       </sc-for>
@@ -487,11 +492,15 @@
           </button>
         </sc-for>
       </div>
-      <div onMouseMove="{{ pZoomMove }}" onMouseLeave="{{ pZoomLeave }}" onClick="{{ pZoomToggle }}" style="flex:1;aspect-ratio:4/5;background:{{ pMainTone }};position:relative;overflow:hidden;cursor:{{ pZoomCursor }}">
+      <div class="mrl-gallery-wrap" style="flex:1;aspect-ratio:4/5">
+      <div onMouseMove="{{ pZoomMove }}" onMouseLeave="{{ pZoomLeave }}" onClick="{{ pZoomToggle }}" onTouchStart="{{ pTouchStart }}" onTouchEnd="{{ pTouchEnd }}" style="width:100%;height:100%;background:{{ pMainTone }};position:relative;overflow:hidden;cursor:{{ pZoomCursor }}">
         <sc-if value="{{ pHasMainImg }}" hint-placeholder-val="{{ false }}"><img src="{{ pMainShot }}" alt="{{ pName }}" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transform:{{ pMainTransform }};transform-origin:{{ pMainOrigin }};transition:transform .25s ease-out"/></sc-if>
         <sc-if value="{{ pHasMainImg }}" hint-placeholder-val="{{ true }}"><div style="position:absolute;inset:0;transform:{{ pMainTransform }};transform-origin:{{ pMainOrigin }};transition:transform .25s ease-out"></div></sc-if>
         <sc-if value="{{ pHasMainImg }}" hint-placeholder-val="{{ false }}"><span style="position:absolute;top:14px;right:14px;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,.65)">наведіть · клік для zoom</span></sc-if>
         <span style="position:absolute;left:-12px;top:-12px;width:54px;height:54px;border-left:1px solid #28332c;border-top:1px solid #28332c"></span>
+      </div>
+      <sc-if value="{{ pShowPrev }}" hint-placeholder-val="{{ false }}"><button onClick="{{ pImgPrev }}" class="mrl-gallery-nav" aria-label="Попереднє фото" style="left:10px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#1e231f" stroke-width="2.5"><path d="M15 18l-6-6 6-6"/></svg></button></sc-if>
+      <sc-if value="{{ pShowNext }}" hint-placeholder-val="{{ false }}"><button onClick="{{ pImgNext }}" class="mrl-gallery-nav" aria-label="Наступне фото" style="right:10px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#1e231f" stroke-width="2.5"><path d="M9 18l6-6-6-6"/></svg></button></sc-if>
       </div>
       <sc-if value="{{ pHasMultiImg }}" hint-placeholder-val="{{ false }}">
         <div style="display:{{ pDotsDisplay }};justify-content:center;gap:6px;margin-top:10px">
@@ -642,7 +651,7 @@
             <button onClick="{{ p.quick }}" style="position:absolute;left:0;right:0;bottom:0;background:rgba(40,51,44,.94);color:#f1ebe1;padding:14px;font-size:11px;letter-spacing:.2em;text-transform:uppercase;font-weight:600;transform:{{ p.quickShift }};opacity:{{ p.quickOpacity }};transition:all .4s cubic-bezier(.16,.84,.44,1)">Швидкий перегляд</button>
           </div>
           <div class="mrl-prod-info">
-            <div style="display:flex;justify-content:space-between;gap:10px;align-items:flex-start"><h3 onClick="{{ p.open }}" style="font-family:'Forum',serif;font-size:18px;font-weight:400;cursor:pointer;line-height:1.1">{{ p.name }}</h3><span style="font-size:14px;font-weight:600;white-space:nowrap">{{ p.priceFmt }}</span></div>
+            <div style="display:flex;justify-content:space-between;gap:10px;align-items:flex-start"><h3 onClick="{{ p.open }}" class="mrl-prod-name" style="font-family:'Forum',serif;font-size:18px;font-weight:400;cursor:pointer">{{ p.name }}</h3><span style="font-size:14px;font-weight:600;white-space:nowrap">{{ p.priceFmt }}</span></div>
           </div>
         </article>
       </sc-for>
@@ -661,7 +670,7 @@
             <sc-if value="{{ p.hasBadge }}" hint-placeholder-val="{{ false }}"><span style="position:absolute;top:12px;left:12px;background:{{ p.badgeBg }};color:#f1ebe1;font-size:10px;letter-spacing:.14em;text-transform:uppercase;font-weight:700;padding:5px 11px">{{ p.badge }}</span></sc-if>
           </div>
           <div class="mrl-prod-info">
-            <div style="display:flex;justify-content:space-between;gap:10px;align-items:flex-start"><h3 onClick="{{ p.open }}" style="font-family:'Forum',serif;font-size:18px;font-weight:400;cursor:pointer;line-height:1.1">{{ p.name }}</h3><span style="font-size:14px;font-weight:600;white-space:nowrap">{{ p.priceFmt }}</span></div>
+            <div style="display:flex;justify-content:space-between;gap:10px;align-items:flex-start"><h3 onClick="{{ p.open }}" class="mrl-prod-name" style="font-family:'Forum',serif;font-size:18px;font-weight:400;cursor:pointer">{{ p.name }}</h3><span style="font-size:14px;font-weight:600;white-space:nowrap">{{ p.priceFmt }}</span></div>
           </div>
         </article>
       </sc-for>
@@ -856,7 +865,7 @@
           </div>
           <div class="mrl-prod-info">
             <div style="display:flex;justify-content:space-between;gap:12px;align-items:flex-start">
-              <div><p style="font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:#8a8f84;margin-bottom:5px">{{ p.category }}</p><h3 onClick="{{ p.open }}" style="font-family:'Forum',serif;font-size:20px;font-weight:400;cursor:pointer;line-height:1.1">{{ p.name }}</h3></div>
+              <div><p style="font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:#8a8f84;margin-bottom:5px">{{ p.category }}</p><h3 onClick="{{ p.open }}" class="mrl-prod-name" style="font-family:'Forum',serif;font-size:20px;font-weight:400;cursor:pointer">{{ p.name }}</h3></div>
               <div style="text-align:right;white-space:nowrap"><sc-if value="{{ p.hasOld }}" hint-placeholder-val="{{ false }}"><span style="font-size:12.5px;color:#a99;text-decoration:line-through;display:block">{{ p.oldFmt }}</span></sc-if><span style="font-size:15px;font-weight:600;color:{{ p.priceColor }}">{{ p.priceFmt }}</span></div>
             </div>
             <div style="display:flex;gap:6px;margin-top:9px">
@@ -1587,7 +1596,7 @@
 </sc-if>
 
 <!-- ====== CART OVERLAY + DRAWER ====== -->
-<div onClick="{{ closeCart }}" style="position:fixed;inset:0;background:rgba(20,26,21,.55);backdrop-filter:blur(3px);z-index:120;opacity:{{ cartOverlayOpacity }};pointer-events:{{ cartOverlayPE }};transition:opacity .4s ease"></div>
+<div style="position:fixed;inset:0;background:rgba(20,26,21,.55);backdrop-filter:blur(3px);z-index:120;opacity:{{ cartOverlayOpacity }};pointer-events:{{ cartOverlayPE }};transition:opacity .4s ease"></div>
 <aside aria-label="Кошик" style="position:fixed;top:0;right:0;height:100%;width:min(440px,100vw);background:#f1ebe1;z-index:130;display:flex;flex-direction:column;box-shadow:-20px 0 60px rgba(0,0,0,.18);transform:{{ cartTransform }};transition:transform .5s cubic-bezier(.16,.84,.44,1)">
   <div style="display:flex;justify-content:space-between;align-items:center;padding:24px 26px;border-bottom:1px solid rgba(30,35,31,.14)">
     <span style="font-family:'Forum',serif;font-size:24px">Кошик · {{ cartCount }}</span>
@@ -1701,7 +1710,7 @@
 <sc-if value="{{ showStickyBuy }}" hint-placeholder-val="{{ false }}">
 <div style="position:fixed;bottom:0;left:0;right:0;z-index:110;background:rgba(241,235,225,.96);backdrop-filter:blur(10px);border-top:1px solid rgba(30,35,31,.16);padding:10px 16px;padding-bottom:calc(10px + env(safe-area-inset-bottom));display:flex;gap:10px;align-items:center;box-shadow:0 -8px 30px rgba(0,0,0,.1)">
   <div style="flex:none;min-width:0;max-width:45%"><span style="display:block;font-size:11px;color:#8a8f84;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ pName }}</span><span style="font-size:16px;font-weight:600;color:{{ pPriceColor }}">{{ pPriceFmt }}</span></div>
-  <button onClick="{{ addCurrent }}" style="flex:1;background:#28332c;color:#f1ebe1;padding:14px 8px;font-size:13px;font-weight:600;white-space:nowrap;min-width:0">Додати в кошик</button>
+  <button onClick="{{ addCurrent }}" style="flex:1;background:#28332c;color:#f1ebe1;padding:16px 12px;min-height:52px;font-size:13px;font-weight:600;white-space:nowrap;min-width:0">Додати в кошик</button>
 </div>
 </sc-if>
 
@@ -1770,10 +1779,6 @@
 
 <!-- ====== FLOATING BUTTONS (right side) ====== -->
 <div style="position:fixed;bottom:{{ feedbackBottom }};right:24px;z-index:104;display:flex;flex-direction:column;align-items:flex-end;gap:10px">
-  <!-- Back to top -->
-  <button onClick="{{ scrollToTop }}" aria-label="Вгору" style="width:44px;height:44px;background:#28332c;color:#f1ebe1;border:none;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 18px rgba(20,26,21,.25);opacity:{{ backTopOpacity }};pointer-events:{{ backTopPE }};transition:opacity .35s ease,transform .35s ease;cursor:pointer" style-hover="background:#a7613f;transform:translateY(-3px)">
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
-  </button>
   <!-- Feedback popup -->
   <sc-if value="{{ feedbackOpen }}" hint-placeholder-val="{{ false }}">
   <div style="background:#f1ebe1;border:1px solid rgba(30,35,31,.12);box-shadow:0 12px 40px rgba(20,26,21,.18);padding:20px 22px;min-width:220px;animation:mrlFadeUp .25s ease">
@@ -1798,6 +1803,10 @@
     </div>
   </div>
   </sc-if>
+  <!-- Back to top -->
+  <button onClick="{{ scrollToTop }}" aria-label="Вгору" style="width:44px;height:44px;background:#28332c;color:#f1ebe1;border:none;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 18px rgba(20,26,21,.25);opacity:{{ backTopOpacity }};pointer-events:{{ backTopPE }};transition:opacity .35s ease,transform .35s ease;cursor:pointer" style-hover="background:#a7613f;transform:translateY(-3px)">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
+  </button>
   <!-- Trigger button -->
   <button onClick="{{ toggleFeedback }}" aria-label="Зворотній зв'язок" style="width:50px;height:50px;background:#a7613f;color:#f1ebe1;border:none;border-radius:50%;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 18px rgba(167,97,63,.45);transition:transform .3s ease,background .3s ease;cursor:pointer" style-hover="transform:scale(1.08)">
     <sc-if value="{{ feedbackOpen }}" hint-placeholder-val="{{ false }}">
@@ -1915,7 +1924,11 @@ class Component extends DCLogic {
     this._onResize(); window.addEventListener('resize', this._onResize);
     this._io = new IntersectionObserver((es)=>{ es.forEach(e=>{ if(e.isIntersecting){ e.target.style.opacity='1'; e.target.style.transform='none'; this._io.unobserve(e.target); } }); },{threshold:.12,rootMargin:'0px 0px -8% 0px'});
     this._scan();
-    this._popHandler = ()=>this._parsePath();
+    this._popHandler = ()=>{
+      if(this.state.cartOpen){ this.setState({cartOpen:false}); return; }
+      if(this.state.checkoutOpen){ this.setState({checkoutOpen:false}); return; }
+      this._parsePath();
+    };
     window.addEventListener('popstate', this._popHandler);
     this._parsePath();
     this._updateTitle();
@@ -2456,7 +2469,7 @@ class Component extends DCLogic {
       navLinks, goHome:this.nav('home'), goCatalog:this.nav('catalog'), goAbout:this.nav('about'), goContacts:this.nav('contacts'), goReturns:this.nav('returns'), goWishlist:()=>{ this._pushRoute('wishlist'); this.setState({page:'wishlist',menuOpen:false}); },
       hasCart:cartCount>0, cartCount, hasWishlist:S.wishlist.length>0, wishlistCount:S.wishlist.length,
       openWishlistInfo:()=>{ this._pushRoute('wishlist'); this.setState({page:'wishlist',menuOpen:false}); },
-      openCart:()=>this.setState({cartOpen:true}), closeCart:()=>this.setState({cartOpen:false}),
+      openCart:()=>{ history.pushState(null,'',window.location.href); this.setState({cartOpen:true}); }, closeCart:()=>this.setState({cartOpen:false}),
       openSizeChart:(e)=>{e.preventDefault();this.setState({sizeChartOpen:true});}, closeSizeChart:()=>this.setState({sizeChartOpen:false}),
       stopProp:(e)=>e.stopPropagation(),
       sizeChartOpen:S.sizeChartOpen,
@@ -2487,7 +2500,7 @@ class Component extends DCLogic {
       quickTone:qp?qp.tone:'#7c8568', quickShot:qp?(qp.imgs[0]||''):'', quickHasImg:!!(qp&&qp.imgs[0]&&(qp.imgs[0].startsWith('/')||qp.imgs[0].startsWith('http'))), quickCategory:qp?qp.cat:'',
       quickName:qp?qp.name:'', quickPrice:qp?fmt(qp.price):'', quickDesc:qp?qp.desc:'', quickColors,
       closeQuick:()=>this.setState({quick:null}), stop:(e)=>e.stopPropagation(),
-      quickAdd:()=>{ if(qp){ const done=this.addToCart(qp,S.quickColor,qp.sizes.length===1?qp.sizes[0]:null,1); if(done!==false){ this.setState({quick:null,cartOpen:true}); } } },
+      quickAdd:()=>{ if(qp){ const done=this.addToCart(qp,S.quickColor,qp.sizes.length===1?qp.sizes[0]:null,1); if(done!==false){ history.pushState(null,'',window.location.href); this.setState({quick:null,cartOpen:true}); } } },
       quickFull:()=>{ if(qp) this.openProduct(qp.id); },
       // catalog
       catalogProducts, catalogCount:clist.length, catalogEmpty:clist.length===0,
@@ -2522,8 +2535,8 @@ class Component extends DCLogic {
       pCols:isMobile?'1fr':(isTablet?'1fr 1fr':'1.15fr 1fr'),
       pGalleryDir:isMobile?'column-reverse':'row', pThumbDir:isMobile?'row':'column',
       pGalleryPos:isMobile?'relative':'sticky', pGalleryTop:isMobile?'0':'90px',
-      addCurrent:()=>{ if(this.addToCart(PD,S.pColor,S.pSize,S.pQty)!==false) this.setState({cartOpen:true}); },
-      buyNow:()=>{ if(this.addToCart(PD,S.pColor,S.pSize,S.pQty)!==false){ this.toast('Купівля в один клік — менеджер зателефонує'); this.setState({cartOpen:true}); } },
+      addCurrent:()=>{ if(this.addToCart(PD,S.pColor,S.pSize,S.pQty)!==false){ history.pushState(null,'',window.location.href); this.setState({cartOpen:true}); } },
+      buyNow:()=>{ if(this.addToCart(PD,S.pColor,S.pSize,S.pQty)!==false){ history.pushState(null,'',window.location.href); this.toast('Купівля в один клік — менеджер зателефонує'); this.setState({cartOpen:true}); } },
       pInWish:S.wishlist.includes(PD.id),
       pToggleWish:()=>{ const inW=S.wishlist.includes(PD.id); this.setState(st=>{ const wishlist=inW?st.wishlist.filter(x=>x!==PD.id):[...st.wishlist,PD.id]; this._saveWish(wishlist); return {wishlist}; }); this.toast(inW?'Прибрано з обраного':'Додано в обране ♥'); },
       pWishFill:S.wishlist.includes(PD.id)?'#a7613f':'none', pWishStroke:S.wishlist.includes(PD.id)?'#a7613f':'#28332c', pWishLabel:S.wishlist.includes(PD.id)?'В обраному':'В обране',
@@ -2560,6 +2573,12 @@ class Component extends DCLogic {
       pZoomToggle:()=>this.setState(s=>({zoom:!s.zoom})),
       pZoomMove:(e)=>{ if(!S.zoom)return; const r=e.currentTarget.getBoundingClientRect(); const x=((e.clientX-r.left)/r.width*100).toFixed(1); const y=((e.clientY-r.top)/r.height*100).toFixed(1); this.setState({zoomXY:x+'% '+y+'%'}); },
       pZoomLeave:()=>{ if(S.zoom) this.setState({zoom:false}); },
+      pTouchStart:(e)=>{ this._touchX=e.touches[0].clientX; },
+      pTouchEnd:(e)=>{ const dx=e.changedTouches[0].clientX-this._touchX; if(Math.abs(dx)<40)return; const imgs=PD.imgs||[]; if(dx<0)this.setState(s=>({pImg:Math.min(s.pImg+1,imgs.length-1)})); else this.setState(s=>({pImg:Math.max(s.pImg-1,0)})); },
+      pImgPrev:(e)=>{e.stopPropagation();this.setState(s=>({pImg:Math.max(0,s.pImg-1)}));},
+      pImgNext:(e)=>{e.stopPropagation();this.setState(s=>({pImg:Math.min((PD.imgs||[]).length-1,s.pImg+1)}));},
+      pShowPrev:S.pImg>0,
+      pShowNext:S.pImg<(PD.imgs||[]).length-1,
       showStickyBuy:S.page==='product'&&isMobile,
       pBreadcrumbCat:()=>{ const cslug=this.catSlugs[PD.cat]||''; this._pushRoute('catalog'+(cslug?'/'+cslug:''));this.setState(s=>({page:'catalog',filters:{...s.filters,cat:PD.cat}})); window.scrollTo(0,0); },
       // about
