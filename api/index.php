@@ -199,7 +199,7 @@ if ($action === 'order') {
 <tr><td align="center">
 <table width="600" cellpadding="0" cellspacing="0" style="background:#fff;border-radius:16px;overflow:hidden;max-width:600px;">
 <tr><td style="background:#1e231f;padding:32px 40px;text-align:center;">
-  <span style="font-family:serif;font-size:28px;color:#f1ebe1;letter-spacing:2px;">Mereely</span>
+  <span style="font-family:serif;font-size:28px;color:#f1ebe1;letter-spacing:2px;">Marylee</span>
 </td></tr>
 <tr><td style="padding:40px;">
   <h1 style="margin:0 0 8px;font-size:22px;color:#1e231f;">Дякуємо за замовлення!</h1>
@@ -214,7 +214,7 @@ if ($action === 'order') {
   <p style="color:#6f7a5e;font-size:13px;margin:0;">З питань: <a href="mailto:hello@styleroom.pp.ua" style="color:#a7613f;">hello@styleroom.pp.ua</a></p>
 </td></tr>
 <tr><td style="background:#1e231f;padding:20px 40px;text-align:center;">
-  <p style="color:#6f7a5e;font-size:12px;margin:0;">© Mereely Shop · styleroom.pp.ua</p>
+  <p style="color:#6f7a5e;font-size:12px;margin:0;">© Marylee Shop · styleroom.pp.ua</p>
 </td></tr>
 </table>
 </td></tr></table>
@@ -222,9 +222,9 @@ if ($action === 'order') {
 HTML;
 
     $from    = 'noreply@styleroom.pp.ua';
-    $subject = "=?UTF-8?B?" . base64_encode("Замовлення #{$order_num} підтверджено — Mereely Shop") . "?=";
+    $subject = "=?UTF-8?B?" . base64_encode("Замовлення #{$order_num} підтверджено — Marylee Shop") . "?=";
     $headers = implode("\r\n", [
-        "From: Mereely Shop <{$from}>",
+        "From: Marylee Shop <{$from}>",
         "MIME-Version: 1.0",
         "Content-Type: text/html; charset=UTF-8",
     ]);
@@ -234,7 +234,7 @@ HTML;
     }
     // Повідомлення власнику
     $owner_body = "<p>Нове замовлення <strong>{$order_num}</strong> від {$customer_name} ({$customer_email}, {$customer_phone}).<br>Сума: {$total_fmt}<br>Місто: {$city_esc}<br>Адреса: {$addr_esc}</p>";
-    $owner_headers = implode("\r\n", ["From: Mereely Shop <{$from}>", "MIME-Version: 1.0", "Content-Type: text/html; charset=UTF-8"]);
+    $owner_headers = implode("\r\n", ["From: Marylee Shop <{$from}>", "MIME-Version: 1.0", "Content-Type: text/html; charset=UTF-8"]);
     @mail('hello@styleroom.pp.ua', "=?UTF-8?B?" . base64_encode("Нове замовлення #{$order_num}") . "?=", $owner_body, $owner_headers);
 
     json_out(['ok' => true, 'id' => $new_id, 'order_num' => $order_num]);
@@ -318,9 +318,9 @@ if ($action === 'ai_generate') {
     $material = trim($input['material'] ?? '');
 
     if ($type === 'care') {
-        $prompt = "Ти копірайтер українського магазину жіночого одягу Mereely Shop. Напиши короткі поради з догляду за виробом «{$name}» (категорія: {$category}" . ($material ? ", матеріал: {$material}" : '') . "). 3-4 пункти, лаконічно, тільки текст правил без зайвих слів. Виводь кожен пункт з нового рядка, починаючи з емодзі (🌡, 🚫, ✋, ☀ тощо). Відповідай тільки українською.";
+        $prompt = "Ти копірайтер українського магазину жіночого одягу Marylee Shop. Напиши короткі поради з догляду за виробом «{$name}» (категорія: {$category}" . ($material ? ", матеріал: {$material}" : '') . "). 3-4 пункти, лаконічно, тільки текст правил без зайвих слів. Виводь кожен пункт з нового рядка, починаючи з емодзі (🌡, 🚫, ✋, ☀ тощо). Відповідай тільки українською.";
     } else {
-        $prompt = "Ти копірайтер українського магазину жіночого одягу Mereely Shop. Напиши привабливий опис товару «{$name}» (категорія: {$category}" . ($colors ? ", кольори: {$colors}" : '') . ($material ? ", матеріал: {$material}" : '') . "). 2-3 речення, живий стиль, акцент на відчуттях і перевагах. Без кліше типу 'ідеальний вибір'. Тільки текст опису, без заголовка. Відповідай тільки українською.";
+        $prompt = "Ти копірайтер українського магазину жіночого одягу Marylee Shop. Напиши привабливий опис товару «{$name}» (категорія: {$category}" . ($colors ? ", кольори: {$colors}" : '') . ($material ? ", матеріал: {$material}" : '') . "). 2-3 речення, живий стиль, акцент на відчуттях і перевагах. Без кліше типу 'ідеальний вибір'. Тільки текст опису, без заголовка. Відповідай тільки українською.";
     }
 
     $body = json_encode([
