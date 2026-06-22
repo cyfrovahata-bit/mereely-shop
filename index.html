@@ -1622,46 +1622,7 @@
                 </div>
               </div>
             </sc-if>
-            <!-- Meest -->
-            <sc-if value="{{ coIsMeest }}" hint-placeholder-val="{{ false }}">
-              <div style="display:flex;flex-direction:column;gap:10px">
-                <div style="display:flex;border:1px solid rgba(30,35,31,.2)">
-                  <button onClick="{{ setMeestBranchMode }}" style="flex:1;padding:8px 4px;font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;font-weight:600;background:{{ meestBranchModeBg }};color:{{ meestBranchModeColor }};transition:all .3s">Відділення</button>
-                  <button onClick="{{ setMeestLockerMode }}" style="flex:1;padding:8px 4px;font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;font-weight:600;border-left:1px solid rgba(30,35,31,.2);background:{{ meestLockerModeBg }};color:{{ meestLockerModeColor }};transition:all .3s">Поштомат</button>
-                </div>
-                <sc-if value="{{ meestIsPickupMode }}" hint-placeholder-val="{{ true }}">
-                  <sc-if value="{{ meestHasData }}" hint-placeholder-val="{{ false }}">
-                    <div style="position:relative">
-                      <label style="display:block"><span style="font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:#6c7166;display:block;margin-bottom:4px">Місто</span><input value="{{ coMeestCity }}" onInput="{{ setMeestCity }}" placeholder="Почніть вводити місто..." style="width:100%;background:#fff;border:1px solid {{ coErrMeestCity }};padding:10px 12px;font-size:13px;color:#1e231f;outline:none;font-family:'Manrope',sans-serif"/></label>
-                      <sc-if value="{{ hasMeestCitySugg }}" hint-placeholder-val="{{ false }}">
-                        <div style="position:absolute;top:100%;left:0;right:0;background:#fff;border:1px solid rgba(30,35,31,.2);border-top:none;z-index:10;max-height:180px;overflow-y:auto;box-shadow:0 8px 24px rgba(0,0,0,.12)">
-                          <sc-for list="{{ meestCitySugg }}" as="mc" hint-placeholder-count="3">
-                            <button onClick="{{ mc.pick }}" style="width:100%;text-align:left;padding:10px 12px;font-size:13px;border-bottom:1px solid rgba(30,35,31,.08);transition:background .2s" style-hover="background:#f4eee5">{{ mc.label }}</button>
-                          </sc-for>
-                        </div>
-                      </sc-if>
-                    </div>
-                    <sc-if value="{{ hasMeestBranches }}" hint-placeholder-val="{{ false }}">
-                      <div>
-                        <span style="font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:#6c7166;display:block;margin-bottom:4px">{{ meestPickupLabel }} <span style="color:#8a8f84;font-size:10px">({{ meestBranchCount }} шт.)</span></span>
-                        <select value="{{ coMeestBranch }}" onChange="{{ setMeestBranch }}" style="width:100%;background:#fff;border:1px solid {{ coErrMeestBranch }};padding:10px 12px;font-size:12px;color:#1e231f;outline:none;font-family:'Manrope',sans-serif;cursor:pointer">
-                          <option value="">{{ meestPickupPlaceholder }}</option>
-                          <sc-for list="{{ meestBranchOpts }}" as="mb" hint-placeholder-count="3"><option value="{{ mb.val }}">{{ mb.label }}</option></sc-for>
-                        </select>
-                      </div>
-                    </sc-if>
-                    <sc-if value="{{ meestCityChosenNoBranches }}" hint-placeholder-val="{{ false }}">
-                      <div style="background:#fff8f0;border:1px solid rgba(167,97,63,.25);padding:12px;font-size:12.5px;color:#a7613f;line-height:1.5">В обраному місті немає {{ meestPickupLabelLower }} Meest. Спробуйте інший тип або місто.</div>
-                    </sc-if>
-                  </sc-if>
-                  <sc-if value="{{ meestNoData }}" hint-placeholder-val="{{ false }}">
-                    <div style="background:#f4eee5;border:1px solid rgba(30,35,31,.15);padding:14px;font-size:12.5px;color:#6c7166;line-height:1.6">
-                      Дані відділень Meest не завантажені.<br>Завантажте ZIP-архів в <b>Адмінці → Налаштування → Meest</b>.
-                    </div>
-                  </sc-if>
-                </sc-if>
-              </div>
-            </sc-if>
+
           </div>
           <!-- промокод + підсумок (тільки мобільний — вбудований у форму) -->
           <sc-if value="{{ coMobileSummary }}" hint-placeholder-val="{{ false }}">
@@ -2431,8 +2392,8 @@ class Component extends DCLogic {
     const fmt=this.fmt.bind(this);
     const cartCount=S.cart.reduce((a,c)=>a+c.qty,0);
     const cartSub=S.cart.reduce((a,c)=>a+c.price*c.qty,0);
-    const shipMap={np:60,ukr:45,meest:70}; const shipNames={np:'Нова Пошта',ukr:'Укрпошта',meest:'Meest Express'};
-    const shipEta={np:'1–2 дні · відділення/поштомат',ukr:'2–4 дні · по всій Україні',meest:'2–3 дні · відділення'};
+    const shipMap={np:60,ukr:45}; const shipNames={np:'Нова Пошта',ukr:'Укрпошта'};
+    const shipEta={np:'1–2 дні · відділення/поштомат',ukr:'2–4 дні · по всій Україні'};
     const ship = cartSub>=2500?0:(shipMap[S.delivery]);
     const cartTotal=cartSub+ship;
 
@@ -2617,7 +2578,7 @@ class Component extends DCLogic {
       this.setState({contactDone:true});};
     const faqData=[
       ['Як підібрати розмір?','На кожній картці товару є таблиця розмірів і порада від стиліста. Якщо вагаєтесь — напишіть нам у Direct, допоможемо обрати.'],
-      ['Скільки триває доставка?','Нова Пошта — 1–2 дні, Укрпошта — 2–4 дні, Meest — 2–3 дні. Відправляємо щодня до 14:00.'],
+      ['Скільки триває доставка?','Нова Пошта — 1–2 дні, Укрпошта — 2–4 дні. Відправляємо щодня до 14:00.'],
       ['Чи можна повернути товар?','Так, протягом 7 днів без пояснення причин. Річ має бути з бирками й без слідів носіння.'],
       ['Які способи оплати?','Ми працюємо виключно по передплаті — це гарантує безпеку угоди для обох сторін. Оплата картою (Visa/Mastercard), Apple Pay та Google Pay. Після підтвердження замовлення менеджер надішле реквізити або посилання на оплату.'],
       ['Чи є великі розміри?','Так! Наш асортимент включає розміри від XS до 9XL. Фільтруйте за розміром у каталозі або напишіть нам — підберемо модель саме для вас.']
@@ -2671,7 +2632,7 @@ class Component extends DCLogic {
       faqPageOpen:S.faqPageOpen,
       faqPageList:[
         ['Як підібрати розмір?','На кожній картці товару є таблиця розмірів і порада від стиліста. Якщо сумніваєтесь — напишіть нам у Direct або на email, ми допоможемо обрати.'],
-        ['Скільки триває доставка?','Нова Пошта — 1–2 дні, Укрпошта — 2–4 дні, Meest — 2–3 дні. Відправляємо щодня до 14:00.'],
+        ['Скільки триває доставка?','Нова Пошта — 1–2 дні, Укрпошта — 2–4 дні. Відправляємо щодня до 14:00.'],
         ['Чи можна повернути товар?','Так, протягом 7 днів без пояснення причин. Річ має бути з бирками й без слідів носіння.'],
         ['Які способи оплати?','Виключно передплата: Visa/Mastercard, Apple Pay, Google Pay. Після підтвердження замовлення ми надішлемо посилання на оплату.'],
         ['Як застосувати промокод?','Введіть код у відповідне поле при оформленні замовлення та натисніть «Застосувати».'],
@@ -2854,8 +2815,7 @@ class Component extends DCLogic {
       coErrUkrCity:S.coErr.ukrCity?'#a7613f':'rgba(30,35,31,.2)',
       coErrUkrStreet:S.coErr.ukrStreet?'#a7613f':'rgba(30,35,31,.2)',
       coErrUkrHouse:S.coErr.ukrHouse?'#a7613f':'rgba(30,35,31,.2)',
-      coErrMeestCity:S.coErr.meestCity?'#a7613f':'rgba(30,35,31,.2)',
-      coErrMeestBranch:S.coErr.meestBranch?'#a7613f':'rgba(30,35,31,.2)',
+
       // layout
       coBodyCols:isMobile?'1fr':'1fr 300px',
       coMobileFooter:isMobile,
@@ -2864,17 +2824,14 @@ class Component extends DCLogic {
       coFormPadBottom:isMobile?'90px':'32px',
       coLeftPadding:isMobile?'':'padding-right:20px',
       // delivery type tabs
-      coIsNp:S.coDeliveryType==='np', coIsUkr:S.coDeliveryType==='ukr', coIsMeest:S.coDeliveryType==='meest',
+      coIsNp:S.coDeliveryType==='np', coIsUkr:S.coDeliveryType==='ukr',
       coNpTabBg:S.coDeliveryType==='np'?'#28332c':'transparent',
       coNpTabColor:S.coDeliveryType==='np'?'#f1ebe1':'#1e231f',
       coUkrTabBg:S.coDeliveryType==='ukr'?'#28332c':'transparent',
       coUkrTabColor:S.coDeliveryType==='ukr'?'#f1ebe1':'#1e231f',
-      coMeestTabBg:S.coDeliveryType==='meest'?'#28332c':'transparent',
-      coMeestTabColor:S.coDeliveryType==='meest'?'#f1ebe1':'#1e231f',
-      coDeliveryName:{np:'Нова Пошта',ukr:'Укрпошта',meest:'Meest'}[S.coDeliveryType]||'Нова Пошта',
+      coDeliveryName:{np:'Нова Пошта',ukr:'Укрпошта'}[S.coDeliveryType]||'Нова Пошта',
       setDeliveryNp:()=>this.setState({coDeliveryType:'np',coErr:{}}),
       setDeliveryUkr:()=>this.setState({coDeliveryType:'ukr',coErr:{}}),
-      setDeliveryMeest:()=>this.setState({coDeliveryType:'meest',coErr:{}}),
       // NP branch/locker tabs
       npBranchBg:S.coNpType==='branch'?'#28332c':'transparent',
       npBranchColor:S.coNpType==='branch'?'#f1ebe1':'#1e231f',
@@ -2907,36 +2864,6 @@ class Component extends DCLogic {
       setUkrApt:(e)=>this.setState(s=>({co:{...s.co,ukrApt:e.target.value}})),
       setUkrZip:(e)=>this.setState(s=>({co:{...s.co,ukrZip:e.target.value}})),
       ukrOblastOpts:[{val:'',label:'Оберіть область...'},...['Вінницька','Волинська','Дніпропетровська','Донецька','Житомирська','Закарпатська','Запорізька','Івано-Франківська','Київська','Кіровоградська','Луганська','Львівська','Миколаївська','Одеська','Полтавська','Рівненська','Сумська','Тернопільська','Харківська','Херсонська','Хмельницька','Черкаська','Чернівецька','Чернігівська','м. Київ'].map(o=>({val:o,label:o}))],
-      // Meest
-      coMeestCity:S.co.meestCity||'', coMeestBranch:S.co.meestBranch||'',
-      coMeestCourierCity:S.co.meestCourierCity||'', coMeestCourierStreet:S.co.meestCourierStreet||'',
-      coMeestCourierHouse:S.co.meestCourierHouse||'', coMeestCourierApt:S.co.meestCourierApt||'',
-      meestIsPickupMode:true,
-      meestIsBranchMode:S.coMeestMode==='branch',
-      meestIsLockerMode:S.coMeestMode==='locker',
-      meestBranchModeBg:S.coMeestMode==='branch'?'#28332c':'#fff',
-      meestBranchModeColor:S.coMeestMode==='branch'?'#f1ebe1':'#6c7166',
-      meestLockerModeBg:S.coMeestMode==='locker'?'#28332c':'#fff',
-      meestLockerModeColor:S.coMeestMode==='locker'?'#f1ebe1':'#6c7166',
-      meestPickupLabel:S.coMeestMode==='locker'?'Поштомат':'Відділення',
-      meestPickupLabelLower:S.coMeestMode==='locker'?'поштоматів':'відділень',
-      meestPickupPlaceholder:S.coMeestMode==='locker'?'Оберіть поштомат...':'Оберіть відділення...',
-      setMeestBranchMode:()=>{ this.setState(s=>({coMeestMode:'branch',co:{...s.co,meestBranch:''},meestBranches:[],meestBranchesLoaded:false,coErr:{...s.coErr,meestBranch:null}})); if(this.state.co.meestCityUid) this._loadMeestBranches(this.state.co.meestCityUid,'branch'); },
-      setMeestLockerMode:()=>{ this.setState(s=>({coMeestMode:'locker',co:{...s.co,meestBranch:''},meestBranches:[],meestBranchesLoaded:false,coErr:{...s.coErr,meestBranch:null}})); if(this.state.co.meestCityUid) this._loadMeestBranches(this.state.co.meestCityUid,'locker'); },
-      meestHasData:true,
-      meestNoData:false,
-      meestCitySugg:S.meestCities.map(c=>({label:c.name+(c.type?' ('+c.type+')':''),pick:()=>{ this.setState(s=>({co:{...s.co,meestCity:c.name,meestCityUid:c.uid,meestBranch:''},meestCities:[],meestBranches:[],coErr:{...s.coErr,meestCity:null}})); this._loadMeestBranches(c.uid, S.coMeestMode); }})),
-      hasMeestCitySugg:S.meestCities.length>0,
-      meestBranchOpts:S.meestBranches.map(b=>({val:b.uid,label:[b.name,b.address].filter(Boolean).join(' — ')})),
-      hasMeestBranches:S.meestBranches.length>0,
-      meestBranchCount:S.meestBranches.length,
-      meestCityChosenNoBranches:!!(S.co.meestCityUid && !S.meestBranches.length && S.meestBranchesLoaded),
-      setMeestCity:(e)=>{ const v=e.target.value; clearTimeout(this._meestCityT); this.setState(s=>({co:{...s.co,meestCity:v,meestCityUid:'',meestBranch:''},meestCities:[],meestBranches:[],meestBranchesLoaded:false,coErr:{...s.coErr,meestCity:null}})); if(!v||v.length<2) return; this._meestCityT=setTimeout(async ()=>{ try{ const r=await fetch('/api/?action=cities&q='+encodeURIComponent(v)+'&limit=8'); const data=await r.json(); this.setState({meestCities:data}); }catch(e){} },200); },
-      setMeestBranch:(e)=>this.setState(s=>({co:{...s.co,meestBranch:e.target.value},coErr:{...s.coErr,meestBranch:null}})),
-      setMeestCourierCity:(e)=>this.setState(s=>({co:{...s.co,meestCourierCity:e.target.value},coErr:{...s.coErr,meestCourierCity:null}})),
-      setMeestCourierStreet:(e)=>this.setState(s=>({co:{...s.co,meestCourierStreet:e.target.value},coErr:{...s.coErr,meestCourierStreet:null}})),
-      setMeestCourierHouse:(e)=>this.setState(s=>({co:{...s.co,meestCourierHouse:e.target.value},coErr:{...s.coErr,meestCourierHouse:null}})),
-      setMeestCourierApt:(e)=>this.setState(s=>({co:{...s.co,meestCourierApt:e.target.value}})),
       npSearching:S.coSearching,
       hasCitySugg:S.coCities.length>0,
       citySugg:S.coCities.map(c=>({ label:(c.Present||c.Description||''), pick:()=>{ const ref=c.DeliveryCity||c.Ref||''; const cityName=c.MainDescription||c.Description||''; this.setState(s=>({co:{...s.co,cityQ:c.Present||c.Description,cityRef:ref},coCities:[],coNpWhFilter:'',coWarehouses:[]})); this._npWarehouses(ref, cityName); } })),
@@ -2986,9 +2913,6 @@ class Component extends DCLogic {
           if(!co.ukrCity||co.ukrCity.trim().length<2) err.ukrCity=true;
           if(!co.ukrStreet||co.ukrStreet.trim().length<2) err.ukrStreet=true;
           if(!co.ukrHouse||co.ukrHouse.trim().length<1) err.ukrHouse=true;
-        } else if(S.coDeliveryType==='meest'){
-          if(!co.meestCity||co.meestCity.trim().length<2) err.meestCity=true;
-          if(!co.meestBranch||co.meestBranch.trim().length<1) err.meestBranch=true;
         }
         if(Object.keys(err).length){ this.setState({coErr:err}); return; }
         const orderNum='MRL-'+Date.now().toString(36).toUpperCase().slice(-6);
@@ -2996,15 +2920,15 @@ class Component extends DCLogic {
         const disc = S.coPromoApplied ? Math.round(cartSub*S.coPromoDiscount/100) : 0;
         const shipCost = S.coDeliveryType==='ukr'?45:60;
         const sh = cartSub>=2500?0:shipCost;
-        const deliveryInfo = S.coDeliveryType==='ukr'?{carrier:'Укрпошта',city:co.ukrCity,oblast:co.ukrOblast,street:co.ukrStreet,house:co.ukrHouse,apt:co.ukrApt,zip:co.ukrZip}:S.coDeliveryType==='meest'?{carrier:'Meest',city:co.meestCity,warehouse:co.meestBranch}:{carrier:'Нова Пошта',city:co.cityQ,warehouse:co.warehouse};
+        const deliveryInfo = S.coDeliveryType==='ukr'?{carrier:'Укрпошта',city:co.ukrCity,oblast:co.ukrOblast,street:co.ukrStreet,house:co.ukrHouse,apt:co.ukrApt,zip:co.ukrZip}:{carrier:'Нова Пошта',city:co.cityQ,warehouse:co.warehouse};
         const total = cartSub-disc+sh;
         orders.push({id:orderNum,date:new Date().toISOString(),items:S.cart,name:co.name,phone:co.phone,email:co.email,...deliveryInfo,promo:S.coPromoApplied?S.coPromo:'',total});
         try { localStorage.setItem('mrl_orders', JSON.stringify(orders)); } catch(e){}
         try { localStorage.setItem('mrl_cart','[]'); } catch(e){}
         this.setState({cart:[],coDone:true,coOrderNum:orderNum,coPromoApplied:false,coPromoDiscount:0,coPromo:'',checkoutOpen:false,orderSuccess:true,orderSuccessNum:orderNum});
         // Persist to backend (best-effort)
-        const cityStr = S.coDeliveryType==='ukr'?(co.ukrCity+', '+co.ukrOblast):S.coDeliveryType==='meest'?co.meestCity:co.cityQ;
-        const addrStr = S.coDeliveryType==='ukr'?(co.ukrStreet+', '+co.ukrHouse+(co.ukrApt?'/'+co.ukrApt:'')):S.coDeliveryType==='meest'?co.meestBranch:co.warehouse;
+        const cityStr = S.coDeliveryType==='ukr'?(co.ukrCity+', '+co.ukrOblast):co.cityQ;
+        const addrStr = S.coDeliveryType==='ukr'?(co.ukrStreet+', '+co.ukrHouse+(co.ukrApt?'/'+co.ukrApt:'')):co.warehouse;
         fetch('/api/?action=order',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
           order_num:orderNum,customer_name:co.name,customer_phone:co.phone,customer_email:co.email,
           city:cityStr,address:addrStr,items:S.cart,subtotal:cartSub,discount:disc,shipping_cost:sh,total,
